@@ -29,7 +29,16 @@ export class ClothingService {
   private hasMigratedToSupabase = false;
 
   constructor(private supabaseService: SupabaseService) {
-    this.initializeService();
+    // Wait for user authentication before initializing
+    this.supabaseService.currentUser$.subscribe(user => {
+      if (user) {
+        console.log('👤 User authenticated, initializing clothing service for:', user.email);
+        this.initializeService();
+      } else {
+        console.log('🚫 No user authenticated, clearing clothing items');
+        this.clothingItemsSubject.next([]);
+      }
+    });
   }
 
   /**
@@ -62,12 +71,21 @@ export class ClothingService {
   }
 
   /**
-   * Load items from Supabase
+   * Load items from Supabase (user-specific)
    */
   private async loadItemsFromSupabase(): Promise<void> {
     try {
+      const currentUser = this.supabaseService.getCurrentUser();
+      if (!currentUser) {
+        console.log('🚫 No authenticated user, skipping data load');
+        return;
+      }
+
+      console.log(`📂 Loading clothing items for user: ${currentUser.email}`);
+      
       const { data, error } = await this.supabaseService.db
         .select('*')
+        .eq('user_id', currentUser.id)  // 🔥 Filter by current user!
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -135,9 +153,15 @@ export class ClothingService {
    */
   private async migrateItemToSupabase(item: ClothingItem): Promise<void> {
     try {
+      const currentUser = this.supabaseService.getCurrentUser();
+      if (!currentUser) {
+        console.log('🚫 No authenticated user, skipping migration');
+        return;
+      }
+
       const { error } = await this.supabaseService.db.insert({
         id: item.id,
-        user_id: null, // Anonymous for now
+        user_id: currentUser.id, // 🔥 Migrate to current user!
         category: item.category,
         image_url: item.imageUrl,
         thumbnail_url: item.thumbnailUrl,
@@ -244,9 +268,14 @@ export class ClothingService {
       }
 
       // Create database record
+      const currentUser = this.supabaseService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+
       const newItem = {
         id: itemId,
-        user_id: null, // Anonymous for now
+        user_id: currentUser.id, // 🔥 Set correct user ID!
         category,
         image_url: imageUpload.url,
         thumbnail_url: thumbnailUpload.url,
@@ -330,10 +359,15 @@ export class ClothingService {
       // If online, try to save to Supabase database with base64 images
       if (this.isOnline) {
         try {
+          const currentUser = this.supabaseService.getCurrentUser();
+          if (!currentUser) {
+            throw new Error('User not authenticated');
+          }
+
           const itemId = uuidv4();
           const newItem = {
             id: itemId,
-            user_id: null,
+            user_id: currentUser.id, // 🔥 Set correct user ID!
             category,
             image_url: imageUrl,
             thumbnail_url: thumbnailUrl,
@@ -377,9 +411,10 @@ export class ClothingService {
       }
 
       // Fallback to pure localStorage
+      const currentUser = this.supabaseService.getCurrentUser();
       const newItem: ClothingItem = {
         id: uuidv4(),
-        userId: 'local-user',
+        userId: currentUser?.id || 'local-user',
         category,
         imageUrl,
         thumbnailUrl,
@@ -421,13 +456,19 @@ export class ClothingService {
    */
   private async deleteItemFromSupabase(itemId: string): Promise<boolean> {
     try {
+      const currentUser = this.supabaseService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+
       // Get item details for image cleanup
       const item = this.clothingItemsSubject.value.find(i => i.id === itemId);
       
-      // Delete from database
+      // Delete from database (user-scoped for security)
       const { error } = await this.supabaseService.db
         .delete()
-        .eq('id', itemId);
+        .eq('id', itemId)
+        .eq('user_id', currentUser.id); // 🔥 Security: only delete own items!
 
       if (error) {
         throw error;
@@ -483,6 +524,11 @@ export class ClothingService {
    */
   private async updateItemInSupabase(updatedItem: Partial<ClothingItem> & { id: string }): Promise<ClothingItem | null> {
     try {
+      const currentUser = this.supabaseService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+
       const updateData = {
         category: updatedItem.category,
         colors: updatedItem.colors,
@@ -494,6 +540,7 @@ export class ClothingService {
       const { data, error } = await this.supabaseService.db
         .update(updateData)
         .eq('id', updatedItem.id)
+        .eq('user_id', currentUser.id) // 🔥 Security: only update own items!
         .select()
         .single();
 
