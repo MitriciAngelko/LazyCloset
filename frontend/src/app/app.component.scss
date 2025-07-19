@@ -21,8 +21,23 @@
   }
 
   .spacer {
-    flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .user-email {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    
+    @media (max-width: 768px) {
+      display: none; // Hide email on mobile to save space
+    }
   }
+}
 }
 
 .main-tabs {

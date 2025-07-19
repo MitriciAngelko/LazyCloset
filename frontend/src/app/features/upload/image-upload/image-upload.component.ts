@@ -1,7 +1,14 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClothingService } from '../../../core/services/clothing.service';
-import { ClothingCategory, ClothingColor, UploadResult } from '../../../shared/models';
+import { ClothingCategory, ClothingColor } from '../../../shared/models/clothing.models';
+
+// Use the same interface as ClothingService
+interface ClothingUploadResult {
+  success: boolean;
+  item?: any;
+  error?: string;
+}
 
 @Component({
   selector: 'app-image-upload',
@@ -136,7 +143,7 @@ export class ImageUploadComponent {
       this.selectedColors,
       tags
     ).subscribe({
-      next: (result: UploadResult) => {
+      next: (result: ClothingUploadResult) => {
         this.isUploading = false;
         if (result.success) {
           this.snackBar.open('Image uploaded successfully!', 'Close', {

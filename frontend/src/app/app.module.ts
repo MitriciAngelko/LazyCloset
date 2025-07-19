@@ -19,24 +19,23 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
-import { ImageUploadComponent } from './features/upload/image-upload/image-upload.component';
-import { ClosetViewComponent } from './features/closet/closet-view/closet-view.component';
+import { UploadModule } from './features/upload/upload.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    ImageUploadComponent,
-    ClosetViewComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
     NoopAnimationsModule,
     FormsModule,
     AppRoutingModule,
+    UploadModule,
     
     // Angular Material Modules
     MatCardModule,
@@ -54,6 +53,7 @@ import { ClosetViewComponent } from './features/closet/closet-view/closet-view.c
     MatChipsModule,
     MatTabsModule,
     MatSelectModule,
+    MatMenuModule,
     
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

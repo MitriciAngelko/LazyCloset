@@ -1,0 +1,83 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to access your closet</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Email Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+        />
+        <mat-icon matSuffix>email</mat-icon>
+        <mat-error *ngIf="email?.touched && email?.errors?.['required']">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="email?.touched && email?.errors?.['email']">
+          Please enter a valid email address
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Password Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+        />
+        <mat-icon matSuffix>lock</mat-icon>
+        <mat-error *ngIf="password?.touched && password?.errors?.['required']">
+          Password is required
+        </mat-error>
+        <mat-error *ngIf="password?.touched && password?.errors?.['minlength']">
+          Password must be at least 6 characters long
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        class="login-button full-width"
+        [disabled]="loading"
+      >
+        <mat-spinner *ngIf="loading" diameter="20" class="login-spinner"></mat-spinner>
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">Signing In...</span>
+      </button>
+
+      <!-- Register Link -->
+      <div class="register-link">
+        <p>
+          Don't have an account?
+          <button
+            mat-button
+            color="primary"
+            type="button"
+            (click)="navigateToRegister()"
+            [disabled]="loading"
+          >
+            Create Account
+          </button>
+        </p>
+      </div>
+    </form>
+  </div>
+</div> 

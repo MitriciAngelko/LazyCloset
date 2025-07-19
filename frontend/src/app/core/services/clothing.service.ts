@@ -6,10 +6,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { 
   ClothingItem, 
   ClothingCategory, 
-  ClothingColor, 
-  UploadResult 
-} from '../../shared/models';
+  ClothingColor 
+} from '../../shared/models/clothing.models';
 import { SupabaseService } from './supabase.service';
+
+// Temporary interface for upload results
+interface ClothingUploadResult {
+  success: boolean;
+  item?: ClothingItem;
+  error?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -175,7 +181,7 @@ export class ClothingService {
     category: ClothingCategory, 
     colors: ClothingColor[] = [],
     tags: string[] = []
-  ): Observable<UploadResult> {
+  ): Observable<ClothingUploadResult> {
     if (this.isOnline) {
       return from(this.processImageUploadToSupabase(file, category, colors, tags)).pipe(
         catchError(error => {
@@ -201,7 +207,7 @@ export class ClothingService {
     category: ClothingCategory, 
     colors: ClothingColor[],
     tags: string[]
-  ): Promise<UploadResult> {
+  ): Promise<ClothingUploadResult> {
     try {
       const itemId = uuidv4();
       
@@ -297,7 +303,7 @@ export class ClothingService {
     category: ClothingCategory, 
     colors: ClothingColor[],
     tags: string[]
-  ): Promise<UploadResult> {
+  ): Promise<ClothingUploadResult> {
     try {
       // Compress the main image
       const compressedFile = await imageCompression(file, {

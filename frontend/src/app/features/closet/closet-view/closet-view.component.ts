@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil, combineLatest, BehaviorSubject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 import { ClothingService } from '../../../core/services/clothing.service';
-import { ClothingItem, ClothingCategory, ClothingColor } from '../../../shared/models';
+import { SupabaseService } from '../../../core/services/supabase.service';
+import { ClothingItem, ClothingCategory, ClothingColor } from '../../../shared/models/clothing.models';
 
 @Component({
   selector: 'app-closet-view',
@@ -34,12 +35,22 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   constructor(
     private clothingService: ClothingService,
+    private supabaseService: SupabaseService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    this.loadClothingItems();
-    this.setupFilters();
+    // Wait for user authentication before loading items
+    this.supabaseService.currentUser$
+      .pipe(
+        filter(user => user !== null), // Only proceed when user is authenticated
+        takeUntil(this.destroy$)
+      )
+      .subscribe(user => {
+        console.log('👤 Authenticated user in closet:', user?.email);
+        this.loadClothingItems();
+        this.setupFilters();
+      });
   }
 
   ngOnDestroy(): void {
@@ -187,7 +198,7 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   /**
    * Get color display for item
    */
-  getColorDisplay(colors: ClothingColor[]): string {
+  getColorDisplay(colors: ClothingColor[] | readonly ClothingColor[]): string {
     if (colors.length === 0) return 'No colors specified';
     if (colors.length === 1) return colors[0].charAt(0).toUpperCase() + colors[0].slice(1);
     return `${colors.length} colors`;

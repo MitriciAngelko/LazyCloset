@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { BehaviorSubject } from 'rxjs';
+import { createClient, SupabaseClient, User, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface Database {
@@ -82,6 +82,11 @@ export interface Database {
 })
 export class SupabaseService {
   private supabase: SupabaseClient<Database>;
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  private sessionSubject = new BehaviorSubject<Session | null>(null);
+
+  public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  public session$: Observable<Session | null> = this.sessionSubject.asObservable();
 
   constructor() {
     this.supabase = createClient<Database>(
@@ -89,14 +94,86 @@ export class SupabaseService {
       environment.supabase.anonKey,
       {
         auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-          detectSessionInUrl: false
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
         }
       }
     );
 
-    console.log('Supabase client initialized (auth disabled)');
+    // Initialize auth state
+    this.initializeAuth();
+    console.log('Supabase client initialized with authentication enabled');
+  }
+
+  /**
+   * Initialize authentication state and listen for auth changes
+   */
+  private async initializeAuth(): Promise<void> {
+    // Get initial session
+    const { data: { session } } = await this.supabase.auth.getSession();
+    this.sessionSubject.next(session);
+    this.currentUserSubject.next(session?.user || null);
+
+    // Listen for auth changes
+    this.supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
+      console.log('Auth state changed:', event, session?.user?.email || 'No user');
+      this.sessionSubject.next(session);
+      this.currentUserSubject.next(session?.user || null);
+    });
+  }
+
+  // Authentication Methods
+  
+  /**
+   * Sign up with email and password
+   */
+  async signUp(email: string, password: string): Promise<{ user: User | null; error: any }> {
+    const { data, error } = await this.supabase.auth.signUp({
+      email,
+      password
+    });
+    return { user: data.user, error };
+  }
+
+  /**
+   * Sign in with email and password
+   */
+  async signIn(email: string, password: string): Promise<{ user: User | null; error: any }> {
+    const { data, error } = await this.supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    return { user: data.user, error };
+  }
+
+  /**
+   * Sign out current user
+   */
+  async signOut(): Promise<{ error: any }> {
+    const { error } = await this.supabase.auth.signOut();
+    return { error };
+  }
+
+  /**
+   * Get current user
+   */
+  getCurrentUser(): User | null {
+    return this.currentUserSubject.value;
+  }
+
+  /**
+   * Get current session
+   */
+  getCurrentSession(): Session | null {
+    return this.sessionSubject.value;
+  }
+
+  /**
+   * Check if user is authenticated
+   */
+  isAuthenticated(): boolean {
+    return this.currentUserSubject.value !== null;
   }
 
   // Database Methods

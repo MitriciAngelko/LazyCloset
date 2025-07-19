@@ -1,1 +1,17 @@
-export * from './clothing.models'; 
+// Legacy Models (for backward compatibility)
+export * from './clothing.models';
+
+// Domain Models
+export * from './domain/clothing.model';
+export * from './domain/outfit.model';
+export * from './domain/upload.model';
+
+// Infrastructure Types
+export * from './infrastructure/supabase.types';
+
+// Application DTOs
+export * from './dtos/clothing.dto';
+
+// Common Types
+export * from './common/result.model';
+export * from './common/pagination.model'; 
