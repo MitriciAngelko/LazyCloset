@@ -1,0 +1,106 @@
+<div class="upload-container">
+  <mat-card class="upload-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>cloud_upload</mat-icon>
+        Add Clothing Item
+      </mat-card-title>
+      <mat-card-subtitle>Upload photos of your clothes to build your virtual closet</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- File Upload Area -->
+      <div class="upload-section">
+        <div 
+          class="drop-zone"
+          [class.drag-over]="isDragOver"
+          [class.has-file]="previewUrl"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          (click)="openFilePicker()">
+          
+          <!-- Preview Image -->
+          <div *ngIf="previewUrl" class="preview-container">
+            <img [src]="previewUrl" alt="Preview" class="preview-image">
+            <button mat-icon-button class="remove-btn" (click)="removeImage(); $event.stopPropagation()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Upload Prompt -->
+          <div *ngIf="!previewUrl" class="upload-prompt">
+            <mat-icon class="upload-icon">cloud_upload</mat-icon>
+            <h3>Drag & Drop Your Image</h3>
+            <p>or click to browse files</p>
+            <small>Supports JPEG, PNG, WebP (max 10MB)</small>
+          </div>
+        </div>
+
+        <!-- Hidden File Input -->
+        <input 
+          #fileInput
+          type="file" 
+          accept="image/*" 
+          style="display: none;"
+          (change)="onFileSelected($event)">
+      </div>
+
+      <!-- Category Selection -->
+      <div class="form-section">
+        <h4>Category</h4>
+        <mat-radio-group [(ngModel)]="selectedCategory" class="category-group">
+          <mat-radio-button *ngFor="let category of categories" [value]="category" class="category-option">
+            {{ getCategoryDisplayName(category) }}
+          </mat-radio-button>
+        </mat-radio-group>
+      </div>
+
+      <!-- Color Selection -->
+      <div class="form-section">
+        <h4>Colors (Optional)</h4>
+        <div class="color-grid">
+          <button 
+            *ngFor="let color of colors"
+            mat-mini-fab
+            [class]="'color-btn color-' + color"
+            [class.selected]="isColorSelected(color)"
+            (click)="toggleColor(color)"
+            [title]="getColorDisplayName(color)">
+            <mat-icon *ngIf="isColorSelected(color)">check</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tags Input -->
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tags (Optional)</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="customTags"
+            placeholder="casual, summer, work (comma separated)">
+          <mat-hint>Add tags to help organize your clothes</mat-hint>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button 
+        mat-button 
+        (click)="resetForm()"
+        [disabled]="isUploading">
+        Clear
+      </button>
+      <button 
+        mat-raised-button 
+        color="primary"
+        (click)="uploadImage()"
+        [disabled]="!selectedFile || isUploading">
+        <mat-icon *ngIf="!isUploading">save</mat-icon>
+        <mat-spinner *ngIf="isUploading" diameter="20"></mat-spinner>
+        {{ isUploading ? 'Uploading...' : 'Save Item' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>

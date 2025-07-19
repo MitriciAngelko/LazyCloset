@@ -1,0 +1,151 @@
+<div class="closet-container">
+  <!-- Header -->
+  <mat-card class="filters-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>inventory_2</mat-icon>
+        My Closet
+      </mat-card-title>
+      <mat-card-subtitle>{{ getItemsCountText() }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Search and Filters Row -->
+      <div class="filters-row">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search clothes</mat-label>
+          <input 
+            matInput 
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange(searchTerm)"
+            placeholder="Search by name or tags...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Category Filter -->
+        <mat-form-field appearance="outline" class="category-field">
+          <mat-label>Category</mat-label>
+          <mat-select [(value)]="selectedCategory" (selectionChange)="onCategoryChange($event.value)">
+            <mat-option value="all">All Categories</mat-option>
+            <mat-option *ngFor="let category of categories" [value]="category">
+              {{ getCategoryDisplayName(category) }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <!-- Left side controls -->
+        <div class="toolbar-left">
+          <button 
+            mat-button 
+            [color]="showOnlyFavorites ? 'primary' : ''"
+            (click)="onToggleFavorites()">
+            <mat-icon>{{ showOnlyFavorites ? 'favorite' : 'favorite_border' }}</mat-icon>
+            Favorites Only
+          </button>
+
+          <button mat-button (click)="clearFilters()" *ngIf="searchTerm || selectedCategory !== 'all' || showOnlyFavorites">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+          </button>
+        </div>
+
+        <!-- Right side controls -->
+        <div class="toolbar-right">
+          <button mat-icon-button (click)="toggleViewMode()" [title]="viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'">
+            <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your closet...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && clothingItems.length === 0" class="empty-state">
+    <mat-icon class="empty-icon">checkroom</mat-icon>
+    <h2>Your closet is empty</h2>
+    <p>Start building your virtual closet by uploading photos of your clothes!</p>
+    <button mat-raised-button color="primary" routerLink="/upload">
+      <mat-icon>add</mat-icon>
+      Add First Item
+    </button>
+  </div>
+
+  <!-- No Results State -->
+  <div *ngIf="!isLoading && clothingItems.length > 0 && filteredItems.length === 0" class="no-results-state">
+    <mat-icon class="no-results-icon">search_off</mat-icon>
+    <h3>No items match your filters</h3>
+    <p>Try adjusting your search terms or category filter.</p>
+    <button mat-button (click)="clearFilters()">
+      <mat-icon>clear</mat-icon>
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Items Grid -->
+  <div *ngIf="!isLoading && filteredItems.length > 0" class="items-container">
+    <div [class]="'items-' + viewMode">
+      <mat-card 
+        *ngFor="let item of filteredItems; trackBy: trackByItemId" 
+        class="item-card"
+        [class.favorite]="item.isFavorite">
+        
+        <!-- Image Container -->
+        <div class="image-container">
+          <img [src]="item.thumbnailUrl" [alt]="item.originalFileName" class="item-image">
+          
+          <!-- Overlay Actions -->
+          <div class="image-overlay">
+            <button mat-icon-button class="favorite-btn" (click)="toggleFavorite(item)">
+              <mat-icon [color]="item.isFavorite ? 'primary' : ''">
+                {{ item.isFavorite ? 'favorite' : 'favorite_border' }}
+              </mat-icon>
+            </button>
+            
+            <button mat-icon-button class="delete-btn" (click)="deleteItem(item)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <!-- Category Badge -->
+          <div class="category-badge">
+            {{ getCategoryDisplayName(item.category) }}
+          </div>
+        </div>
+
+        <!-- Item Info -->
+        <mat-card-content class="item-info">
+          <h4 class="item-title">{{ item.originalFileName }}</h4>
+          
+          <div class="item-details">
+            <div class="detail-row">
+              <mat-icon class="detail-icon">palette</mat-icon>
+              <span>{{ getColorDisplay(item.colors) }}</span>
+            </div>
+            
+            <div class="detail-row" *ngIf="item.tags.length > 0">
+              <mat-icon class="detail-icon">local_offer</mat-icon>
+              <div class="tags-container">
+                <mat-chip *ngFor="let tag of item.tags" class="tag-chip">{{ tag }}</mat-chip>
+              </div>
+            </div>
+            
+            <div class="detail-row">
+              <mat-icon class="detail-icon">schedule</mat-icon>
+              <span>{{ getFormattedDate(item.createdAt) }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
