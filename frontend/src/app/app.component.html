@@ -11,10 +11,15 @@
         
         <!-- User Menu -->
         <mat-menu #userMenu="matMenu">
+          <button mat-menu-item [routerLink]="'/outfit-generator'">
+            <mat-icon>checkroom</mat-icon>
+            <span>Outfit Generator</span>
+          </button>
           <button mat-menu-item [routerLink]="'/closet'">
             <mat-icon>inventory_2</mat-icon>
             <span>My Closet</span>
           </button>
+          <mat-divider></mat-divider>
           <button mat-menu-item (click)="onSignOut()">
             <mat-icon>logout</mat-icon>
             <span>Sign Out</span>

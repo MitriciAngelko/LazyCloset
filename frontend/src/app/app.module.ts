@@ -21,6 +21,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -55,6 +56,7 @@ import { UploadModule } from './features/upload/upload.module';
     MatTabsModule,
     MatSelectModule,
     MatMenuModule,
+    MatDividerModule,
     RouterModule,
     
     ServiceWorkerModule.register('ngsw-worker.js', {
