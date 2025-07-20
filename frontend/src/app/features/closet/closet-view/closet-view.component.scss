@@ -696,6 +696,11 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
     
+    &.edit-btn:hover {
+      background: #e3f2fd;
+      color: #2196f3;
+    }
+    
     &.delete-btn:hover {
       background: #ffebee;
       color: #f44336;

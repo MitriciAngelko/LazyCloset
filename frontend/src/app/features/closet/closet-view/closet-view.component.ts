@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil, combineLatest, BehaviorSubject } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { ClothingService } from '../../../core/services/clothing.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { CategoryService, CategoryInfo } from '../../../core/services/category.service';
 import { ClothingItem, ClothingCategory, ClothingColor } from '../../../shared/models/clothing.models';
+import { ItemEditModalComponent } from '../item-edit-modal/item-edit-modal.component';
 
 @Component({
   selector: 'app-closet-view',
@@ -42,7 +44,8 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     private clothingService: ClothingService,
     private supabaseService: SupabaseService,
     public categoryService: CategoryService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {
     this.categoryInfoList = this.categoryService.getAllCategories();
   }
@@ -361,6 +364,27 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   getCategoryIcon(category: ClothingCategory): string {
     const categoryInfo = this.categoryService.getCategoryInfo(category);
     return categoryInfo?.icon || 'checkroom';
+  }
+
+  /**
+   * Edit clothing item
+   */
+  editItem(item: ClothingItem): void {
+    const dialogRef = this.dialog.open(ItemEditModalComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: { item },
+      disableClose: false
+    });
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(updatedItem => {
+        if (updatedItem) {
+          console.log('Item updated successfully:', updatedItem);
+          // The service already updates the data source, so the UI will automatically refresh
+        }
+      });
   }
 
   /**

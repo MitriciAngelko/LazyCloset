@@ -1,0 +1,107 @@
+<div class="edit-modal-container">
+  <div class="edit-modal-header">
+    <h2 mat-dialog-title>
+      <mat-icon>edit</mat-icon>
+      Edit Item Details
+    </h2>
+    <button mat-icon-button mat-dialog-close>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="edit-modal-content">
+    <form [formGroup]="editForm" class="edit-form">
+      <!-- Item Preview -->
+      <div class="item-preview">
+        <img [src]="data.item.thumbnailUrl" [alt]="data.item.originalFileName" class="preview-image">
+        <div class="preview-info">
+          <h3>{{ data.item.originalFileName }}</h3>
+          <p class="upload-date">Added on {{ data.item.createdAt | date:'mediumDate' }}</p>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Category Selection -->
+      <div class="form-section">
+        <h4>Category</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category" required>
+            <mat-option *ngFor="let category of categories" [value]="category">
+              <mat-icon>{{ categoryService.getCategoryInfo(category)?.icon || 'checkroom' }}</mat-icon>
+              {{ getCategoryDisplayName(category) }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="editForm.get('category')?.hasError('required')">
+            Category is required
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Colors -->
+      <div class="form-section">
+        <h4>Colors <span class="required">*</span></h4>
+        <div class="color-selection">
+          <div class="color-grid">
+            <div *ngFor="let color of colors" 
+                 class="color-option"
+                 [class.selected]="editForm.get('colors')?.value?.includes(color)"
+                 (click)="toggleColor(color)">
+              <div class="color-circle" [style.background-color]="getColorHex(color)"></div>
+              <span class="color-name">{{ getColorDisplayName(color) }}</span>
+            </div>
+          </div>
+          <mat-error *ngIf="editForm.get('colors')?.hasError('required') && editForm.get('colors')?.touched">
+            At least one color is required
+          </mat-error>
+        </div>
+      </div>
+
+
+
+      <!-- Tags -->
+      <div class="form-section">
+        <h4>Tags</h4>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Add tags to help organize your items</mat-label>
+          <mat-chip-grid #chipGrid>
+            <mat-chip-row *ngFor="let tag of editForm.get('tags')?.value" 
+                          (removed)="removeTag(tag)"
+                          [removable]="true">
+              {{ tag }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip-row>
+          </mat-chip-grid>
+          <input matInput
+                 placeholder="Type a tag and press Enter"
+                 [matChipInputFor]="chipGrid"
+                 [matChipInputSeparatorKeyCodes]="[13, 188]"
+                 (matChipInputTokenEnd)="addTag($event)">
+        </mat-form-field>
+      </div>
+
+      <!-- Favorite Toggle -->
+      <div class="form-section">
+        <mat-slide-toggle formControlName="isFavorite" color="primary">
+          <mat-icon>favorite</mat-icon>
+          Mark as favorite
+        </mat-slide-toggle>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="edit-modal-actions">
+    <button mat-button (click)="onCancel()" [disabled]="isLoading">
+      Cancel
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSave()" 
+            [disabled]="isLoading || editForm.invalid">
+      <mat-spinner diameter="16" *ngIf="isLoading"></mat-spinner>
+      <span *ngIf="!isLoading">Save Changes</span>
+      <span *ngIf="isLoading">Saving...</span>
+    </button>
+  </mat-dialog-actions>
+</div> 

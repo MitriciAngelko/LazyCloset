@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 // Material Modules
 import { MatTabsModule } from '@angular/material/tabs';
@@ -15,9 +15,13 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatDividerModule } from '@angular/material/divider';
 
 // Closet Components
 import { ClosetViewComponent } from './closet-view/closet-view.component';
+import { ItemEditModalComponent } from './item-edit-modal/item-edit-modal.component';
 
 // Import Upload Module
 import { UploadModule } from '../upload/upload.module';
@@ -29,11 +33,13 @@ const closetRoutes: Routes = [
 
 @NgModule({
   declarations: [
-    ClosetViewComponent
+    ClosetViewComponent,
+    ItemEditModalComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     RouterModule.forChild(closetRoutes),
     UploadModule,
     
@@ -48,7 +54,10 @@ const closetRoutes: Routes = [
     MatSelectModule,
     MatOptionModule,
     MatProgressSpinnerModule,
-    MatChipsModule
+    MatChipsModule,
+    MatDialogModule,
+    MatSlideToggleModule,
+    MatDividerModule
   ],
   providers: []
 })

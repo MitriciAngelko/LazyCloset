@@ -171,6 +171,10 @@
           
           <!-- Hover Actions -->
           <div class="clean-actions">
+            <button mat-icon-button class="action-btn edit-btn" (click)="editItem(item)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            
             <button mat-icon-button class="action-btn favorite-btn" (click)="toggleFavorite(item)">
               <mat-icon [color]="item.isFavorite ? 'warn' : ''">
                 {{ item.isFavorite ? 'favorite' : 'favorite_border' }}
