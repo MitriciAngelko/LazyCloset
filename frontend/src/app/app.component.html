@@ -1,14 +1,9 @@
 <div class="app-container">
   <!-- Authenticated User View -->
   <div *ngIf="currentUser$ | async as user; else guestView" class="authenticated-view">
-    <!-- Header -->
-    <mat-toolbar color="primary" class="app-header">
-      <mat-icon class="app-icon">checkroom</mat-icon>
-      <span class="app-title">LazyCloset</span>
-      <span class="spacer"></span>
-      
-      <!-- User Info -->
-      <div class="user-info">
+    <!-- Simple Header with User Menu -->
+    <div class="simple-header">
+      <div class="user-menu">
         <span class="user-email">{{ user.email }}</span>
         <button mat-icon-button [matMenuTriggerFor]="userMenu">
           <mat-icon>account_circle</mat-icon>
@@ -16,41 +11,25 @@
         
         <!-- User Menu -->
         <mat-menu #userMenu="matMenu">
+          <button mat-menu-item [routerLink]="'/closet'">
+            <mat-icon>inventory_2</mat-icon>
+            <span>My Closet</span>
+          </button>
           <button mat-menu-item (click)="onSignOut()">
             <mat-icon>logout</mat-icon>
             <span>Sign Out</span>
           </button>
         </mat-menu>
       </div>
-    </mat-toolbar>
+    </div>
 
-    <!-- Navigation Tabs -->
-    <mat-tab-group class="main-tabs" [(selectedIndex)]="selectedTabIndex" (selectedTabChange)="onTabChange($event)">
-      <mat-tab label="Upload">
-        <ng-template matTabContent>
-          <app-image-upload></app-image-upload>
-        </ng-template>
-      </mat-tab>
-      
-      <mat-tab label="My Closet">
-        <ng-template matTabContent>
-          <router-outlet></router-outlet>
-        </ng-template>
-      </mat-tab>
-      
-      <mat-tab label="Outfit Generator" disabled>
-        <ng-template matTabContent>
-          <div class="coming-soon">
-            <mat-icon class="coming-soon-icon">construction</mat-icon>
-            <h2>Coming Soon!</h2>
-            <p>Outfit generator will be available in the next update.</p>
-          </div>
-        </ng-template>
-      </mat-tab>
-    </mat-tab-group>
+    <!-- Main Content -->
+    <div class="main-content">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 
-  <!-- Guest User View (Login/Register) -->
+  <!-- Guest View (Not Authenticated) -->
   <ng-template #guestView>
     <router-outlet></router-outlet>
   </ng-template>

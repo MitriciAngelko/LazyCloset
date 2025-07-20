@@ -1,0 +1,99 @@
+<div class="outfit-generator-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="title-section">
+      <mat-icon class="main-icon">checkroom</mat-icon>
+      <h1>LazyCloset</h1>
+      <p>Mix & Match Your Perfect Outfit</p>
+    </div>
+    
+    <div class="action-buttons">
+      <button mat-fab color="primary" (click)="openUploadModal()" class="upload-fab">
+        <mat-icon>add</mat-icon>
+      </button>
+      
+      <div class="outfit-controls">
+        <button mat-raised-button color="accent" (click)="generateRandomOutfit()">
+          <mat-icon>shuffle</mat-icon>
+          Random Outfit
+        </button>
+        <button mat-button (click)="clearOutfit()">
+          <mat-icon>clear</mat-icon>
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading your closet...</p>
+  </div>
+
+  <!-- Outfit Generator Rollercoaster -->
+  <div *ngIf="!isLoading" class="outfit-rollercoaster">
+    
+    <!-- Each Layer -->
+    <div 
+      *ngFor="let layer of outfitLayers; let i = index" 
+      class="outfit-layer"
+      [class]="'layer-' + layer.category"
+      [style.z-index]="layer.zIndex">
+      
+      <!-- Left Arrow -->
+      <button 
+        mat-icon-button 
+        class="nav-arrow nav-arrow-left"
+        [disabled]="!hasItems(layer)"
+        (click)="previousItem(i)">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      
+      <!-- Clothing Item Display -->
+      <div class="clothing-display">
+        <!-- Item Container -->
+        <div class="item-container" *ngIf="getCurrentItem(layer) as item; else emptySlot">
+          <img 
+            [src]="item.thumbnailUrl || item.imageUrl" 
+            [alt]="layer.displayName"
+            class="clothing-item-image">
+        </div>
+        
+        <!-- Empty Slot -->
+        <ng-template #emptySlot>
+          <div class="empty-slot">
+            <mat-icon>{{ getCategoryIcon(layer.category) }}</mat-icon>
+            <span>No {{ layer.displayName }}</span>
+          </div>
+        </ng-template>
+        
+        <!-- Layer Info -->
+        <div class="layer-info" *ngIf="hasItems(layer)">
+          <span class="layer-name">{{ layer.displayName }}</span>
+          <span class="item-counter">{{ getLayerInfo(i) }}</span>
+        </div>
+      </div>
+      
+      <!-- Right Arrow -->
+      <button 
+        mat-icon-button 
+        class="nav-arrow nav-arrow-right"
+        [disabled]="!hasItems(layer)"
+        (click)="nextItem(i)">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !hasAnyItems()" class="empty-state">
+    <mat-icon class="empty-icon">inventory_2</mat-icon>
+    <h2>Your closet is empty</h2>
+    <p>Start building your virtual wardrobe by adding your first clothing item!</p>
+    <button mat-raised-button color="primary" (click)="openUploadModal()">
+      <mat-icon>add</mat-icon>
+      Add First Item
+    </button>
+  </div>
+</div> 

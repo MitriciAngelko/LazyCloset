@@ -12,13 +12,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
 
 // Upload Components
 import { ImageUploadComponent } from './image-upload/image-upload.component';
+import { UploadModalComponent } from './upload-modal/upload-modal.component';
 
 @NgModule({
   declarations: [
-    ImageUploadComponent
+    ImageUploadComponent,
+    UploadModalComponent
   ],
   imports: [
     CommonModule,
@@ -34,10 +37,12 @@ import { ImageUploadComponent } from './image-upload/image-upload.component';
     MatRadioModule,
     MatFormFieldModule,
     MatInputModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatDialogModule
   ],
   exports: [
-    ImageUploadComponent
+    ImageUploadComponent,
+    UploadModalComponent
   ]
 })
 export class UploadModule { } 

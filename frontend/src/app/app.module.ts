@@ -18,6 +18,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
+import { RouterModule } from '@angular/router';
 import { MatSelectModule } from '@angular/material/select';
 import { MatMenuModule } from '@angular/material/menu';
 
@@ -54,6 +55,7 @@ import { UploadModule } from './features/upload/upload.module';
     MatTabsModule,
     MatSelectModule,
     MatMenuModule,
+    RouterModule,
     
     ServiceWorkerModule.register('ngsw-worker.js', {
       enabled: !isDevMode(),

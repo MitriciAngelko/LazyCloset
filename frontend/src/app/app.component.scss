@@ -4,113 +4,50 @@
   flex-direction: column;
 }
 
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  .app-icon {
-    margin-right: 8px;
-    font-size: 24px;
-  }
-
-  .app-title {
-    font-size: 20px;
-    font-weight: 500;
-  }
-
-  .spacer {
-  flex: 1 1 auto;
-}
-
-.user-info {
+.authenticated-view {
+  height: 100vh;
   display: flex;
-  align-items: center;
-  gap: 12px;
-
-  .user-email {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.9);
-    
-    @media (max-width: 768px) {
-      display: none; // Hide email on mobile to save space
-    }
-  }
-}
+  flex-direction: column;
 }
 
-.main-tabs {
-  flex: 1;
-  background: #f5f5f5;
+// Simple Header
+.simple-header {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
 
-  ::ng-deep {
-    .mat-mdc-tab-group {
-      height: 100%;
-    }
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 8px 16px;
+    border-radius: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 
-    .mat-mdc-tab-body-wrapper {
-      flex: 1;
-      height: 100%;
-    }
-
-    .mat-mdc-tab-body-content {
-      height: 100%;
-      overflow: auto;
-    }
-
-    .mat-mdc-tab-header {
-      background: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    }
-
-    .mat-mdc-tab {
-      min-width: 120px;
+    .user-email {
+      font-size: 14px;
+      color: #333;
       font-weight: 500;
-    }
-
-    .mat-mdc-tab.mdc-tab--active {
-      .mdc-tab__text-label {
-        color: #667eea;
+      
+      @media (max-width: 768px) {
+        display: none; // Hide email on mobile to save space
       }
     }
 
-    .mat-mdc-tab-ink-bar {
-      background-color: #667eea;
-      height: 3px;
+    button {
+      color: #333;
     }
   }
 }
 
-// Coming Soon State
-.coming-soon {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px;
-  text-align: center;
-  padding: 40px;
-
-  .coming-soon-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    color: #999;
-    margin-bottom: 16px;
-  }
-
-  h2 {
-    margin: 0 0 8px 0;
-    color: #333;
-    font-weight: 500;
-  }
-
-  p {
-    margin: 0;
-    color: #666;
-    max-width: 400px;
-  }
+// Main Content
+.main-content {
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
 }
 
 // Responsive design
