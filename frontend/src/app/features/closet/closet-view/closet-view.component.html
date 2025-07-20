@@ -157,61 +157,50 @@
     </button>
   </div>
 
-  <!-- Items Grid -->
-  <div *ngIf="!isLoading && filteredItems.length > 0" class="items-container">
-    <div [class]="'items-' + viewMode">
-      <mat-card 
+  <!-- Clean Items Grid -->
+  <div *ngIf="!isLoading && filteredItems.length > 0" class="clean-items-container">
+    <div class="clean-items-grid">
+      <div 
         *ngFor="let item of filteredItems; trackBy: trackByItemId" 
-        class="item-card"
+        class="clean-item"
         [class.favorite]="item.isFavorite">
         
-        <!-- Image Container -->
-        <div class="image-container">
-          <img [src]="item.thumbnailUrl" [alt]="item.originalFileName" class="item-image">
+        <!-- Clean Image -->
+        <div class="clean-image-container">
+          <img [src]="item.thumbnailUrl" [alt]="item.originalFileName" class="clean-item-image">
           
-          <!-- Overlay Actions -->
-          <div class="image-overlay">
-            <button mat-icon-button class="favorite-btn" (click)="toggleFavorite(item)">
-              <mat-icon [color]="item.isFavorite ? 'primary' : ''">
+          <!-- Hover Actions -->
+          <div class="clean-actions">
+            <button mat-icon-button class="action-btn favorite-btn" (click)="toggleFavorite(item)">
+              <mat-icon [color]="item.isFavorite ? 'warn' : ''">
                 {{ item.isFavorite ? 'favorite' : 'favorite_border' }}
               </mat-icon>
             </button>
             
-            <button mat-icon-button class="delete-btn" (click)="deleteItem(item)">
+            <button mat-icon-button class="action-btn delete-btn" (click)="deleteItem(item)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
+        </div>
 
-          <!-- Category Badge -->
-          <div class="category-badge">
+        <!-- Clean Info Bar -->
+        <div class="clean-info">
+          <!-- Color Circles FIRST -->
+          <div class="color-circles">
+            <div 
+              *ngFor="let color of item.colors" 
+              class="color-circle"
+              [style.background-color]="getColorHex(color)"
+              [title]="getColorDisplayName(color)">
+            </div>
+          </div>
+          
+          <!-- Category Label AFTER -->
+          <div class="category-label">
             {{ getCategoryDisplayName(item.category) }}
           </div>
         </div>
-
-        <!-- Item Info -->
-        <mat-card-content class="item-info">
-          <h4 class="item-title">{{ item.originalFileName }}</h4>
-          
-          <div class="item-details">
-            <div class="detail-row">
-              <mat-icon class="detail-icon">palette</mat-icon>
-              <span>{{ getColorDisplay(item.colors) }}</span>
-            </div>
-            
-            <div class="detail-row" *ngIf="item.tags.length > 0">
-              <mat-icon class="detail-icon">local_offer</mat-icon>
-              <div class="tags-container">
-                <mat-chip *ngFor="let tag of item.tags" class="tag-chip">{{ tag }}</mat-chip>
-              </div>
-            </div>
-            
-            <div class="detail-row">
-              <mat-icon class="detail-icon">schedule</mat-icon>
-              <span>{{ getFormattedDate(item.createdAt) }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+      </div>
     </div>
   </div>
 </div>

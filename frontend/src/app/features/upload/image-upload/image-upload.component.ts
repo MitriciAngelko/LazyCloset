@@ -293,7 +293,11 @@ export class ImageUploadComponent {
       const result = await this.backgroundRemovalService.removeBackground(file);
       this.backgroundRemovalResult = result;
 
-      if (result.success && result.method === 'api') {
+      if (result.success && result.method === 'api' && result.processedFile) {
+        // Auto-apply the background-removed image
+        this.processedFile = result.processedFile;
+        this.createPreview(result.processedFile);
+        
         this.snackBar.open('Background removed automatically!', 'Close', {
           duration: 3000
         });

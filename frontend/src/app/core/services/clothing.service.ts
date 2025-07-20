@@ -235,24 +235,29 @@ export class ClothingService {
     try {
       const itemId = uuidv4();
       
-      // Compress images
+      // Determine if file needs transparency preservation (PNG with background removed)
+      const needsTransparency = file.type === 'image/png' && file.name.includes('bg-removed');
+      const outputFormat = needsTransparency ? 'image/png' : 'image/jpeg';
+      const fileExtension = needsTransparency ? 'png' : 'jpg';
+      
+      // Compress images - preserve PNG format for transparency
       const compressedFile = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1200,
         useWebWorker: true,
-        fileType: 'image/jpeg'
+        fileType: outputFormat
       });
 
       const thumbnailFile = await imageCompression(file, {
         maxSizeMB: 0.1,
         maxWidthOrHeight: 300,
         useWebWorker: true,
-        fileType: 'image/jpeg'
+        fileType: outputFormat
       });
 
       // Upload to Supabase Storage
-      const imagePath = `${itemId}/image.jpg`;
-      const thumbnailPath = `${itemId}/thumbnail.jpg`;
+      const imagePath = `${itemId}/image.${fileExtension}`;
+      const thumbnailPath = `${itemId}/thumbnail.${fileExtension}`;
 
       const [imageUpload, thumbnailUpload] = await Promise.all([
         this.supabaseService.uploadImage(compressedFile, imagePath),
@@ -334,20 +339,24 @@ export class ClothingService {
     tags: string[]
   ): Promise<ClothingUploadResult> {
     try {
-      // Compress the main image
+      // Determine if file needs transparency preservation (PNG with background removed)
+      const needsTransparency = file.type === 'image/png' && file.name.includes('bg-removed');
+      const outputFormat = needsTransparency ? 'image/png' : 'image/jpeg';
+      
+      // Compress the main image - preserve PNG format for transparency
       const compressedFile = await imageCompression(file, {
         maxSizeMB: 1,
         maxWidthOrHeight: 1200,
         useWebWorker: true,
-        fileType: 'image/jpeg'
+        fileType: outputFormat
       });
 
-      // Create thumbnail
+      // Create thumbnail - preserve PNG format for transparency
       const thumbnailFile = await imageCompression(file, {
         maxSizeMB: 0.1,
         maxWidthOrHeight: 300,
         useWebWorker: true,
-        fileType: 'image/jpeg'
+        fileType: outputFormat
       });
 
       // Convert to base64 for local storage
