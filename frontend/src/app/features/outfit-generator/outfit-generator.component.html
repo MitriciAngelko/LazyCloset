@@ -31,59 +31,84 @@
     <p>Loading your closet...</p>
   </div>
 
-  <!-- Outfit Generator Rollercoaster -->
-  <div *ngIf="!isLoading" class="outfit-rollercoaster">
+  <!-- Main Outfit Display -->
+  <div *ngIf="!isLoading" class="outfit-display-area">
     
-    <!-- Each Layer -->
-    <div 
-      *ngFor="let layer of outfitLayers; let i = index" 
-      class="outfit-layer"
-      [class]="'layer-' + layer.category"
-      [style.z-index]="layer.zIndex">
+    <!-- Outfit Mannequin -->
+    <div class="outfit-mannequin">
       
-      <!-- Left Arrow -->
-      <button 
-        mat-icon-button 
-        class="nav-arrow nav-arrow-left"
-        [disabled]="!hasItems(layer)"
-        (click)="previousItem(i)">
-        <mat-icon>chevron_left</mat-icon>
-      </button>
-      
-      <!-- Clothing Item Display -->
-      <div class="clothing-display">
-        <!-- Item Container -->
-        <div class="item-container" *ngIf="getCurrentItem(layer) as item; else emptySlot">
-          <img 
-            [src]="item.thumbnailUrl || item.imageUrl" 
-            [alt]="layer.displayName"
-            class="clothing-item-image">
-        </div>
-        
-        <!-- Empty Slot -->
-        <ng-template #emptySlot>
-          <div class="empty-slot">
-            <mat-icon>{{ getCategoryIcon(layer.category) }}</mat-icon>
-            <span>No {{ layer.displayName }}</span>
-          </div>
-        </ng-template>
-        
-        <!-- Layer Info -->
-        <div class="layer-info" *ngIf="hasItems(layer)">
-          <span class="layer-name">{{ layer.displayName }}</span>
-          <span class="item-counter">{{ getLayerInfo(i) }}</span>
-        </div>
+      <!-- Hat Layer -->
+      <div class="outfit-item hat-item" 
+           *ngIf="getLayer('hat') && getCurrentItem(getLayer('hat')!) as hatItem"
+           [style.z-index]="5">
+        <img [src]="hatItem.thumbnailUrl || hatItem.imageUrl" 
+             [alt]="hatItem.originalFileName"
+             class="item-image">
       </div>
       
-      <!-- Right Arrow -->
-      <button 
-        mat-icon-button 
-        class="nav-arrow nav-arrow-right"
-        [disabled]="!hasItems(layer)"
-        (click)="nextItem(i)">
-        <mat-icon>chevron_right</mat-icon>
-      </button>
+      <!-- Top Layer -->
+      <div class="outfit-item top-item" 
+           *ngIf="getLayer('top') && getCurrentItem(getLayer('top')!) as topItem"
+           [style.z-index]="4">
+        <img [src]="topItem.thumbnailUrl || topItem.imageUrl" 
+             [alt]="topItem.originalFileName"
+             class="item-image">
+      </div>
+      
+      <!-- Jacket Layer (behind top) -->
+      <div class="outfit-item jacket-item" 
+           *ngIf="getLayer('jacket') && getCurrentItem(getLayer('jacket')!) as jacketItem"
+           [style.z-index]="3">
+        <img [src]="jacketItem.thumbnailUrl || jacketItem.imageUrl" 
+             [alt]="jacketItem.originalFileName"
+             class="item-image">
+      </div>
+      
+      <!-- Jeans Layer -->
+      <div class="outfit-item jeans-item" 
+           *ngIf="getLayer('jeans') && getCurrentItem(getLayer('jeans')!) as jeansItem"
+           [style.z-index]="2">
+        <img [src]="jeansItem.thumbnailUrl || jeansItem.imageUrl" 
+             [alt]="jeansItem.originalFileName"
+             class="item-image">
+      </div>
+      
+      <!-- Shoes Layer -->
+      <div class="outfit-item shoes-item" 
+           *ngIf="getLayer('shoes') && getCurrentItem(getLayer('shoes')!) as shoesItem"
+           [style.z-index]="1">
+        <img [src]="shoesItem.thumbnailUrl || shoesItem.imageUrl" 
+             [alt]="shoesItem.originalFileName"
+             class="item-image">
+      </div>
+      
     </div>
+    
+    <!-- Side Controls -->
+    <div class="side-controls">
+      <div class="control-group" *ngFor="let layer of outfitLayers">
+        <div class="category-label">{{ layer.displayName }}</div>
+        <div class="navigation-controls" *ngIf="hasItems(layer)">
+          <button mat-icon-button 
+                  class="nav-btn"
+                  (click)="previousItem(getLayerIndex(layer.category))"
+                  [disabled]="!hasItems(layer)">
+            <mat-icon>keyboard_arrow_up</mat-icon>
+          </button>
+          <span class="counter">{{ getLayerInfo(getLayerIndex(layer.category)) }}</span>
+          <button mat-icon-button 
+                  class="nav-btn"
+                  (click)="nextItem(getLayerIndex(layer.category))"
+                  [disabled]="!hasItems(layer)">
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        </div>
+        <div class="no-items" *ngIf="!hasItems(layer)">
+          <span>No items</span>
+        </div>
+      </div>
+    </div>
+    
   </div>
 
   <!-- Empty State -->

@@ -214,4 +214,27 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
   hasAnyItems(): boolean {
     return this.outfitLayers.some(layer => layer.items.length > 0);
   }
+
+  /**
+   * Get layer by category string
+   */
+  getLayer(categoryStr: string): OutfitLayer | null {
+    const categoryMap: { [key: string]: ClothingCategory } = {
+      'hat': ClothingCategory.HAT,
+      'top': ClothingCategory.TOP,
+      'jacket': ClothingCategory.JACKET,
+      'jeans': ClothingCategory.JEANS,
+      'shoes': ClothingCategory.SHOES
+    };
+    
+    const category = categoryMap[categoryStr];
+    return this.outfitLayers.find(layer => layer.category === category) || null;
+  }
+
+  /**
+   * Get layer index by category
+   */
+  getLayerIndex(category: ClothingCategory): number {
+    return this.outfitLayers.findIndex(layer => layer.category === category);
+  }
 } 
