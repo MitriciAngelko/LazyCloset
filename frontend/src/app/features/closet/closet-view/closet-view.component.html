@@ -10,53 +10,119 @@
     </mat-card-header>
 
     <mat-card-content>
-      <!-- Search and Filters Row -->
-      <div class="filters-row">
+      <!-- Enhanced Filters -->
+      <div class="filters-section">
         <!-- Search -->
         <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search clothes</mat-label>
-          <input 
-            matInput 
-            [(ngModel)]="searchTerm"
-            (input)="onSearchChange(searchTerm)"
-            placeholder="Search by name or tags...">
+          <mat-label>Search your closet</mat-label>
+          <input matInput 
+                 placeholder="Search by name or tags..."
+                 [(ngModel)]="searchTerm"
+                 (input)="onSearchChange(searchTerm)">
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
 
-        <!-- Category Filter -->
-        <mat-form-field appearance="outline" class="category-field">
-          <mat-label>Category</mat-label>
-          <mat-select [(value)]="selectedCategory" (selectionChange)="onCategoryChange($event.value)">
-            <mat-option value="all">All Categories</mat-option>
-            <mat-option *ngFor="let category of categories" [value]="category">
-              {{ getCategoryDisplayName(category) }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
+        <!-- Quick Filters Row -->
+        <div class="quick-filters">
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <label>Category</label>
+            <mat-select [(value)]="selectedCategory" 
+                       (selectionChange)="onCategoryChange($event.value)"
+                       class="category-select">
+              <mat-option value="all">All Categories</mat-option>
+              <mat-option *ngFor="let categoryInfo of categoryInfoList" [value]="categoryInfo.category">
+                <mat-icon>{{ categoryInfo.icon }}</mat-icon>
+                {{ categoryInfo.displayName }}
+              </mat-option>
+            </mat-select>
+          </div>
 
-      <!-- Toolbar -->
-      <div class="toolbar">
-        <!-- Left side controls -->
-        <div class="toolbar-left">
-          <button 
-            mat-button 
-            [color]="showOnlyFavorites ? 'primary' : ''"
-            (click)="onToggleFavorites()">
-            <mat-icon>{{ showOnlyFavorites ? 'favorite' : 'favorite_border' }}</mat-icon>
-            Favorites Only
-          </button>
+          <!-- NEW: Color Filter -->
+          <div class="filter-group color-filter-group">
+            <label>Colors</label>
+            <div class="color-filter-options">
+              <button mat-icon-button
+                      *ngFor="let color of availableColors"
+                      [class]="'color-filter-btn color-' + color"
+                      [class.selected]="isColorFilterSelected(color)"
+                      (click)="toggleColorFilter(color)"
+                      [title]="getColorDisplayName(color)">
+                <mat-icon *ngIf="isColorFilterSelected(color)">check</mat-icon>
+              </button>
+              <button mat-icon-button 
+                      *ngIf="selectedColors.length > 0"
+                      (click)="clearColorFilters()"
+                      class="clear-colors-btn"
+                      title="Clear color filters">
+                <mat-icon>clear</mat-icon>
+              </button>
+            </div>
+          </div>
 
-          <button mat-button (click)="clearFilters()" *ngIf="searchTerm || selectedCategory !== 'all' || showOnlyFavorites">
-            <mat-icon>clear</mat-icon>
-            Clear Filters
-          </button>
+          <!-- Favorites Toggle -->
+          <div class="filter-group">
+            <mat-slide-toggle 
+              [(ngModel)]="showOnlyFavorites"
+              (change)="onToggleFavorites()"
+              color="primary">
+              <mat-icon>favorite</mat-icon>
+              Favorites Only
+            </mat-slide-toggle>
+          </div>
+
+          <!-- View Mode Toggle -->
+          <div class="filter-group view-toggle">
+            <div class="view-toggle-buttons">
+              <button mat-icon-button 
+                      [color]="viewMode === 'grid' ? 'primary' : ''"
+                      (click)="toggleViewMode()"
+                      title="Switch to grid view">
+                <mat-icon>grid_view</mat-icon>
+              </button>
+              <button mat-icon-button 
+                      [color]="viewMode === 'list' ? 'primary' : ''"
+                      (click)="toggleViewMode()"
+                      title="Switch to list view">
+                <mat-icon>view_list</mat-icon>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Right side controls -->
-        <div class="toolbar-right">
-          <button mat-icon-button (click)="toggleViewMode()" [title]="viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'">
-            <mat-icon>{{ viewMode === 'grid' ? 'view_list' : 'view_module' }}</mat-icon>
+        <!-- Active Filters Display -->
+        <div *ngIf="hasActiveFilters()" class="active-filters">
+          <span class="filters-label">Active filters:</span>
+          
+          <mat-chip-listbox class="filter-chips">
+            <mat-chip *ngIf="selectedCategory !== 'all'" 
+                     (removed)="onCategoryChange('all')"
+                     [removable]="true">
+              {{ getCategoryDisplayName(selectedCategory) }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            
+            <mat-chip *ngFor="let color of selectedColors"
+                     (removed)="toggleColorFilter(color)"
+                     [removable]="true"
+                     [style.background-color]="getColorHex(color)"
+                     [style.color]="getTextColorForBackground(color)">
+              {{ getColorDisplayName(color) }}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+            
+            <mat-chip *ngIf="showOnlyFavorites"
+                     (removed)="onToggleFavorites()"
+                     [removable]="true">
+              <mat-icon>favorite</mat-icon>
+              Favorites
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </mat-chip-listbox>
+          
+          <button mat-button (click)="clearAllFilters()" class="clear-all-btn">
+            <mat-icon>clear_all</mat-icon>
+            Clear All
           </button>
         </div>
       </div>
@@ -85,7 +151,7 @@
     <mat-icon class="no-results-icon">search_off</mat-icon>
     <h3>No items match your filters</h3>
     <p>Try adjusting your search terms or category filter.</p>
-    <button mat-button (click)="clearFilters()">
+              <button mat-button (click)="clearAllFilters()">
       <mat-icon>clear</mat-icon>
       Clear Filters
     </button>

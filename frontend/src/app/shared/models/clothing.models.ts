@@ -1,9 +1,58 @@
 export enum ClothingCategory {
   HAT = 'hat',
-  SHIRT = 'shirt',
-  JACKET = 'jacket',
-  PANTS = 'pants',
+  TOP = 'top',
+  JACKET = 'jacket', 
+  JEANS = 'jeans',
   SHOES = 'shoes'
+}
+
+export enum ClothingSubCategory {
+  // Hat subcategories
+  BASEBALL_CAP = 'baseball_cap',
+  BEANIE = 'beanie',
+  FORMAL_HAT = 'formal_hat',
+  
+  // Top subcategories
+  FORMAL_SHIRT = 'formal_shirt',
+  CASUAL_SHIRT = 'casual_shirt',
+  T_SHIRT = 't_shirt',
+  SWEATER = 'sweater',
+  BLOUSE = 'blouse',
+  TANK_TOP = 'tank_top',
+  
+  // Jacket subcategories
+  BLAZER = 'blazer',
+  CASUAL_JACKET = 'casual_jacket',
+  WINTER_COAT = 'winter_coat',
+  CARDIGAN = 'cardigan',
+  HOODIE = 'hoodie',
+  
+  // Jeans/Pants subcategories
+  FORMAL_PANTS = 'formal_pants',
+  CASUAL_PANTS = 'casual_pants',
+  JEANS_SKINNY = 'jeans_skinny',
+  JEANS_REGULAR = 'jeans_regular',
+  SHORTS = 'shorts',
+  LEGGINGS = 'leggings',
+  
+  // Shoes subcategories
+  FORMAL_SHOES = 'formal_shoes',
+  CASUAL_SHOES = 'casual_shoes',
+  SNEAKERS = 'sneakers',
+  BOOTS = 'boots',
+  SANDALS = 'sandals',
+  HEELS = 'heels'
+}
+
+export enum ClothingOccasion {
+  CASUAL = 'casual',
+  FORMAL = 'formal',
+  BUSINESS = 'business',
+  PARTY = 'party',
+  SPORT = 'sport',
+  BEACH = 'beach',
+  WINTER = 'winter',
+  SUMMER = 'summer'
 }
 
 export enum ClothingColor {
@@ -26,6 +75,8 @@ export interface ClothingItem {
   id: string;
   userId: string;
   category: ClothingCategory;
+  subCategory?: ClothingSubCategory;
+  occasions?: ClothingOccasion[];
   imageUrl: string;
   thumbnailUrl: string;
   originalFileName: string;

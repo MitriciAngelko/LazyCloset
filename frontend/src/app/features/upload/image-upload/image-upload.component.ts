@@ -1,6 +1,9 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ClothingService } from '../../../core/services/clothing.service';
+import { CategoryService, CategoryGroup, CategoryInfo } from '../../../core/services/category.service';
+import { ColorDetectionService, ColorPalette } from '../../../core/services/color-detection.service';
+import { BackgroundRemovalService, BackgroundRemovalResult } from '../../../core/services/background-removal.service';
 import { ClothingCategory, ClothingColor } from '../../../shared/models/clothing.models';
 
 // Use the same interface as ClothingService
@@ -19,21 +22,46 @@ interface ClothingUploadResult {
 export class ImageUploadComponent {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   
-  selectedCategory: ClothingCategory = ClothingCategory.SHIRT;
+  selectedCategory: ClothingCategory = ClothingCategory.TOP;
   selectedColors: ClothingColor[] = [];
   customTags: string = '';
   isDragOver = false;
   isUploading = false;
+  isAnalyzing = false;
+  isProcessingBackground = false;
   previewUrl: string | null = null;
   selectedFile: File | null = null;
+  processedFile: File | null = null;
+  
+  // Color analysis results
+  colorPalette: ColorPalette | null = null;
+  suggestedColors: ClothingColor[] = [];
+  
+  // Background removal results
+  backgroundRemovalResult: BackgroundRemovalResult | null = null;
+  showBackgroundOptions = false;
+  
+  // Category selection - simplified
+  allCategories: CategoryInfo[] = [];
 
-  readonly categories = Object.values(ClothingCategory);
   readonly colors = Object.values(ClothingColor);
 
   constructor(
     private clothingService: ClothingService,
+    private categoryService: CategoryService,
+    private colorDetectionService: ColorDetectionService,
+    private backgroundRemovalService: BackgroundRemovalService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.initializeCategories();
+  }
+
+  /**
+   * Initialize category data
+   */
+  private initializeCategories(): void {
+    this.allCategories = this.categoryService.getAllCategories();
+  }
 
   /**
    * Handle drag over event
@@ -89,8 +117,8 @@ export class ImageUploadComponent {
    */
   private handleFileSelect(file: File): void {
     // Validate file type
-    if (!this.isValidImageFile(file)) {
-      this.snackBar.open('Please select a valid image file (JPEG, PNG, WebP)', 'Close', {
+    if (!file.type.startsWith('image/')) {
+      this.snackBar.open('Please select an image file', 'Close', {
         duration: 3000
       });
       return;
@@ -105,7 +133,12 @@ export class ImageUploadComponent {
     }
 
     this.selectedFile = file;
+    this.processedFile = file; // Initially, processed file is the same as selected
     this.createPreview(file);
+    
+    // Start Phase 2 processing
+    this.analyzeImageColors(file);
+    this.processBackgroundRemoval(file);
   }
 
   /**
@@ -123,7 +156,9 @@ export class ImageUploadComponent {
    * Upload the selected image
    */
   uploadImage(): void {
-    if (!this.selectedFile) {
+    const fileToUpload = this.processedFile || this.selectedFile;
+    
+    if (!fileToUpload) {
       this.snackBar.open('Please select an image first', 'Close', {
         duration: 3000
       });
@@ -137,10 +172,13 @@ export class ImageUploadComponent {
       .map(tag => tag.trim())
       .filter(tag => tag.length > 0);
 
+    // Use selected colors (which include auto-detected ones)
+    const colorsToUse = this.selectedColors;
+
     this.clothingService.uploadClothingItem(
-      this.selectedFile,
+      fileToUpload,
       this.selectedCategory,
-      this.selectedColors,
+      colorsToUse,
       tags
     ).subscribe({
       next: (result: ClothingUploadResult) => {
@@ -203,24 +241,172 @@ export class ImageUploadComponent {
   }
 
   /**
-   * Validate if file is a valid image
-   */
-  private isValidImageFile(file: File): boolean {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    return validTypes.includes(file.type);
-  }
-
-  /**
-   * Get category display name
-   */
-  getCategoryDisplayName(category: ClothingCategory): string {
-    return category.charAt(0).toUpperCase() + category.slice(1);
-  }
-
-  /**
    * Get color display name
    */
   getColorDisplayName(color: ClothingColor): string {
-    return color.charAt(0).toUpperCase() + color.slice(1);
+    return this.colorDetectionService.getColorDisplayName(color);
+  }
+
+  // ===== PHASE 2: Smart Features =====
+
+  /**
+   * Analyze image colors automatically
+   */
+  private async analyzeImageColors(file: File): Promise<void> {
+    this.isAnalyzing = true;
+
+    try {
+      const palette = await this.colorDetectionService.analyzeImageColors(file);
+      this.colorPalette = palette;
+      this.suggestedColors = this.colorDetectionService.suggestColors(palette);
+      
+      // Auto-apply the dominant color
+      this.selectedColors = [palette.dominantColor.color];
+      
+      // Auto-suggest category based on colors (basic heuristic)
+      this.suggestCategory(palette);
+      
+      console.log('🎨 Color analysis complete:', {
+        dominantColor: palette.dominantColor.color,
+        dominantColorPercentage: palette.dominantColor.percentage,
+        suggestedColors: this.suggestedColors,
+        appliedColors: this.selectedColors,
+        totalColors: palette.colors.length
+      });
+
+    } catch (error) {
+      console.error('Color analysis failed:', error);
+      this.suggestedColors = [];
+    } finally {
+      this.isAnalyzing = false;
+    }
+  }
+
+  /**
+   * Process background removal
+   */
+  private async processBackgroundRemoval(file: File): Promise<void> {
+    this.isProcessingBackground = true;
+    this.showBackgroundOptions = true;
+
+    try {
+      const result = await this.backgroundRemovalService.removeBackground(file);
+      this.backgroundRemovalResult = result;
+
+      if (result.success && result.method === 'api') {
+        this.snackBar.open('Background removed automatically!', 'Close', {
+          duration: 3000
+        });
+      } else if (result.method === 'fallback') {
+        console.log('Background removal API not available, manual options shown');
+      }
+
+    } catch (error) {
+      console.error('Background removal failed:', error);
+      this.showBackgroundOptions = false;
+    } finally {
+      this.isProcessingBackground = false;
+    }
+  }
+
+  /**
+   * Suggest category based on color analysis
+   */
+  private suggestCategory(palette: ColorPalette): void {
+    const dominantColor = palette.dominantColor.color;
+    
+    // Basic category suggestion logic based on colors
+    // This is a simple heuristic - in a real app you might use ML
+    if (dominantColor === ClothingColor.BROWN || dominantColor === ClothingColor.BEIGE) {
+      // Brown/beige items are often shoes or pants
+      if (palette.colors.some(c => c.color === ClothingColor.BLACK)) {
+        this.selectedCategory = ClothingCategory.SHOES;
+      } else {
+                 this.selectedCategory = ClothingCategory.JEANS;
+      }
+    } else if (dominantColor === ClothingColor.BLACK && palette.colors.length <= 2) {
+      // Solid black items are often jackets or shoes
+      this.selectedCategory = ClothingCategory.JACKET;
+    }
+    // Keep the default TOP category for most other cases
+  }
+
+  /**
+   * Apply auto-detected colors to selection
+   */
+  applyAutoDetectedColors(): void {
+    this.selectedColors = [...this.suggestedColors];
+    this.snackBar.open(`Applied ${this.suggestedColors.length} detected colors`, 'Close', {
+      duration: 2000
+    });
+  }
+
+  /**
+   * Use background-removed image
+   */
+  useBackgroundRemovedImage(): void {
+    if (this.backgroundRemovalResult?.processedFile) {
+      this.processedFile = this.backgroundRemovalResult.processedFile;
+      this.createPreview(this.processedFile);
+      this.snackBar.open('Using background-removed image', 'Close', {
+        duration: 2000
+      });
+    }
+  }
+
+  /**
+   * Use original image (reject background removal)
+   */
+  useOriginalImage(): void {
+    if (this.selectedFile) {
+      this.processedFile = this.selectedFile;
+      this.createPreview(this.selectedFile);
+      this.snackBar.open('Using original image', 'Close', {
+        duration: 2000
+      });
+    }
+  }
+
+  /**
+   * Check if background removal API is available
+   */
+  isBackgroundRemovalApiAvailable(): boolean {
+    return this.backgroundRemovalService.isApiAvailable();
+  }
+
+  /**
+   * Get color hex for palette display
+   */
+  getColorHex(color: ClothingColor): string {
+    if (!this.colorPalette) return '';
+    
+    const colorInfo = this.colorPalette.colors.find(c => c.color === color);
+    return colorInfo?.hex || '';
+  }
+
+  /**
+   * Get color percentage for palette display
+   */
+  getColorPercentage(color: ClothingColor): number {
+    if (!this.colorPalette) return 0;
+    
+    const colorInfo = this.colorPalette.colors.find(c => c.color === color);
+    return Math.round(colorInfo?.percentage || 0);
+  }
+
+  // ===== Original Helper Methods =====
+
+  /**
+   * Select a category
+   */
+  selectCategory(category: ClothingCategory): void {
+    this.selectedCategory = category;
+  }
+
+  /**
+   * Check if category is selected
+   */
+  isCategorySelected(category: ClothingCategory): boolean {
+    return this.selectedCategory === category;
   }
 }

@@ -46,14 +46,23 @@
           (change)="onFileSelected($event)">
       </div>
 
-      <!-- Category Selection -->
+      <!-- Simple Category Selection -->
       <div class="form-section">
         <h4>Category</h4>
-        <mat-radio-group [(ngModel)]="selectedCategory" class="category-group">
-          <mat-radio-button *ngFor="let category of categories" [value]="category" class="category-option">
-            {{ getCategoryDisplayName(category) }}
-          </mat-radio-button>
-        </mat-radio-group>
+        
+        <!-- Simple Category Grid -->
+        <div class="simple-category-grid">
+          <button
+            *ngFor="let categoryInfo of allCategories"
+            mat-raised-button
+            class="simple-category-card"
+            [class.selected]="isCategorySelected(categoryInfo.category)"
+            [color]="isCategorySelected(categoryInfo.category) ? 'primary' : ''"
+            (click)="selectCategory(categoryInfo.category)">
+            <mat-icon class="category-icon">{{ categoryInfo.icon }}</mat-icon>
+            <span class="category-name">{{ categoryInfo.displayName }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Color Selection -->
@@ -69,6 +78,41 @@
             [title]="getColorDisplayName(color)">
             <mat-icon *ngIf="isColorSelected(color)">check</mat-icon>
           </button>
+        </div>
+        
+        <!-- Auto-detection indicator -->
+        
+      </div>
+
+      <!-- Background Removal Section -->
+      <div *ngIf="showBackgroundOptions" class="form-section background-section">
+        <h4>Background Processing</h4>
+        
+        <div class="background-options">
+          <mat-spinner *ngIf="isProcessingBackground" diameter="20"></mat-spinner>
+          
+          <div *ngIf="!isProcessingBackground && backgroundRemovalResult" class="background-result">
+            <div *ngIf="backgroundRemovalResult.method === 'api'" class="api-success">
+              <mat-icon color="primary">check_circle</mat-icon>
+              <span>Background removed automatically!</span>
+              <div class="background-actions">
+                <button mat-raised-button color="primary" (click)="useBackgroundRemovedImage()">
+                  <mat-icon>auto_fix_high</mat-icon>
+                  Use Processed
+                </button>
+                <button mat-button (click)="useOriginalImage()">
+                  <mat-icon>undo</mat-icon>
+                  Use Original
+                </button>
+              </div>
+            </div>
+            
+            <div *ngIf="backgroundRemovalResult.method === 'fallback'" class="api-fallback">
+              <mat-icon color="warn">info</mat-icon>
+              <span>Background removal API not available</span>
+              <p class="fallback-note">Image will be uploaded as-is. Consider cropping manually if needed.</p>
+            </div>
+          </div>
         </div>
       </div>
 

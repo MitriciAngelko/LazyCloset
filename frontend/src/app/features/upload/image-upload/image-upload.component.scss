@@ -133,13 +133,42 @@
   }
 }
 
-.category-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+// Simple Category Styles
+.simple-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
 
-  .category-option {
-    margin: 0;
+.simple-category-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  min-height: 80px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  }
+
+  &.selected {
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3);
+  }
+
+  .category-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    transition: color 0.2s ease;
+  }
+
+  .category-name {
+    font-weight: 500;
+    font-size: 14px;
   }
 }
 
@@ -208,7 +237,7 @@ mat-card-actions {
 }
 
 // Responsive design
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .upload-container {
     padding: 12px;
   }
@@ -227,11 +256,22 @@ mat-card-actions {
     min-height: 150px;
   }
 
-  .category-group {
-    flex-direction: column;
+  .simple-category-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+  }
 
-    .category-option {
-      width: 100%;
+  .simple-category-card {
+    min-height: 70px;
+    padding: 16px 12px;
+
+    .category-icon {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .category-name {
+      font-size: 13px;
     }
   }
 
@@ -240,7 +280,120 @@ mat-card-actions {
   }
 }
 
+@media (max-width: 480px) {
+  .simple-category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .simple-category-card {
+    min-height: 60px;
+    padding: 12px 8px;
+
+    .category-icon {
+      font-size: 24px;
+    }
+
+    .category-name {
+      font-size: 12px;
+    }
+  }
+}
+
 // Loading state
 .mat-spinner {
   margin-right: 8px;
+}
+
+// ===== PHASE 2: Smart Features Styles =====
+
+// Auto suggestion hint (subtle indicator)
+.auto-suggestion-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+  font-size: 13px;
+  color: #667eea;
+  
+  .hint-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  &.secondary {
+    background: rgba(251, 191, 36, 0.1);
+    color: #d97706;
+    
+    .hint-icon {
+      color: #f59e0b;
+    }
+  }
+}
+
+// Enhanced color grid for better accessibility
+.color-grid {
+  .color-btn {
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+
+    &.selected {
+      transform: scale(1.15);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5);
+    }
+
+    // Color-specific enhancements
+    &.color-white {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      
+      &.selected {
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.5), 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+}
+
+// Enhanced form sections
+.form-section {
+  position: relative;
+  
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 16px;
+    
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, #667eea, transparent);
+      margin-left: 12px;
+    }
+  }
+}
+
+// Loading states
+.processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  z-index: 10;
 }
