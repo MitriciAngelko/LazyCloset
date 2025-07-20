@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // Angular Material Modules
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +20,7 @@ import { OutfitGeneratorComponent } from './outfit-generator.component';
     RouterModule.forChild([
       { path: '', component: OutfitGeneratorComponent }
     ]),
+    DragDropModule,
     
     // Angular Material
     MatButtonModule,

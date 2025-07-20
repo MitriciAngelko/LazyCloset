@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ClothingService } from '../../core/services/clothing.service';
 import { ClothingItem, ClothingCategory } from '../../shared/models/clothing.models';
 
@@ -26,35 +27,35 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
       category: ClothingCategory.HAT,
       displayName: 'Hats',
       items: [],
-      currentIndex: 0,
+      currentIndex: -1, // Start with no item selected
       zIndex: 5
     },
     {
       category: ClothingCategory.TOP,
       displayName: 'Tops',
       items: [],
-      currentIndex: 0,
+      currentIndex: -1, // Start with no item selected
       zIndex: 4
     },
     {
       category: ClothingCategory.JACKET,
       displayName: 'Jackets',
       items: [],
-      currentIndex: 0,
+      currentIndex: -1, // Start with no item selected
       zIndex: 3
     },
     {
       category: ClothingCategory.JEANS,
       displayName: 'Jeans',
       items: [],
-      currentIndex: 0,
+      currentIndex: -1, // Start with no item selected
       zIndex: 2
     },
     {
       category: ClothingCategory.SHOES,
       displayName: 'Shoes',
       items: [],
-      currentIndex: 0,
+      currentIndex: -1, // Start with no item selected
       zIndex: 1
     }
   ];
@@ -99,9 +100,11 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
   private organizeItemsByLayers(items: ClothingItem[]): void {
     this.outfitLayers.forEach(layer => {
       layer.items = items.filter(item => item.category === layer.category);
-      // Reset index if no items or current index is out of bounds
-      if (layer.items.length === 0 || layer.currentIndex >= layer.items.length) {
-        layer.currentIndex = 0;
+      // Reset index if current index is out of bounds (keep -1 for no selection)
+      if (layer.items.length === 0) {
+        layer.currentIndex = -1;
+      } else if (layer.currentIndex >= layer.items.length) {
+        layer.currentIndex = -1; // Reset to no selection when out of bounds
       }
     });
   }
@@ -113,9 +116,12 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return;
     
-    layer.currentIndex = layer.currentIndex > 0 
-      ? layer.currentIndex - 1 
-      : layer.items.length - 1;
+    // Cycle: -1 (none) -> last item -> ... -> first item -> -1 (none)
+    if (layer.currentIndex <= -1) {
+      layer.currentIndex = layer.items.length - 1;
+    } else {
+      layer.currentIndex = layer.currentIndex - 1;
+    }
   }
 
   /**
@@ -125,16 +131,21 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return;
     
-    layer.currentIndex = layer.currentIndex < layer.items.length - 1 
-      ? layer.currentIndex + 1 
-      : 0;
+    // Cycle: -1 (none) -> first item -> ... -> last item -> -1 (none)
+    if (layer.currentIndex >= layer.items.length - 1) {
+      layer.currentIndex = -1;
+    } else {
+      layer.currentIndex = layer.currentIndex + 1;
+    }
   }
 
   /**
    * Get current item for a layer
    */
   getCurrentItem(layer: OutfitLayer): ClothingItem | null {
-    return layer.items.length > 0 ? layer.items[layer.currentIndex] : null;
+    return layer.items.length > 0 && layer.currentIndex >= 0 && layer.currentIndex < layer.items.length 
+      ? layer.items[layer.currentIndex] 
+      : null;
   }
 
   /**
@@ -150,6 +161,7 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
   getLayerInfo(layerIndex: number): string {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return 'No items';
+    if (layer.currentIndex === -1) return `None (0 of ${layer.items.length})`;
     return `${layer.currentIndex + 1} of ${layer.items.length}`;
   }
 
@@ -186,11 +198,11 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Clear outfit (reset to first items)
+   * Clear outfit (remove all clothing items)
    */
   clearOutfit(): void {
     this.outfitLayers.forEach(layer => {
-      layer.currentIndex = 0;
+      layer.currentIndex = -1; // Set to "no item selected"
     });
   }
 
@@ -236,5 +248,31 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
    */
   getLayerIndex(category: ClothingCategory): number {
     return this.outfitLayers.findIndex(layer => layer.category === category);
+  }
+
+  /**
+   * Handle drag drop for repositioning items
+   */
+  onDragDropped(event: CdkDragDrop<any>): void {
+    // Get the dragged element's transform values
+    const element = event.item.element.nativeElement;
+    const transform = element.style.transform;
+    
+    // Store the new position
+    element.style.transform = transform;
+  }
+
+  /**
+   * Handle drag start
+   */
+  onDragStarted(): void {
+    // Optional: Add visual feedback when dragging starts
+  }
+
+  /**
+   * Handle drag ended
+   */
+  onDragEnded(): void {
+    // Optional: Clean up after drag ends
   }
 } 
