@@ -1,210 +1,190 @@
-<div class="closet-container">
+<div class="modern-closet-container" 
+     #containerRef 
+     (mousemove)="onMouseMove($event)"
+     [style.background]="getBackgroundStyle()"
+     [style.cursor]="draggedItem ? 'grabbing' : 'default'">
+  
+  <!-- Subtle texture overlay -->
+  <div class="texture-overlay"></div>
+
   <!-- Header -->
-  <mat-card class="filters-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>inventory_2</mat-icon>
-        My Closet
-      </mat-card-title>
-      <mat-card-subtitle>{{ getItemsCountText() }}</mat-card-subtitle>
-    </mat-card-header>
-
-    <mat-card-content>
-      <!-- Enhanced Filters -->
-      <div class="filters-section">
-        <!-- Search -->
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search your closet</mat-label>
-          <input matInput 
-                 placeholder="Search by name or tags..."
-                 [(ngModel)]="searchTerm"
-                 (input)="onSearchChange(searchTerm)">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <!-- Quick Filters Row -->
-        <div class="quick-filters">
-          <!-- Category Filter -->
-          <div class="filter-group">
-            <label>Category</label>
-            <mat-select [(value)]="selectedCategory" 
-                       (selectionChange)="onCategoryChange($event.value)"
-                       class="category-select">
-              <mat-option value="all">All Categories</mat-option>
-              <mat-option *ngFor="let categoryInfo of categoryInfoList" [value]="categoryInfo.category">
-                <mat-icon>{{ categoryInfo.icon }}</mat-icon>
-                {{ categoryInfo.displayName }}
-              </mat-option>
-            </mat-select>
-          </div>
-
-          <!-- NEW: Color Filter -->
-          <div class="filter-group color-filter-group">
-            <label>Colors</label>
-            <div class="color-filter-options">
-              <button mat-icon-button
-                      *ngFor="let color of availableColors"
-                      [class]="'color-filter-btn color-' + color"
-                      [class.selected]="isColorFilterSelected(color)"
-                      (click)="toggleColorFilter(color)"
-                      [title]="getColorDisplayName(color)">
-                <mat-icon *ngIf="isColorFilterSelected(color)">check</mat-icon>
-              </button>
-              <button mat-icon-button 
-                      *ngIf="selectedColors.length > 0"
-                      (click)="clearColorFilters()"
-                      class="clear-colors-btn"
-                      title="Clear color filters">
-                <mat-icon>clear</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <!-- Favorites Toggle -->
-          <div class="filter-group">
-            <mat-slide-toggle 
-              [(ngModel)]="showOnlyFavorites"
-              (change)="onToggleFavorites()"
-              color="primary">
-              <mat-icon>favorite</mat-icon>
-              Favorites Only
-            </mat-slide-toggle>
-          </div>
-
-          <!-- View Mode Toggle -->
-          <div class="filter-group view-toggle">
-            <div class="view-toggle-buttons">
-              <button mat-icon-button 
-                      [color]="viewMode === 'grid' ? 'primary' : ''"
-                      (click)="toggleViewMode()"
-                      title="Switch to grid view">
-                <mat-icon>grid_view</mat-icon>
-              </button>
-              <button mat-icon-button 
-                      [color]="viewMode === 'list' ? 'primary' : ''"
-                      (click)="toggleViewMode()"
-                      title="Switch to list view">
-                <mat-icon>view_list</mat-icon>
-              </button>
-            </div>
-          </div>
+  <div class="floating-header">
+    <div class="header-content">
+      <div class="logo-section" [style.transform]="'rotate(' + (mousePosition.x * 0.05) + 'deg)'">
+        <div class="organic-logo">
+          <mat-icon>inventory_2</mat-icon>
         </div>
+        <div class="title-info">
+          <h1>My Closet</h1>
+          <p>{{ filteredItems.length }} of {{ clothingItems.length }} pieces • Drag to play!</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- Active Filters Display -->
-        <div *ngIf="hasActiveFilters()" class="active-filters">
-          <span class="filters-label">Active filters:</span>
-          
-          <mat-chip-listbox class="filter-chips">
-            <mat-chip *ngIf="selectedCategory !== 'all'" 
-                     (removed)="onCategoryChange('all')"
-                     [removable]="true">
-              {{ getCategoryDisplayName(selectedCategory) }}
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-            
-            <mat-chip *ngFor="let color of selectedColors"
-                     (removed)="toggleColorFilter(color)"
-                     [removable]="true"
-                     [style.background-color]="getColorHex(color)"
-                     [style.color]="getTextColorForBackground(color)">
-              {{ getColorDisplayName(color) }}
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-            
-            <mat-chip *ngIf="showOnlyFavorites"
-                     (removed)="onToggleFavorites()"
-                     [removable]="true">
-              <mat-icon>favorite</mat-icon>
-              Favorites
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-          </mat-chip-listbox>
-          
-          <button mat-button (click)="clearAllFilters()" class="clear-all-btn">
-            <mat-icon>clear_all</mat-icon>
-            Clear All
+  <!-- Reset/Scatter Button -->
+  <div class="floating-scatter-btn">
+    <button mat-raised-button 
+            class="scatter-btn" 
+            (click)="scatterItems()">
+      <mat-icon>refresh</mat-icon>
+      Scatter Items
+    </button>
+  </div>
+
+  <!-- User Controls -->
+  <div class="floating-user-actions">
+    <button mat-raised-button 
+            class="organic-btn add-btn" 
+            (click)="openUploadModal()">
+      <mat-icon>add</mat-icon>
+      Add Piece
+    </button>
+
+    <button mat-raised-button 
+            class="organic-btn create-btn" 
+            (click)="openOutfitGenerator()">
+      <mat-icon>checkroom</mat-icon>
+      Create Look
+    </button>
+
+    <div class="user-info">
+      <mat-icon>person</mat-icon>
+      <span>Your Closet</span>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="floating-search">
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input matInput 
+             placeholder="Search your wardrobe..."
+             [(ngModel)]="searchTerm"
+             (input)="onSearchChange(searchTerm)"
+             class="organic-search-input">
+    </div>
+  </div>
+
+  <!-- Filter Button -->
+  <button class="floating-filter-btn" 
+          [class.active]="isFilterOpen"
+          (click)="toggleFilters()"
+          [style.transform]="'rotate(' + (isFilterOpen ? 45 : 0) + 'deg)'">
+    <mat-icon>tune</mat-icon>
+  </button>
+
+  <!-- Filters Panel -->
+  <div class="floating-filters-panel" [class.open]="isFilterOpen">
+    <div class="filters-content">
+      <!-- Category Filter -->
+      <div class="filter-section">
+        <h3>Category</h3>
+        <div class="category-buttons">
+          <button *ngFor="let cat of categoryOptions" 
+                  class="organic-filter-btn"
+                  [class.active]="selectedCategory === cat"
+                  (click)="onCategoryChange(cat)">
+            {{ getCategoryDisplayText(cat) }}
           </button>
         </div>
       </div>
-    </mat-card-content>
-  </mat-card>
+
+      <!-- Color Filter -->
+      <div class="filter-section">
+        <h3>Colors</h3>
+        <div class="color-filters">
+          <button *ngFor="let color of modernColors"
+                  class="organic-color-btn"
+                  [style.background-color]="color.value"
+                  [class.selected]="isModernColorSelected(color.value)"
+                  (click)="toggleModernColorFilter(color.value)"
+                  [title]="color.name"
+                  [style.border-radius]="isModernColorSelected(color.value) ? '50% 20% 50% 20%' : '30% 70% 30% 70%'">
+          </button>
+        </div>
+      </div>
+
+      <!-- Favorites Toggle -->
+      <button class="organic-favorites-btn" 
+              [class.active]="showOnlyFavorites"
+              (click)="onToggleFavorites()">
+        <mat-icon [class.filled]="showOnlyFavorites">{{ showOnlyFavorites ? 'favorite' : 'favorite_border' }}</mat-icon>
+        Favorites Only
+      </button>
+    </div>
+  </div>
 
   <!-- Loading State -->
-  <div *ngIf="isLoading" class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Loading your closet...</p>
+  <div *ngIf="isLoading" class="floating-loading">
+    <div class="loading-content">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading your closet...</p>
+    </div>
+  </div>
+
+  <!-- Scattered Clothing Items - Just Images! -->
+  <div class="scattered-items-container" *ngIf="!isLoading && filteredItems.length > 0">
+    <div *ngFor="let item of filteredItems; let i = index; trackBy: trackByItemId" 
+         class="floating-item"
+         [class.dragging]="draggedItem === item.id"
+         [style.left.%]="item.x || getItemPosition(i, 'x')"
+         [style.top.%]="item.y || getItemPosition(i, 'y')"
+         [style.transform]="getFloatingItemTransform(item, i)"
+         [style.z-index]="draggedItem === item.id ? 50 : (hoveredItem === item.id ? 10 : 5)"
+         [style.cursor]="draggedItem === item.id ? 'grabbing' : 'grab'"
+         [style.filter]="getFloatingItemFilter(item)"
+         (mousedown)="onItemMouseDown($event, item)"
+         (mouseenter)="hoveredItem = item.id"
+         (mouseleave)="hoveredItem = null">
+      
+      <!-- Floating Favorite Heart -->
+      <button class="floating-favorite-btn" 
+              [class.active]="item.isFavorite"
+              (click)="toggleFavorite(item); $event.stopPropagation()"
+              (mousedown)="$event.stopPropagation()">
+        <mat-icon class="heart-icon">{{ item.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
+      </button>
+
+      <!-- Floating Edit Button (appears on hover) -->
+      <button class="floating-edit-btn" 
+              (click)="editItem(item); $event.stopPropagation()"
+              (mousedown)="$event.stopPropagation()">
+        <mat-icon class="edit-icon">edit</mat-icon>
+      </button>
+
+      <!-- The Clothing Item Image -->
+      <img [src]="item.thumbnailUrl" 
+           [alt]="item.originalFileName" 
+           class="floating-item-image"
+           [style.filter]="getImageFilter(item)"
+           draggable="false">
+    </div>
   </div>
 
   <!-- Empty State -->
-  <div *ngIf="!isLoading && clothingItems.length === 0" class="empty-state">
-    <mat-icon class="empty-icon">checkroom</mat-icon>
-    <h2>Your closet is empty</h2>
-    <p>Start building your virtual closet by uploading photos of your clothes!</p>
-    <button mat-raised-button color="primary" routerLink="/upload">
-      <mat-icon>add</mat-icon>
-      Add First Item
-    </button>
+  <div *ngIf="!isLoading && clothingItems.length === 0" class="floating-empty-state">
+    <div class="empty-content">
+      <mat-icon class="empty-icon">checkroom</mat-icon>
+      <h3>Your closet is empty</h3>
+      <p>Start building your virtual closet by uploading photos of your clothes!</p>
+      <button mat-raised-button class="organic-btn" (click)="openUploadModal()">
+        <mat-icon>add</mat-icon>
+        Add First Item
+      </button>
+    </div>
   </div>
 
   <!-- No Results State -->
-  <div *ngIf="!isLoading && clothingItems.length > 0 && filteredItems.length === 0" class="no-results-state">
-    <mat-icon class="no-results-icon">search_off</mat-icon>
-    <h3>No items match your filters</h3>
-    <p>Try adjusting your search terms or category filter.</p>
-              <button mat-button (click)="clearAllFilters()">
-      <mat-icon>clear</mat-icon>
-      Clear Filters
-    </button>
-  </div>
-
-  <!-- Clean Items Grid -->
-  <div *ngIf="!isLoading && filteredItems.length > 0" class="clean-items-container">
-    <div class="clean-items-grid">
-      <div 
-        *ngFor="let item of filteredItems; trackBy: trackByItemId" 
-        class="clean-item"
-        [class.favorite]="item.isFavorite">
-        
-        <!-- Clean Image -->
-        <div class="clean-image-container">
-          <img [src]="item.thumbnailUrl" [alt]="item.originalFileName" class="clean-item-image">
-          
-          <!-- Hover Actions -->
-          <div class="clean-actions">
-            <button mat-icon-button class="action-btn edit-btn" (click)="editItem(item)">
-              <mat-icon>edit</mat-icon>
-            </button>
-            
-            <button mat-icon-button class="action-btn favorite-btn" (click)="toggleFavorite(item)">
-              <mat-icon [color]="item.isFavorite ? 'warn' : ''">
-                {{ item.isFavorite ? 'favorite' : 'favorite_border' }}
-              </mat-icon>
-            </button>
-            
-            <button mat-icon-button class="action-btn delete-btn" (click)="deleteItem(item)">
-              <mat-icon>delete</mat-icon>
-            </button>
-          </div>
-        </div>
-
-        <!-- Clean Info Bar -->
-        <div class="clean-info">
-          <!-- Color Circles FIRST -->
-          <div class="color-circles">
-            <div 
-              *ngFor="let color of item.colors" 
-              class="color-circle"
-              [style.background-color]="getColorHex(color)"
-              [title]="getColorDisplayName(color)">
-            </div>
-          </div>
-          
-          <!-- Category Label AFTER -->
-          <div class="category-label">
-            {{ getCategoryDisplayName(item.category) }}
-          </div>
-        </div>
-      </div>
+  <div *ngIf="!isLoading && clothingItems.length > 0 && filteredItems.length === 0" class="floating-no-results">
+    <div class="no-results-content">
+      <mat-icon class="no-results-icon">search_off</mat-icon>
+      <h3>Nothing here</h3>
+      <p>Try adjusting your filters</p>
+      <button mat-button class="organic-btn-outline" (click)="clearAllFilters()">
+        <mat-icon>clear</mat-icon>
+        Clear Filters
+      </button>
     </div>
   </div>
 </div>

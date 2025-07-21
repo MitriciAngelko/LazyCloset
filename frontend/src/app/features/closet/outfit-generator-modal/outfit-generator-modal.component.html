@@ -1,0 +1,267 @@
+<div class="outfit-modal-container">
+
+  <!-- Modal Content -->
+  <mat-dialog-content class="modal-content">
+    <!-- Close Button - Top Right -->
+    <button mat-icon-button mat-dialog-close class="close-btn-top">
+      <mat-icon>close</mat-icon>
+    </button>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading your closet...</p>
+    </div>
+
+    <!-- Main Outfit Display -->
+    <div *ngIf="!isLoading" class="outfit-display-area">
+      
+      <!-- Left Action Buttons -->
+      <div class="left-actions">
+        <button mat-fab 
+                color="accent" 
+                class="action-btn randomize-btn"
+                (click)="generateRandomOutfit()"
+                title="Random Outfit">
+          <mat-icon>shuffle</mat-icon>
+        </button>
+        
+        <button mat-fab 
+                class="action-btn clear-btn"
+                (click)="clearOutfit()"
+                title="Clear Outfit">
+          <mat-icon>clear_all</mat-icon>
+        </button>
+      </div>
+      
+      <!-- Central Outfit Mannequin -->
+      <div class="outfit-mannequin">
+        <!-- Silhouette Guide -->
+        <div class="mannequin-silhouette">
+          <div class="body-outline">
+            <div class="head-area"></div>
+            <div class="torso-area"></div>
+            <div class="legs-area"></div>
+            <div class="feet-area"></div>
+          </div>
+        </div>
+        
+        <!-- Hat Layer -->
+        <div class="outfit-item hat-item" 
+             *ngIf="getLayer('hat') && getCurrentItem(getLayer('hat')!) as hatItem"
+             [style.z-index]="5"
+             cdkDrag
+             cdkDragBoundary=".outfit-mannequin"
+             (cdkDragStarted)="onDragStarted()"
+             (cdkDragEnded)="onDragEnded()"
+             (cdkDragDropped)="onDragDropped($event)">
+          <img [src]="hatItem.thumbnailUrl || hatItem.imageUrl" 
+               [alt]="hatItem.originalFileName"
+               class="item-image">
+          <div class="drag-handle">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Top Layer -->
+        <div class="outfit-item top-item" 
+             *ngIf="getLayer('top') && getCurrentItem(getLayer('top')!) as topItem"
+             [style.z-index]="4"
+             cdkDrag
+             cdkDragBoundary=".outfit-mannequin"
+             (cdkDragStarted)="onDragStarted()"
+             (cdkDragEnded)="onDragEnded()"
+             (cdkDragDropped)="onDragDropped($event)">
+          <img [src]="topItem.thumbnailUrl || topItem.imageUrl" 
+               [alt]="topItem.originalFileName"
+               class="item-image">
+          <div class="drag-handle">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Jacket Layer (behind top) -->
+        <div class="outfit-item jacket-item" 
+             *ngIf="getLayer('jacket') && getCurrentItem(getLayer('jacket')!) as jacketItem"
+             [style.z-index]="3"
+             cdkDrag
+             cdkDragBoundary=".outfit-mannequin"
+             (cdkDragStarted)="onDragStarted()"
+             (cdkDragEnded)="onDragEnded()"
+             (cdkDragDropped)="onDragDropped($event)">
+          <img [src]="jacketItem.thumbnailUrl || jacketItem.imageUrl" 
+               [alt]="jacketItem.originalFileName"
+               class="item-image">
+          <div class="drag-handle">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Jeans Layer -->
+        <div class="outfit-item jeans-item" 
+             *ngIf="getLayer('jeans') && getCurrentItem(getLayer('jeans')!) as jeansItem"
+             [style.z-index]="2"
+             cdkDrag
+             cdkDragBoundary=".outfit-mannequin"
+             (cdkDragStarted)="onDragStarted()"
+             (cdkDragEnded)="onDragEnded()"
+             (cdkDragDropped)="onDragDropped($event)">
+          <img [src]="jeansItem.thumbnailUrl || jeansItem.imageUrl" 
+               [alt]="jeansItem.originalFileName"
+               class="item-image">
+          <div class="drag-handle">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Shoes Layer -->
+        <div class="outfit-item shoes-item" 
+             *ngIf="getLayer('shoes') && getCurrentItem(getLayer('shoes')!) as shoesItem"
+             [style.z-index]="1"
+             cdkDrag
+             cdkDragBoundary=".outfit-mannequin"
+             (cdkDragStarted)="onDragStarted()"
+             (cdkDragEnded)="onDragEnded()"
+             (cdkDragDropped)="onDragDropped($event)">
+          <img [src]="shoesItem.thumbnailUrl || shoesItem.imageUrl" 
+               [alt]="shoesItem.originalFileName"
+               class="item-image">
+          <div class="drag-handle">
+            <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Action Buttons -->
+      <div class="right-actions">
+        <button mat-fab 
+                color="primary"
+                class="action-btn save-btn"
+                (click)="saveOutfit()"
+                title="Save Outfit">
+          <mat-icon>save</mat-icon>
+        </button>
+        
+        <button mat-fab 
+                class="action-btn close-btn-fab"
+                mat-dialog-close
+                title="Close">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      
+    </div>
+
+    <!-- Bottom Category Navigation -->
+    <div *ngIf="!isLoading" class="bottom-navigation">
+      
+      <!-- HATS Navigation -->
+      <div class="category-nav-item" *ngIf="getLayer('hat') as hatLayer">
+        <button mat-icon-button 
+                class="nav-arrow left-arrow"
+                (click)="previousItem(getLayerIndex(hatLayer.category))"
+                [disabled]="!hasItems(hatLayer)">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <div class="category-info">
+          <iconify-icon icon="ph:beanie" class="category-icon"></iconify-icon>
+          <span class="item-count" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
+        </div>
+        <button mat-icon-button 
+                class="nav-arrow right-arrow"
+                (click)="nextItem(getLayerIndex(hatLayer.category))"
+                [disabled]="!hasItems(hatLayer)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- TOPS Navigation -->
+      <div class="category-nav-item" *ngIf="getLayer('top') as topLayer">
+        <button mat-icon-button 
+                class="nav-arrow left-arrow"
+                (click)="previousItem(getLayerIndex(topLayer.category))"
+                [disabled]="!hasItems(topLayer)">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <div class="category-info">
+          <iconify-icon icon="tabler:shirt" class="category-icon"></iconify-icon>
+          <span class="item-count" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
+        </div>
+        <button mat-icon-button 
+                class="nav-arrow right-arrow"
+                (click)="nextItem(getLayerIndex(topLayer.category))"
+                [disabled]="!hasItems(topLayer)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- JACKETS Navigation -->
+      <div class="category-nav-item" *ngIf="getLayer('jacket') as jacketLayer">
+        <button mat-icon-button 
+                class="nav-arrow left-arrow"
+                (click)="previousItem(getLayerIndex(jacketLayer.category))"
+                [disabled]="!hasItems(jacketLayer)">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <div class="category-info">
+          <iconify-icon icon="tabler:jacket" class="category-icon"></iconify-icon>
+          <span class="item-count" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
+        </div>
+        <button mat-icon-button 
+                class="nav-arrow right-arrow"
+                (click)="nextItem(getLayerIndex(jacketLayer.category))"
+                [disabled]="!hasItems(jacketLayer)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- JEANS Navigation -->
+      <div class="category-nav-item" *ngIf="getLayer('jeans') as jeansLayer">
+        <button mat-icon-button 
+                class="nav-arrow left-arrow"
+                (click)="previousItem(getLayerIndex(jeansLayer.category))"
+                [disabled]="!hasItems(jeansLayer)">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <div class="category-info">
+          <iconify-icon icon="ph:pants" class="category-icon"></iconify-icon>
+          <span class="item-count" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
+        </div>
+        <button mat-icon-button 
+                class="nav-arrow right-arrow"
+                (click)="nextItem(getLayerIndex(jeansLayer.category))"
+                [disabled]="!hasItems(jeansLayer)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+
+      <!-- SHOES Navigation -->
+      <div class="category-nav-item" *ngIf="getLayer('shoes') as shoesLayer">
+        <button mat-icon-button 
+                class="nav-arrow left-arrow"
+                (click)="previousItem(getLayerIndex(shoesLayer.category))"
+                [disabled]="!hasItems(shoesLayer)">
+          <mat-icon>keyboard_arrow_left</mat-icon>
+        </button>
+        <div class="category-info">
+          <iconify-icon icon="tabler:shoe" class="category-icon"></iconify-icon>
+          <span class="item-count" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
+        </div>
+        <button mat-icon-button 
+                class="nav-arrow right-arrow"
+                (click)="nextItem(getLayerIndex(shoesLayer.category))"
+                [disabled]="!hasItems(shoesLayer)">
+          <mat-icon>keyboard_arrow_right</mat-icon>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && !hasAnyItems()" class="empty-state">
+      <mat-icon class="empty-icon">inventory_2</mat-icon>
+      <h3>Your closet is empty</h3>
+      <p>Add some clothes to start creating outfits!</p>
+    </div>
+  </mat-dialog-content>
+</div> 

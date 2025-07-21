@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Subject, takeUntil } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { ClothingService } from '../../core/services/clothing.service';
-import { ClothingItem, ClothingCategory } from '../../shared/models/clothing.models';
+import { ClothingService } from '../../../core/services/clothing.service';
+import { ClothingItem, ClothingCategory } from '../../../shared/models/clothing.models';
 
 interface OutfitLayer {
   category: ClothingCategory;
@@ -14,12 +15,12 @@ interface OutfitLayer {
 }
 
 @Component({
-  selector: 'app-outfit-generator',
+  selector: 'app-outfit-generator-modal',
   standalone: false,
-  templateUrl: './outfit-generator.component.html',
-  styleUrl: './outfit-generator.component.scss'
+  templateUrl: './outfit-generator-modal.component.html',
+  styleUrls: ['./outfit-generator-modal.component.scss']
 })
-export class OutfitGeneratorComponent implements OnInit, OnDestroy {
+export class OutfitGeneratorModalComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   
   outfitLayers: OutfitLayer[] = [
@@ -27,35 +28,35 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
       category: ClothingCategory.HAT,
       displayName: 'Hats',
       items: [],
-      currentIndex: -1, // Start with no item selected
+      currentIndex: -1,
       zIndex: 5
     },
     {
       category: ClothingCategory.TOP,
       displayName: 'Tops',
       items: [],
-      currentIndex: -1, // Start with no item selected
+      currentIndex: -1,
       zIndex: 4
     },
     {
       category: ClothingCategory.JACKET,
       displayName: 'Jackets',
       items: [],
-      currentIndex: -1, // Start with no item selected
+      currentIndex: -1,
       zIndex: 3
     },
     {
       category: ClothingCategory.JEANS,
       displayName: 'Jeans',
       items: [],
-      currentIndex: -1, // Start with no item selected
+      currentIndex: -1,
       zIndex: 2
     },
     {
       category: ClothingCategory.SHOES,
       displayName: 'Shoes',
       items: [],
-      currentIndex: -1, // Start with no item selected
+      currentIndex: -1,
       zIndex: 1
     }
   ];
@@ -64,7 +65,7 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
 
   constructor(
     private clothingService: ClothingService,
-    private dialog: MatDialog
+    public dialogRef: MatDialogRef<OutfitGeneratorModalComponent>
   ) {}
 
   ngOnInit(): void {
@@ -76,9 +77,6 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Load clothing items and organize by layers
-   */
   private loadClothingItems(): void {
     this.clothingService.getClothingItems()
       .pipe(takeUntil(this.destroy$))
@@ -94,29 +92,21 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Organize items into outfit layers
-   */
   private organizeItemsByLayers(items: ClothingItem[]): void {
     this.outfitLayers.forEach(layer => {
       layer.items = items.filter(item => item.category === layer.category);
-      // Reset index if current index is out of bounds (keep -1 for no selection)
       if (layer.items.length === 0) {
         layer.currentIndex = -1;
       } else if (layer.currentIndex >= layer.items.length) {
-        layer.currentIndex = -1; // Reset to no selection when out of bounds
+        layer.currentIndex = -1;
       }
     });
   }
 
-  /**
-   * Navigate to previous item in a layer
-   */
   previousItem(layerIndex: number): void {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return;
     
-    // Cycle: -1 (none) -> last item -> ... -> first item -> -1 (none)
     if (layer.currentIndex <= -1) {
       layer.currentIndex = layer.items.length - 1;
     } else {
@@ -124,14 +114,10 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Navigate to next item in a layer
-   */
   nextItem(layerIndex: number): void {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return;
     
-    // Cycle: -1 (none) -> first item -> ... -> last item -> -1 (none)
     if (layer.currentIndex >= layer.items.length - 1) {
       layer.currentIndex = -1;
     } else {
@@ -139,37 +125,23 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get current item for a layer
-   */
   getCurrentItem(layer: OutfitLayer): ClothingItem | null {
     return layer.items.length > 0 && layer.currentIndex >= 0 && layer.currentIndex < layer.items.length 
       ? layer.items[layer.currentIndex] 
       : null;
   }
 
-  /**
-   * Check if layer has items
-   */
   hasItems(layer: OutfitLayer): boolean {
     return layer.items.length > 0;
   }
 
-  /**
-   * Get layer position info for UI
-   */
   getLayerInfo(layerIndex: number): string {
     const layer = this.outfitLayers[layerIndex];
     if (layer.items.length === 0) return 'No items';
-    if (layer.currentIndex === -1) return `None (0 of ${layer.items.length})`;
+    if (layer.currentIndex === -1) return `0 of ${layer.items.length}`;
     return `${layer.currentIndex + 1} of ${layer.items.length}`;
   }
 
-
-
-  /**
-   * Generate random outfit
-   */
   generateRandomOutfit(): void {
     this.outfitLayers.forEach(layer => {
       if (layer.items.length > 0) {
@@ -178,18 +150,12 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Clear outfit (remove all clothing items)
-   */
   clearOutfit(): void {
     this.outfitLayers.forEach(layer => {
-      layer.currentIndex = -1; // Set to "no item selected"
+      layer.currentIndex = -1;
     });
   }
 
-  /**
-   * Get category icon for display
-   */
   getCategoryIcon(category: ClothingCategory): string {
     switch (category) {
       case ClothingCategory.HAT: return 'emoji_objects';
@@ -201,16 +167,10 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Check if any layer has items
-   */
   hasAnyItems(): boolean {
     return this.outfitLayers.some(layer => layer.items.length > 0);
   }
 
-  /**
-   * Get layer by category string
-   */
   getLayer(categoryStr: string): OutfitLayer | null {
     const categoryMap: { [key: string]: ClothingCategory } = {
       'hat': ClothingCategory.HAT,
@@ -224,36 +184,47 @@ export class OutfitGeneratorComponent implements OnInit, OnDestroy {
     return this.outfitLayers.find(layer => layer.category === category) || null;
   }
 
-  /**
-   * Get layer index by category
-   */
   getLayerIndex(category: ClothingCategory): number {
     return this.outfitLayers.findIndex(layer => layer.category === category);
   }
 
-  /**
-   * Handle drag drop for repositioning items
-   */
   onDragDropped(event: CdkDragDrop<any>): void {
-    // Get the dragged element's transform values
     const element = event.item.element.nativeElement;
     const transform = element.style.transform;
-    
-    // Store the new position
     element.style.transform = transform;
   }
 
-  /**
-   * Handle drag start
-   */
   onDragStarted(): void {
     // Optional: Add visual feedback when dragging starts
   }
 
-  /**
-   * Handle drag ended
-   */
   onDragEnded(): void {
     // Optional: Clean up after drag ends
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
+  }
+
+  /**
+   * Save the current outfit (placeholder for future implementation)
+   */
+  saveOutfit(): void {
+    // TODO: Implement outfit saving functionality
+    console.log('Save outfit functionality - to be implemented');
+    
+    // Get current outfit items
+    const currentOutfit = {
+      hat: this.getCurrentItem(this.getLayer('hat')!),
+      top: this.getCurrentItem(this.getLayer('top')!),
+      jacket: this.getCurrentItem(this.getLayer('jacket')!),
+      jeans: this.getCurrentItem(this.getLayer('jeans')!),
+      shoes: this.getCurrentItem(this.getLayer('shoes')!)
+    };
+    
+    // For now, just log the outfit
+    console.log('Current outfit to save:', currentOutfit);
+    
+    // Future: Save to backend, show success message, etc.
   }
 } 

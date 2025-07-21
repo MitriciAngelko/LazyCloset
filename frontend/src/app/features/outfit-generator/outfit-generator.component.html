@@ -7,11 +7,7 @@
       <p>Mix & Match Your Perfect Outfit</p>
     </div>
     
-    <div class="action-buttons">
-      <button mat-fab color="primary" (click)="openUploadModal()" class="upload-fab">
-        <mat-icon>add</mat-icon>
-      </button>
-      
+    <div class="action-buttons">      
       <div class="outfit-controls">
         <button mat-raised-button color="accent" (click)="generateRandomOutfit()">
           <mat-icon>shuffle</mat-icon>
@@ -155,10 +151,6 @@
   <div *ngIf="!isLoading && !hasAnyItems()" class="empty-state">
     <mat-icon class="empty-icon">inventory_2</mat-icon>
     <h2>Your closet is empty</h2>
-    <p>Start building your virtual wardrobe by adding your first clothing item!</p>
-    <button mat-raised-button color="primary" (click)="openUploadModal()">
-      <mat-icon>add</mat-icon>
-      Add First Item
-    </button>
+    <p>Add some clothes to your closet to start creating outfits!</p>
   </div>
 </div> 

@@ -12,119 +12,124 @@
 
   <!-- Modal Content -->
   <div mat-dialog-content class="modal-content">
-    <!-- File Upload Area -->
-    <div class="upload-section">
-      <div 
-        class="drop-zone"
-        [class.drag-over]="isDragOver"
-        [class.has-file]="previewUrl"
-        (dragover)="onDragOver($event)"
-        (dragleave)="onDragLeave($event)"
-        (drop)="onDrop($event)"
-        (click)="openFilePicker()">
-        
-        <!-- Preview Image -->
-        <div *ngIf="previewUrl" class="preview-container">
-          <img [src]="previewUrl" alt="Preview" class="preview-image">
-          <button mat-icon-button class="remove-btn" (click)="removeImage(); $event.stopPropagation()">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-
-        <!-- Upload Prompt -->
-        <div *ngIf="!previewUrl" class="upload-prompt">
-          <mat-icon class="upload-icon">cloud_upload</mat-icon>
-          <h3>Drag & Drop Your Image</h3>
-          <p>or click to browse files</p>
-          <small>Supports JPEG, PNG, WebP (max 10MB)</small>
-        </div>
-      </div>
-
-      <!-- Hidden File Input -->
-      <input 
-        #fileInput
-        type="file" 
-        accept="image/*" 
-        style="display: none;"
-        (change)="onFileSelected($event)">
-    </div>
-
-    <!-- Category Selection -->
-    <div class="form-section">
-      <h4>Category</h4>
+    
+    <!-- Main Layout: Left (Image) + Right (Categories/Colors/Tags) -->
+    <div class="main-layout">
       
-      <!-- Simple Category Grid -->
-      <div class="simple-category-grid">
-        <button
-          *ngFor="let categoryInfo of allCategories"
-          mat-raised-button
-          class="simple-category-card"
-          [class.selected]="isCategorySelected(categoryInfo.category)"
-          [color]="isCategorySelected(categoryInfo.category) ? 'primary' : ''"
-          (click)="selectCategory(categoryInfo.category)">
-          <mat-icon class="category-icon">{{ categoryInfo.icon }}</mat-icon>
-          <span class="category-name">{{ categoryInfo.displayName }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Color Selection -->
-    <div class="form-section">
-      <h4>Colors (Optional)</h4>
-      <div class="color-grid">
-        <button 
-          *ngFor="let color of colors"
-          mat-mini-fab
-          [class]="'color-btn color-' + color"
-          [class.selected]="isColorSelected(color)"
-          (click)="toggleColor(color)"
-          [title]="getColorDisplayName(color)">
-          <mat-icon *ngIf="isColorSelected(color)">check</mat-icon>
-        </button>
-      </div>
-    </div>
-
-    <!-- Background Removal Section -->
-    <div *ngIf="showBackgroundOptions" class="form-section background-section">
-      <h4>Background Processing</h4>
-      
-      <div class="background-options">
-        <mat-spinner *ngIf="isProcessingBackground" diameter="20"></mat-spinner>
-        
-        <div *ngIf="!isProcessingBackground && backgroundRemovalResult" class="background-result">
-          <div *ngIf="backgroundRemovalResult.method === 'api'" class="api-success">
-            <mat-icon color="primary">check_circle</mat-icon>
-            <span>Background removed automatically!</span>
-            <div class="background-actions">
-              <button mat-raised-button color="primary" (click)="useBackgroundRemovedImage()">
-                <mat-icon>auto_fix_high</mat-icon>
-                Use Processed
+      <!-- Left Side: Image Upload -->
+      <div class="image-upload-section">
+        <!-- File Upload Area -->
+        <div class="upload-area">
+          <div 
+            class="attach-image-zone"
+            [class.drag-over]="isDragOver"
+            [class.has-file]="previewUrl"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            (click)="openFilePicker()">
+            
+            <!-- Preview Image -->
+            <div *ngIf="previewUrl" class="preview-container">
+              <img [src]="previewUrl" alt="Preview" class="preview-image">
+              <button mat-icon-button class="remove-image-btn" (click)="removeImage(); $event.stopPropagation()">
+                <mat-icon>close</mat-icon>
               </button>
-              <button mat-button (click)="useOriginalImage()">
-                <mat-icon>undo</mat-icon>
-                Use Original
+            </div>
+
+            <!-- Upload Prompt -->
+            <div *ngIf="!previewUrl" class="upload-prompt">
+              <mat-icon class="upload-icon">cloud_upload</mat-icon>
+              <h3>ATTACH IMAGE</h3>
+              <p>Drag & Drop or Click to Browse</p>
+            </div>
+          </div>
+
+          <!-- File Support Info -->
+          <div class="file-support-info">
+            <span>Supports JPEG, PNG, WEBP</span>
+          </div>
+
+          <!-- Hidden File Input -->
+          <input 
+            #fileInput
+            type="file" 
+            accept="image/*" 
+            style="display: none;"
+            (change)="onFileSelected($event)">
+        </div>
+
+        <!-- Background Removal Options -->
+        <div *ngIf="showBackgroundOptions" class="background-options">
+          <mat-spinner *ngIf="isProcessingBackground" diameter="20"></mat-spinner>
+          
+          <div *ngIf="!isProcessingBackground && backgroundRemovalResult" class="bg-action-buttons">
+            <div *ngIf="backgroundRemovalResult.method === 'api'" class="api-success-buttons">
+              <button mat-raised-button color="primary" (click)="useBackgroundRemovedImage()" class="bg-btn">
+                REMOVE BG
+              </button>
+              <button mat-button (click)="useOriginalImage()" class="bg-btn">
+                USE ORIGINAL
+              </button>
+            </div>
+            
+            <div *ngIf="backgroundRemovalResult.method === 'fallback'" class="api-fallback-info">
+              <button mat-button (click)="useOriginalImage()" class="bg-btn">
+                USE ORIGINAL
               </button>
             </div>
           </div>
-          
-          <div *ngIf="backgroundRemovalResult.method === 'fallback'" class="api-fallback">
-            <mat-icon color="warn">info</mat-icon>
-            <span>Background removal not available. Consider manually cropping the image.</span>
-          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Custom Tags -->
-    <div class="form-section">
-      <h4>Tags (Optional)</h4>
-      <mat-form-field appearance="outline" class="tags-field">
-        <mat-label>Add custom tags</mat-label>
-        <input matInput 
-               placeholder="casual, summer, favorite..."
-               [(ngModel)]="customTags">
-        <mat-hint>Separate multiple tags with commas</mat-hint>
-      </mat-form-field>
+      <!-- Right Side: Categories, Colors, Tags -->
+      <div class="options-section">
+        
+        <!-- Categories -->
+        <div class="category-section">
+          <h4>CATEGORY</h4>
+          <div class="category-icons">
+            <button
+              *ngFor="let categoryInfo of allCategories"
+              mat-icon-button
+              class="category-icon-btn"
+              [class.selected]="isCategorySelected(categoryInfo.category)"
+              (click)="selectCategory(categoryInfo.category)"
+              [title]="categoryInfo.displayName">
+              <iconify-icon [icon]="categoryInfo.icon"></iconify-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Colors -->
+        <div class="colors-section">
+          <h4>COLORS</h4>
+          <div class="colors-grid">
+            <button 
+              *ngFor="let color of colors"
+              mat-mini-fab
+              [class]="'color-btn color-' + color"
+              [class.selected]="isColorSelected(color)"
+              (click)="toggleColor(color)"
+              [title]="getColorDisplayName(color)">
+              <mat-icon *ngIf="isColorSelected(color)">check</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div class="tags-section">
+          <h4>TAGS</h4>
+          <div class="tags-input-container">
+            <mat-form-field appearance="outline" class="tags-field">
+              <input matInput 
+                     placeholder="Write tags"
+                     [(ngModel)]="customTags">
+            </mat-form-field>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 

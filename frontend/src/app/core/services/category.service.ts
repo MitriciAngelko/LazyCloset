@@ -28,11 +28,11 @@ export class CategoryService {
         name: 'Outfit Essentials',
         icon: 'checkroom',
         categories: [
-          { category: ClothingCategory.HAT, displayName: 'Hat', icon: 'style', description: 'Hats, caps, beanies' },
-          { category: ClothingCategory.TOP, displayName: 'Top', icon: 'checkroom', description: 'Shirts, t-shirts, blouses, sweaters' },
-          { category: ClothingCategory.JACKET, displayName: 'Jacket', icon: 'ac_unit', description: 'Jackets, blazers, coats' },
-          { category: ClothingCategory.JEANS, displayName: 'Jeans', icon: 'straighten', description: 'Jeans, pants, bottoms' },
-          { category: ClothingCategory.SHOES, displayName: 'Shoes', icon: 'directions_walk', description: 'All types of footwear' }
+          { category: ClothingCategory.HAT, displayName: 'Hat', icon: 'ph:beanie', description: 'Hats, caps, beanies' },
+          { category: ClothingCategory.TOP, displayName: 'Top', icon: 'tabler:shirt', description: 'Shirts, t-shirts, blouses, sweaters' },
+          { category: ClothingCategory.JACKET, displayName: 'Jacket', icon: 'tabler:jacket', description: 'Jackets, blazers, coats' },
+          { category: ClothingCategory.JEANS, displayName: 'Jeans', icon: 'ph:pants', description: 'Jeans, pants, bottoms' },
+          { category: ClothingCategory.SHOES, displayName: 'Shoes', icon: 'tabler:shoe', description: 'All types of footwear' }
         ]
       }
     ];

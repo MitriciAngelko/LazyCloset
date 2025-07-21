@@ -59,7 +59,7 @@
             [class.selected]="isCategorySelected(categoryInfo.category)"
             [color]="isCategorySelected(categoryInfo.category) ? 'primary' : ''"
             (click)="selectCategory(categoryInfo.category)">
-            <mat-icon class="category-icon">{{ categoryInfo.icon }}</mat-icon>
+            <iconify-icon class="category-icon" [icon]="categoryInfo.icon"></iconify-icon>
             <span class="category-name">{{ categoryInfo.displayName }}</span>
           </button>
         </div>

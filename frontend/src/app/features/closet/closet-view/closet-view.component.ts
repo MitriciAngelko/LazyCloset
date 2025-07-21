@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, ChangeDetectorRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Subject, takeUntil, combineLatest, BehaviorSubject } from 'rxjs';
@@ -8,6 +8,19 @@ import { SupabaseService } from '../../../core/services/supabase.service';
 import { CategoryService, CategoryInfo } from '../../../core/services/category.service';
 import { ClothingItem, ClothingCategory, ClothingColor } from '../../../shared/models/clothing.models';
 import { ItemEditModalComponent } from '../item-edit-modal/item-edit-modal.component';
+import { OutfitGeneratorModalComponent } from '../outfit-generator-modal/outfit-generator-modal.component';
+
+interface ModernColor {
+  name: string;
+  value: string;
+}
+
+interface DraggableClothingItem extends ClothingItem {
+  x?: number;
+  y?: number;
+  rotation?: number;
+  scale?: number;
+}
 
 @Component({
   selector: 'app-closet-view',
@@ -16,14 +29,17 @@ import { ItemEditModalComponent } from '../item-edit-modal/item-edit-modal.compo
   styleUrl: './closet-view.component.scss'
 })
 export class ClosetViewComponent implements OnInit, OnDestroy {
+  @ViewChild('containerRef', { static: false }) containerRef!: ElementRef;
+  
   private destroy$ = new Subject<void>();
   
-  clothingItems: ClothingItem[] = [];
-  filteredItems: ClothingItem[] = [];
+  clothingItems: DraggableClothingItem[] = [];
+  filteredItems: DraggableClothingItem[] = [];
   
   // Filter controls
   selectedCategory: ClothingCategory | 'all' = 'all';
-  selectedColors: ClothingColor[] = []; // NEW: Color filtering
+  selectedColors: ClothingColor[] = [];
+  selectedModernColors: string[] = []; // NEW: Modern color filtering
   searchTerm = '';
   showOnlyFavorites = false;
   
@@ -31,13 +47,51 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   isLoading = true;
   viewMode: 'grid' | 'list' = 'grid';
   
+  // Drag and Drop state
+  draggedItem: string | null = null;
+  dragOffset = { x: 0, y: 0 };
+  hoveredItem: string | null = null;
+  
+  // Physics for natural dragging
+  private lastMousePosition = { x: 0, y: 0 };
+  private lastMoveTime = 0;
+  private velocity = { x: 0, y: 0 };
+  private isSliding = false;
+  
+  // Mouse tracking
+  mousePosition = { x: 0, y: 0 };
+  isFilterOpen = false;
+  
+  // Category options
+  categoryOptions: (ClothingCategory | 'all')[] = [
+    'all',
+    ClothingCategory.HAT,
+    ClothingCategory.TOP,
+    ClothingCategory.JACKET,
+    ClothingCategory.JEANS,
+    ClothingCategory.SHOES
+  ];
+  
+  // Modern color palette
+  modernColors: ModernColor[] = [
+    { name: "Terracotta", value: "#D4B5A0" },
+    { name: "Navy", value: "#2C3E50" },
+    { name: "Sage", value: "#B8C5A6" },
+    { name: "Cream", value: "#F5F1EB" },
+    { name: "Rust", value: "#C4A484" },
+    { name: "Slate", value: "#34495E" },
+    { name: "Sand", value: "#E8DDD4" },
+    { name: "Forest", value: "#6B7A5A" }
+  ];
+  
   readonly categories = Object.values(ClothingCategory);
-  readonly availableColors = Object.values(ClothingColor); // NEW: Available colors for filtering
+  readonly availableColors = Object.values(ClothingColor);
   categoryInfoList: CategoryInfo[] = [];
   
   private searchSubject = new BehaviorSubject<string>('');
   private categorySubject = new BehaviorSubject<ClothingCategory | 'all'>('all');
-  private colorSubject = new BehaviorSubject<ClothingColor[]>([]); // NEW: Color filter subject
+  private colorSubject = new BehaviorSubject<ClothingColor[]>([]);
+  private modernColorSubject = new BehaviorSubject<string[]>([]);
   private favoritesSubject = new BehaviorSubject<boolean>(false);
 
   constructor(
@@ -45,16 +99,16 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     private supabaseService: SupabaseService,
     public categoryService: CategoryService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {
     this.categoryInfoList = this.categoryService.getAllCategories();
   }
 
   ngOnInit(): void {
-    // Wait for user authentication before loading items
     this.supabaseService.currentUser$
       .pipe(
-        filter(user => user !== null), // Only proceed when user is authenticated
+        filter(user => user !== null),
         takeUntil(this.destroy$)
       )
       .subscribe(user => {
@@ -69,15 +123,260 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Load all clothing items
-   */
+  // ===== Category Helper =====
+
+  getCategoryDisplayText(category: ClothingCategory | 'all'): string {
+    if (category === 'all') return 'All';
+    return this.getCategoryDisplayName(category);
+  }
+
+  // ===== Drag and Drop Methods =====
+
+  onItemMouseDown(event: MouseEvent, item: DraggableClothingItem): void {
+    // Don't start drag if clicking on edit or favorite buttons
+    const target = event.target as HTMLElement;
+    if (target.closest('.floating-edit-btn') || target.closest('.floating-favorite-btn')) {
+      return;
+    }
+    
+    event.preventDefault();
+    
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    
+    this.draggedItem = item.id;
+    this.dragOffset = {
+      x: event.clientX - rect.left - rect.width / 2,
+      y: event.clientY - rect.top - rect.height / 2
+    };
+    
+    // Initialize physics tracking
+    this.lastMousePosition = { x: event.clientX, y: event.clientY };
+    this.lastMoveTime = Date.now();
+    this.velocity = { x: 0, y: 0 };
+    this.isSliding = false;
+  }
+
+  @HostListener('document:mouseup')
+  onDocumentMouseUp(): void {
+    if (this.draggedItem && !this.isSliding) {
+      // Apply momentum when releasing
+      this.startSliding();
+    }
+    
+    this.draggedItem = null;
+    this.dragOffset = { x: 0, y: 0 };
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    const container = this.containerRef.nativeElement;
+    const rect = container.getBoundingClientRect();
+    
+    this.mousePosition = {
+      x: ((event.clientX - rect.left) / rect.width) * 100,
+      y: ((event.clientY - rect.top) / rect.height) * 100
+    };
+
+    // Handle dragging - make it super responsive
+    if (this.draggedItem !== null && !this.isSliding) {
+      const currentTime = Date.now();
+      const deltaTime = Math.max(currentTime - this.lastMoveTime, 1); // Prevent division by zero
+      
+      // Calculate velocity for momentum
+      const deltaX = event.clientX - this.lastMousePosition.x;
+      const deltaY = event.clientY - this.lastMousePosition.y;
+      
+      this.velocity = {
+        x: deltaX / deltaTime,
+        y: deltaY / deltaTime
+      };
+
+      // Calculate new position - DIRECT tracking, no lag
+      const newX = ((event.clientX - rect.left - this.dragOffset.x) / rect.width) * 100;
+      const newY = ((event.clientY - rect.top - this.dragOffset.y) / rect.height) * 100;
+
+      // Update position immediately
+      this.updateItemPosition(newX, newY);
+      
+      // Update tracking
+      this.lastMousePosition = { x: event.clientX, y: event.clientY };
+      this.lastMoveTime = currentTime;
+    }
+  }
+
+  private updateItemPosition(newX: number, newY: number): void {
+    const clampedX = Math.max(5, Math.min(95, newX));
+    const clampedY = Math.max(10, Math.min(90, newY));
+
+    this.clothingItems = this.clothingItems.map(item =>
+      item.id === this.draggedItem
+        ? { ...item, x: clampedX, y: clampedY }
+        : item
+    );
+    
+    // Update filtered items as well
+    this.filteredItems = this.filteredItems.map(item =>
+      item.id === this.draggedItem
+        ? { ...item, x: clampedX, y: clampedY }
+        : item
+    );
+  }
+
+  private startSliding(): void {
+    const draggedItemId = this.draggedItem;
+    if (!draggedItemId) return;
+    
+    // Only slide if there's significant velocity
+    const totalVelocity = Math.abs(this.velocity.x) + Math.abs(this.velocity.y);
+    console.log('Starting slide with velocity:', this.velocity, 'total:', totalVelocity);
+    
+    if (totalVelocity < 0.2) return; // Lower threshold for more sliding
+    
+    this.isSliding = true;
+    const friction = 0.94; // Slightly less friction for longer slides
+    const minVelocity = 0.02; // Lower minimum for smoother stops
+    
+    const animate = () => {
+      if (!this.isSliding) return;
+      
+      // Apply friction
+      this.velocity.x *= friction;
+      this.velocity.y *= friction;
+      
+      // Check if we should stop
+      if (Math.abs(this.velocity.x) < minVelocity && Math.abs(this.velocity.y) < minVelocity) {
+        this.isSliding = false;
+        console.log('Stopping slide');
+        return;
+      }
+      
+      // Get current item position
+      const item = this.clothingItems.find(i => i.id === draggedItemId);
+      if (!item) {
+        this.isSliding = false;
+        return;
+      }
+      
+      // Calculate new position with momentum
+      const newX = (item.x || 0) + this.velocity.x * 25; // Increased scaling for more visible sliding
+      const newY = (item.y || 0) + this.velocity.y * 25;
+      
+      this.updateItemPosition(newX, newY);
+      
+      // Trigger change detection for smooth animation
+      this.cdr.detectChanges();
+      
+      // Continue animation
+      requestAnimationFrame(animate);
+    };
+    
+    // Start the sliding animation
+    requestAnimationFrame(animate);
+  }
+
+  // ===== Scatter Items Feature =====
+
+  scatterItems(): void {
+    this.clothingItems = this.clothingItems.map(item => ({
+      ...item,
+      x: Math.random() * 80 + 10,
+      y: Math.random() * 60 + 20,
+      rotation: (Math.random() - 0.5) * 30,
+      scale: 0.8 + Math.random() * 0.4
+    }));
+    
+    // Update filtered items with new positions
+    this.filteredItems = this.filteredItems.map(item => {
+      const originalItem = this.clothingItems.find(orig => orig.id === item.id);
+      return originalItem ? { ...item, ...originalItem } : item;
+    });
+  }
+
+  // ===== Floating Items Transform & Style Methods =====
+
+  getFloatingItemTransform(item: DraggableClothingItem, index: number): string {
+    // When dragging, use simple transform to avoid lag
+    if (this.draggedItem === item.id) {
+      return `translate(-50%, -50%)`;
+    }
+    
+    // For non-dragged items, use organic positioning
+    const rotation = item.rotation || ((index % 7 - 3) * 5);
+    const scale = item.scale || (0.8 + (index % 5) * 0.1); // More consistent scaling
+    
+    return `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+  }
+
+  getFloatingItemFilter(item: DraggableClothingItem): string {
+    const shadowIntensity = this.draggedItem === item.id ? "20px 25px" : "10px 15px";
+    return `drop-shadow(0 ${shadowIntensity} rgba(44, 62, 80, 0.2))`;
+  }
+
+  getImageFilter(item: DraggableClothingItem): string {
+    const brightness = this.draggedItem === item.id ? 1.1 : 1;
+    const contrast = this.draggedItem === item.id ? 1.1 : 1;
+    return `brightness(${brightness}) contrast(${contrast})`;
+  }
+
+  getBackgroundStyle(): string {
+    return `
+      radial-gradient(circle at ${this.mousePosition.x}% ${this.mousePosition.y}%, rgba(180, 197, 166, 0.08) 0%, transparent 50%),
+      linear-gradient(135deg, #F5F1EB 0%, #E8DDD4 50%, #DDD5CC 100%)
+    `;
+  }
+
+  // ===== Modern Color Filtering =====
+
+  isModernColorSelected(colorValue: string): boolean {
+    return this.selectedModernColors.includes(colorValue);
+  }
+
+  toggleModernColorFilter(colorValue: string): void {
+    const index = this.selectedModernColors.indexOf(colorValue);
+    if (index > -1) {
+      this.selectedModernColors.splice(index, 1);
+    } else {
+      this.selectedModernColors.push(colorValue);
+    }
+    this.modernColorSubject.next([...this.selectedModernColors]);
+  }
+
+  // ===== Original Methods (Updated) =====
+
+  toggleFilters(): void {
+    this.isFilterOpen = !this.isFilterOpen;
+  }
+
+  getItemPosition(index: number, axis: 'x' | 'y'): number {
+    const positions = [
+      { x: 15, y: 20 }, { x: 65, y: 15 }, { x: 35, y: 45 }, { x: 80, y: 35 },
+      { x: 20, y: 65 }, { x: 75, y: 55 }, { x: 45, y: 25 }, { x: 25, y: 80 },
+      { x: 70, y: 75 }, { x: 50, y: 60 }, { x: 10, y: 40 }, { x: 85, y: 60 },
+      { x: 40, y: 85 }, { x: 60, y: 10 }, { x: 30, y: 30 }
+    ];
+    
+    const position = positions[index % positions.length];
+    const offset = (index * 7) % 15 - 7.5;
+    
+    if (axis === 'x') {
+      return Math.max(5, Math.min(95, position.x + offset));
+    } else {
+      return Math.max(15, Math.min(85, position.y + offset));
+    }
+  }
+
   private loadClothingItems(): void {
     this.clothingService.getClothingItems()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (items) => {
-          this.clothingItems = items;
+          // Initialize items with random positions if not set
+          this.clothingItems = items.map((item, index) => ({
+            ...item,
+            x: (item as any).x || Math.random() * 80 + 10,
+            y: (item as any).y || Math.random() * 60 + 20,
+            rotation: (item as any).rotation || (Math.random() - 0.5) * 30,
+            scale: (item as any).scale || (0.8 + Math.random() * 0.4)
+          }));
           this.isLoading = false;
         },
         error: (error) => {
@@ -90,35 +389,37 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Setup reactive filters
-   */
   private setupFilters(): void {
     combineLatest([
       this.clothingService.getClothingItems(),
       this.searchSubject,
       this.categorySubject,
-      this.colorSubject, // NEW: Color filter
+      this.colorSubject,
+      this.modernColorSubject,
       this.favoritesSubject
     ]).pipe(
-      map(([items, search, category, colors, favorites]) => {
-        return items.filter(item => {
-          // Search filter
+      map(([items, search, category, colors, modernColors, favorites]) => {
+        return items.map((item, index) => ({
+          ...item,
+          x: (item as any).x || Math.random() * 80 + 10,
+          y: (item as any).y || Math.random() * 60 + 20,
+          rotation: (item as any).rotation || (Math.random() - 0.5) * 30,
+          scale: (item as any).scale || (0.8 + Math.random() * 0.4)
+        })).filter(item => {
           const matchesSearch = !search || 
-            item.originalFileName.toLowerCase().includes(search.toLowerCase()) ||
-            item.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
+            item.originalFileName.toLowerCase().includes(search.toLowerCase());
 
-          // Category filter
           const matchesCategory = category === 'all' || item.category === category;
 
-          // NEW: Color filter - item must have at least one selected color
           const matchesColors = colors.length === 0 || 
             colors.some(selectedColor => item.colors.includes(selectedColor));
 
-          // Favorites filter
+          // Modern color filter (if any modern colors are selected)
+          const matchesModernColors = modernColors.length === 0 || true; // For now, skip modern color filtering on actual items
+
           const matchesFavorites = !favorites || item.isFavorite;
 
-          return matchesSearch && matchesCategory && matchesColors && matchesFavorites;
+          return matchesSearch && matchesCategory && matchesColors && matchesModernColors && matchesFavorites;
         });
       }),
       takeUntil(this.destroy$)
@@ -127,50 +428,21 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Update search filter
-   */
   onSearchChange(searchTerm: string): void {
     this.searchTerm = searchTerm;
     this.searchSubject.next(searchTerm);
   }
 
-  /**
-   * Update category filter
-   */
   onCategoryChange(category: ClothingCategory | 'all'): void {
     this.selectedCategory = category;
     this.categorySubject.next(category);
   }
 
-  /**
-   * Update color filter
-   */
-  onColorChange(colors: ClothingColor[]): void {
-    this.selectedColors = colors;
-    this.colorSubject.next(colors);
-  }
-
-  /**
-   * Toggle favorites filter
-   */
   onToggleFavorites(): void {
     this.showOnlyFavorites = !this.showOnlyFavorites;
     this.favoritesSubject.next(this.showOnlyFavorites);
   }
 
-  /**
-   * Toggle view mode
-   */
-  toggleViewMode(): void {
-    this.viewMode = this.viewMode === 'grid' ? 'list' : 'grid';
-  }
-
-  // ===== PHASE 2: Color Filtering =====
-
-  /**
-   * Toggle color filter
-   */
   toggleColorFilter(color: ClothingColor): void {
     const index = this.selectedColors.indexOf(color);
     if (index > -1) {
@@ -181,49 +453,24 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     this.colorSubject.next([...this.selectedColors]);
   }
 
-  /**
-   * Check if color filter is selected
-   */
   isColorFilterSelected(color: ClothingColor): boolean {
     return this.selectedColors.includes(color);
   }
 
-  /**
-   * Clear all color filters
-   */
-  clearColorFilters(): void {
-    this.selectedColors = [];
-    this.colorSubject.next([]);
-  }
-
-  /**
-   * Check if there are any active filters
-   */
-  hasActiveFilters(): boolean {
-    return this.selectedCategory !== 'all' || 
-           this.selectedColors.length > 0 || 
-           this.showOnlyFavorites ||
-           this.searchTerm.length > 0;
-  }
-
-  /**
-   * Clear all filters
-   */
   clearAllFilters(): void {
     this.selectedCategory = 'all';
     this.selectedColors = [];
+    this.selectedModernColors = [];
     this.showOnlyFavorites = false;
     this.searchTerm = '';
     
     this.categorySubject.next('all');
     this.colorSubject.next([]);
+    this.modernColorSubject.next([]);
     this.favoritesSubject.next(false);
     this.searchSubject.next('');
   }
 
-  /**
-   * Get category display name
-   */
   getCategoryDisplayName(category: ClothingCategory | 'all'): string {
     if (category === 'all') return 'All Categories';
     
@@ -231,9 +478,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     return categoryInfo?.displayName || category;
   }
 
-  /**
-   * Get color display name
-   */
   getColorDisplayName(color: ClothingColor): string {
     const displayNames: { [key in ClothingColor]: string } = {
       [ClothingColor.RED]: 'Red',
@@ -253,9 +497,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     return displayNames[color] || color;
   }
 
-  /**
-   * Get color hex value (simplified mapping)
-   */
   getColorHex(color: ClothingColor): string {
     const colorHexMap: { [key in ClothingColor]: string } = {
       [ClothingColor.RED]: '#f44336',
@@ -275,47 +516,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     return colorHexMap[color] || '#9e9e9e';
   }
 
-  /**
-   * Get appropriate text color for background
-   */
-  getTextColorForBackground(color: ClothingColor): string {
-    const darkColors = [ClothingColor.BLACK, ClothingColor.NAVY, ClothingColor.BROWN, ClothingColor.PURPLE];
-    return darkColors.includes(color) ? '#ffffff' : '#000000';
-  }
-
-  // ===== Helper Methods =====
-
-  /**
-   * Get items count text
-   */
-  getItemsCountText(): string {
-    const total = this.clothingItems.length;
-    const filtered = this.filteredItems.length;
-    
-    if (total === 0) return 'No items in your closet';
-    if (filtered === total) return `${total} item${total !== 1 ? 's' : ''}`;
-    return `${filtered} of ${total} item${total !== 1 ? 's' : ''}`;
-  }
-
-  /**
-   * Get color display for item
-   */
-  getColorDisplay(colors: ClothingColor[] | readonly ClothingColor[]): string {
-    if (colors.length === 0) return 'No colors specified';
-    if (colors.length === 1) return this.getColorDisplayName(colors[0]);
-    return `${colors.length} colors`;
-  }
-
-  /**
-   * Get formatted date
-   */
-  getFormattedDate(date: Date): string {
-    return new Date(date).toLocaleDateString();
-  }
-
-  /**
-   * Toggle item favorite status
-   */
   toggleFavorite(item: ClothingItem): void {
     this.clothingService.toggleFavorite(item.id)
       .pipe(takeUntil(this.destroy$))
@@ -335,9 +535,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Delete clothing item
-   */
   deleteItem(item: ClothingItem): void {
     if (confirm(`Are you sure you want to delete "${item.originalFileName}"?`)) {
       this.clothingService.deleteClothingItem(item.id)
@@ -358,17 +555,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Get category icon
-   */
-  getCategoryIcon(category: ClothingCategory): string {
-    const categoryInfo = this.categoryService.getCategoryInfo(category);
-    return categoryInfo?.icon || 'checkroom';
-  }
-
-  /**
-   * Edit clothing item
-   */
   editItem(item: ClothingItem): void {
     const dialogRef = this.dialog.open(ItemEditModalComponent, {
       width: '600px',
@@ -382,14 +568,41 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       .subscribe(updatedItem => {
         if (updatedItem) {
           console.log('Item updated successfully:', updatedItem);
-          // The service already updates the data source, so the UI will automatically refresh
         }
       });
   }
 
-  /**
-   * Track by function for ngFor performance
-   */
+  openUploadModal(): void {
+    import('../../upload/upload-modal/upload-modal.component').then(module => {
+      const dialogRef = this.dialog.open(module.UploadModalComponent, {
+        width: '600px',
+        maxHeight: '90vh',
+        disableClose: false,
+        data: {}
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result?.success) {
+          console.log('New item uploaded successfully');
+        }
+      });
+    });
+  }
+
+  openOutfitGenerator(): void {
+    const dialogRef = this.dialog.open(OutfitGeneratorModalComponent, {
+      width: '1000px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      disableClose: false,
+      panelClass: 'outfit-generator-dialog'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Outfit generator closed');
+    });
+  }
+
   trackByItemId(index: number, item: ClothingItem): string {
     return item.id;
   }

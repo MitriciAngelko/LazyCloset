@@ -1,7 +1,8 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 // Material Modules
 import { MatTabsModule } from '@angular/material/tabs';
@@ -22,6 +23,7 @@ import { MatDividerModule } from '@angular/material/divider';
 // Closet Components
 import { ClosetViewComponent } from './closet-view/closet-view.component';
 import { ItemEditModalComponent } from './item-edit-modal/item-edit-modal.component';
+import { OutfitGeneratorModalComponent } from './outfit-generator-modal/outfit-generator-modal.component';
 
 // Import Upload Module
 import { UploadModule } from '../upload/upload.module';
@@ -34,7 +36,8 @@ const closetRoutes: Routes = [
 @NgModule({
   declarations: [
     ClosetViewComponent,
-    ItemEditModalComponent
+    ItemEditModalComponent,
+    OutfitGeneratorModalComponent
   ],
   imports: [
     CommonModule,
@@ -42,6 +45,7 @@ const closetRoutes: Routes = [
     ReactiveFormsModule,
     RouterModule.forChild(closetRoutes),
     UploadModule,
+    DragDropModule,
     
     // Material Modules
     MatTabsModule,
@@ -59,6 +63,7 @@ const closetRoutes: Routes = [
     MatSlideToggleModule,
     MatDividerModule
   ],
-  providers: []
+  providers: [],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class ClosetModule { } 
