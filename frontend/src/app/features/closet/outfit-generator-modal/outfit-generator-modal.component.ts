@@ -122,6 +122,9 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
       }
     });
     
+    // Auto-generate a random outfit when items are loaded
+    this.generateRandomOutfit();
+    
     // Check connections after items are organized
     setTimeout(() => {
       this.checkClothingConnections();
