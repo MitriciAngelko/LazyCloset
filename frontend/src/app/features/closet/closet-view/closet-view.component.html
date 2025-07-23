@@ -25,10 +25,11 @@
   <!-- Reset/Scatter Button -->
   <div class="floating-scatter-btn">
     <button mat-raised-button 
-            class="scatter-btn" 
-            (click)="scatterItems()">
-      <mat-icon>refresh</mat-icon>
-      Scatter Items
+            class="layout-toggle-btn" 
+            [class.grid-mode]="layoutMode === 'grid'"
+            (click)="toggleLayoutMode()">
+      <mat-icon>{{ layoutMode === 'scatter' ? 'grid_view' : 'scatter_plot' }}</mat-icon>
+      {{ layoutMode === 'scatter' ? 'Grid View' : 'Scatter Items' }}
     </button>
   </div>
 
@@ -47,11 +48,6 @@
       <mat-icon>checkroom</mat-icon>
       Create Look
     </button>
-
-    <div class="user-info">
-      <mat-icon>person</mat-icon>
-      <span>Your Closet</span>
-    </div>
   </div>
 
   <!-- Search -->
@@ -105,13 +101,7 @@
         </div>
       </div>
 
-      <!-- Favorites Toggle -->
-      <button class="organic-favorites-btn" 
-              [class.active]="showOnlyFavorites"
-              (click)="onToggleFavorites()">
-        <mat-icon [class.filled]="showOnlyFavorites">{{ showOnlyFavorites ? 'favorite' : 'favorite_border' }}</mat-icon>
-        Favorites Only
-      </button>
+
     </div>
   </div>
 
@@ -137,14 +127,6 @@
          (mousedown)="onItemMouseDown($event, item)"
          (mouseenter)="hoveredItem = item.id"
          (mouseleave)="hoveredItem = null">
-      
-      <!-- Floating Favorite Heart -->
-      <button class="floating-favorite-btn" 
-              [class.active]="item.isFavorite"
-              (click)="toggleFavorite(item); $event.stopPropagation()"
-              (mousedown)="$event.stopPropagation()">
-        <mat-icon class="heart-icon">{{ item.isFavorite ? 'favorite' : 'favorite_border' }}</mat-icon>
-      </button>
 
       <!-- Floating Edit Button (appears on hover) -->
       <button class="floating-edit-btn" 

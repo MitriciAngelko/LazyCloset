@@ -4,10 +4,10 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { GuestGuard } from './core/guards/guest.guard';
 
 const routes: Routes = [
-  // Default route - redirect to outfit generator
+  // Default route - redirect to closet
   { 
     path: '', 
-    redirectTo: '/outfit-generator', 
+    redirectTo: '/closet', 
     pathMatch: 'full' 
   },
   
@@ -20,12 +20,6 @@ const routes: Routes = [
   
   // Protected routes - require authentication
   {
-    path: 'outfit-generator',
-    loadChildren: () => import('./features/outfit-generator/outfit-generator.module').then(m => m.OutfitGeneratorModule),
-    canActivate: [AuthGuard]
-  },
-  
-  {
     path: 'closet',
     loadChildren: () => import('./features/closet/closet.module').then(m => m.ClosetModule),
     canActivate: [AuthGuard]
@@ -34,7 +28,7 @@ const routes: Routes = [
   // Fallback route
   { 
     path: '**', 
-    redirectTo: '/outfit-generator' 
+    redirectTo: '/closet' 
   }
 ];
 

@@ -1,174 +1,193 @@
-<div class="outfit-modal-container">
+<div class="organic-outfit-container">
 
-  <!-- Modal Content -->
-  <mat-dialog-content class="modal-content">
-    <!-- Close Button - Top Right -->
-    <button mat-icon-button mat-dialog-close class="close-btn-top">
-      <mat-icon>close</mat-icon>
-    </button>
+  <!-- Organic Background Texture -->
+  <div class="texture-overlay"></div>
 
+  <!-- Floating Close Button -->
+  <button class="floating-close-btn" mat-dialog-close>
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <!-- Organic Modal Content -->
+  <div class="organic-modal-content">
+    
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
-      <p>Loading your closet...</p>
+    <div *ngIf="isLoading" class="organic-loading">
+      <div class="loading-content">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading your closet...</p>
+      </div>
     </div>
 
     <!-- Main Outfit Display -->
-    <div *ngIf="!isLoading" class="outfit-display-area">
+    <div *ngIf="!isLoading" class="organic-outfit-display">
       
-      <!-- Left Action Buttons -->
-      <div class="left-actions">
-        <button mat-fab 
-                color="accent" 
-                class="action-btn randomize-btn"
+      <!-- Floating Left Actions -->
+      <div class="floating-left-actions">
+        <button class="organic-action-btn shuffle-btn"
                 (click)="generateRandomOutfit()"
                 title="Random Outfit">
           <mat-icon>shuffle</mat-icon>
         </button>
         
-        <button mat-fab 
-                class="action-btn clear-btn"
+        <button class="organic-action-btn clear-btn"
                 (click)="clearOutfit()"
                 title="Clear Outfit">
           <mat-icon>clear_all</mat-icon>
         </button>
       </div>
       
-      <!-- Central Outfit Mannequin -->
-      <div class="outfit-mannequin">
-        <!-- Silhouette Guide -->
-        <div class="mannequin-silhouette">
-          <div class="body-outline">
-            <div class="head-area"></div>
-            <div class="torso-area"></div>
-            <div class="legs-area"></div>
-            <div class="feet-area"></div>
+      <!-- Central Organic Mannequin -->
+      <div class="organic-mannequin" #mannequinRef>
+        <!-- Subtle silhouette guide -->
+        <div class="organic-silhouette">
+          <div class="body-guide">
+            <div class="head-guide"></div>
+            <div class="torso-guide"></div>
+            <div class="legs-guide"></div>
+            <div class="feet-guide"></div>
           </div>
         </div>
         
         <!-- Hat Layer -->
-        <div class="outfit-item hat-item" 
+        <div class="organic-outfit-item hat-layer" 
              *ngIf="getLayer('hat') && getCurrentItem(getLayer('hat')!) as hatItem"
-             [style.z-index]="5"
              cdkDrag
-             cdkDragBoundary=".outfit-mannequin"
+             cdkDragBoundary=".organic-mannequin"
              (cdkDragStarted)="onDragStarted()"
              (cdkDragEnded)="onDragEnded()"
              (cdkDragDropped)="onDragDropped($event)">
           <img [src]="hatItem.thumbnailUrl || hatItem.imageUrl" 
                [alt]="hatItem.originalFileName"
-               class="item-image">
-          <div class="drag-handle">
+               class="outfit-item-image">
+          <div class="organic-drag-handle">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
         
         <!-- Top Layer -->
-        <div class="outfit-item top-item" 
+        <div class="organic-outfit-item top-layer" 
              *ngIf="getLayer('top') && getCurrentItem(getLayer('top')!) as topItem"
-             [style.z-index]="4"
              cdkDrag
-             cdkDragBoundary=".outfit-mannequin"
+             cdkDragBoundary=".organic-mannequin"
              (cdkDragStarted)="onDragStarted()"
              (cdkDragEnded)="onDragEnded()"
              (cdkDragDropped)="onDragDropped($event)">
           <img [src]="topItem.thumbnailUrl || topItem.imageUrl" 
                [alt]="topItem.originalFileName"
-               class="item-image">
-          <div class="drag-handle">
+               class="outfit-item-image">
+          <div class="organic-drag-handle">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
         
-        <!-- Jacket Layer (behind top) -->
-        <div class="outfit-item jacket-item" 
+        <!-- Jacket Layer -->
+        <div class="organic-outfit-item jacket-layer" 
              *ngIf="getLayer('jacket') && getCurrentItem(getLayer('jacket')!) as jacketItem"
-             [style.z-index]="3"
              cdkDrag
-             cdkDragBoundary=".outfit-mannequin"
+             cdkDragBoundary=".organic-mannequin"
              (cdkDragStarted)="onDragStarted()"
              (cdkDragEnded)="onDragEnded()"
              (cdkDragDropped)="onDragDropped($event)">
           <img [src]="jacketItem.thumbnailUrl || jacketItem.imageUrl" 
                [alt]="jacketItem.originalFileName"
-               class="item-image">
-          <div class="drag-handle">
+               class="outfit-item-image">
+          <div class="organic-drag-handle">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
         
         <!-- Jeans Layer -->
-        <div class="outfit-item jeans-item" 
+        <div class="organic-outfit-item jeans-layer" 
              *ngIf="getLayer('jeans') && getCurrentItem(getLayer('jeans')!) as jeansItem"
-             [style.z-index]="2"
              cdkDrag
-             cdkDragBoundary=".outfit-mannequin"
+             cdkDragBoundary=".organic-mannequin"
              (cdkDragStarted)="onDragStarted()"
              (cdkDragEnded)="onDragEnded()"
              (cdkDragDropped)="onDragDropped($event)">
           <img [src]="jeansItem.thumbnailUrl || jeansItem.imageUrl" 
                [alt]="jeansItem.originalFileName"
-               class="item-image">
-          <div class="drag-handle">
+               class="outfit-item-image">
+          <div class="organic-drag-handle">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
         
         <!-- Shoes Layer -->
-        <div class="outfit-item shoes-item" 
+        <div class="organic-outfit-item shoes-layer" 
              *ngIf="getLayer('shoes') && getCurrentItem(getLayer('shoes')!) as shoesItem"
-             [style.z-index]="1"
              cdkDrag
-             cdkDragBoundary=".outfit-mannequin"
+             cdkDragBoundary=".organic-mannequin"
              (cdkDragStarted)="onDragStarted()"
              (cdkDragEnded)="onDragEnded()"
              (cdkDragDropped)="onDragDropped($event)">
           <img [src]="shoesItem.thumbnailUrl || shoesItem.imageUrl" 
                [alt]="shoesItem.originalFileName"
-               class="item-image">
-          <div class="drag-handle">
+               class="outfit-item-image">
+          <div class="organic-drag-handle">
             <mat-icon>drag_indicator</mat-icon>
+          </div>
+        </div>
+        
+        <!-- Lil Guy Character - Positioned AFTER all clothing items -->
+        <div *ngIf="lilGuyState" class="lil-guy-character">
+          <!-- Lil Guy Head -->
+          <div class="lil-guy-head" 
+               [style.left.%]="headPosition.x"
+               [style.top.%]="headPosition.y">
+            <img [src]="lilGuyState.currentVariation.headImage" 
+                 alt="Lil Guy Head"
+                 class="lil-guy-image head-image"
+                 [class.alive]="lilGuyState.isAlive"
+                 [class.dead]="!lilGuyState.isAlive">
+          </div>
+          
+          <!-- Lil Guy Left Hand -->
+          <div class="lil-guy-hand left-hand"
+               [style.left.%]="leftHandPosition.x"
+               [style.top.%]="leftHandPosition.y">
+            <img [src]="lilGuyState.currentVariation.leftHandImage" 
+                 alt="Lil Guy Left Hand"
+                 class="lil-guy-image hand-image">
+          </div>
+          
+          <!-- Lil Guy Right Hand -->
+          <div class="lil-guy-hand right-hand"
+               [style.left.%]="rightHandPosition.x"
+               [style.top.%]="rightHandPosition.y">
+            <img [src]="lilGuyState.currentVariation.rightHandImage" 
+                 alt="Lil Guy Right Hand"
+                 class="lil-guy-image hand-image">
           </div>
         </div>
       </div>
       
-      <!-- Right Action Buttons -->
-      <div class="right-actions">
-        <button mat-fab 
-                color="primary"
-                class="action-btn save-btn"
+      <!-- Floating Right Actions -->
+      <div class="floating-right-actions">
+        <button class="organic-action-btn save-btn"
                 (click)="saveOutfit()"
                 title="Save Outfit">
-          <mat-icon>save</mat-icon>
-        </button>
-        
-        <button mat-fab 
-                class="action-btn close-btn-fab"
-                mat-dialog-close
-                title="Close">
-          <mat-icon>close</mat-icon>
+          <mat-icon>favorite</mat-icon>
         </button>
       </div>
       
     </div>
 
-    <!-- Bottom Category Navigation -->
-    <div *ngIf="!isLoading" class="bottom-navigation">
+    <!-- Organic Bottom Navigation -->
+    <div *ngIf="!isLoading" class="organic-bottom-nav">
       
       <!-- HATS Navigation -->
-      <div class="category-nav-item" *ngIf="getLayer('hat') as hatLayer">
-        <button mat-icon-button 
-                class="nav-arrow left-arrow"
+      <div class="organic-nav-item" *ngIf="getLayer('hat') as hatLayer">
+        <button class="organic-nav-arrow left-arrow"
                 (click)="previousItem(getLayerIndex(hatLayer.category))"
                 [disabled]="!hasItems(hatLayer)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
-        <div class="category-info">
+        <div class="organic-category-info">
           <iconify-icon icon="ph:beanie" class="category-icon"></iconify-icon>
-          <span class="item-count" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
+          <span class="item-counter" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
         </div>
-        <button mat-icon-button 
-                class="nav-arrow right-arrow"
+        <button class="organic-nav-arrow right-arrow"
                 (click)="nextItem(getLayerIndex(hatLayer.category))"
                 [disabled]="!hasItems(hatLayer)">
           <mat-icon>keyboard_arrow_right</mat-icon>
@@ -176,19 +195,17 @@
       </div>
 
       <!-- TOPS Navigation -->
-      <div class="category-nav-item" *ngIf="getLayer('top') as topLayer">
-        <button mat-icon-button 
-                class="nav-arrow left-arrow"
+      <div class="organic-nav-item" *ngIf="getLayer('top') as topLayer">
+        <button class="organic-nav-arrow left-arrow"
                 (click)="previousItem(getLayerIndex(topLayer.category))"
                 [disabled]="!hasItems(topLayer)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
-        <div class="category-info">
+        <div class="organic-category-info">
           <iconify-icon icon="tabler:shirt" class="category-icon"></iconify-icon>
-          <span class="item-count" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
+          <span class="item-counter" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
         </div>
-        <button mat-icon-button 
-                class="nav-arrow right-arrow"
+        <button class="organic-nav-arrow right-arrow"
                 (click)="nextItem(getLayerIndex(topLayer.category))"
                 [disabled]="!hasItems(topLayer)">
           <mat-icon>keyboard_arrow_right</mat-icon>
@@ -196,19 +213,17 @@
       </div>
 
       <!-- JACKETS Navigation -->
-      <div class="category-nav-item" *ngIf="getLayer('jacket') as jacketLayer">
-        <button mat-icon-button 
-                class="nav-arrow left-arrow"
+      <div class="organic-nav-item" *ngIf="getLayer('jacket') as jacketLayer">
+        <button class="organic-nav-arrow left-arrow"
                 (click)="previousItem(getLayerIndex(jacketLayer.category))"
                 [disabled]="!hasItems(jacketLayer)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
-        <div class="category-info">
+        <div class="organic-category-info">
           <iconify-icon icon="tabler:jacket" class="category-icon"></iconify-icon>
-          <span class="item-count" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
+          <span class="item-counter" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
         </div>
-        <button mat-icon-button 
-                class="nav-arrow right-arrow"
+        <button class="organic-nav-arrow right-arrow"
                 (click)="nextItem(getLayerIndex(jacketLayer.category))"
                 [disabled]="!hasItems(jacketLayer)">
           <mat-icon>keyboard_arrow_right</mat-icon>
@@ -216,19 +231,17 @@
       </div>
 
       <!-- JEANS Navigation -->
-      <div class="category-nav-item" *ngIf="getLayer('jeans') as jeansLayer">
-        <button mat-icon-button 
-                class="nav-arrow left-arrow"
+      <div class="organic-nav-item" *ngIf="getLayer('jeans') as jeansLayer">
+        <button class="organic-nav-arrow left-arrow"
                 (click)="previousItem(getLayerIndex(jeansLayer.category))"
                 [disabled]="!hasItems(jeansLayer)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
-        <div class="category-info">
+        <div class="organic-category-info">
           <iconify-icon icon="ph:pants" class="category-icon"></iconify-icon>
-          <span class="item-count" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
+          <span class="item-counter" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
         </div>
-        <button mat-icon-button 
-                class="nav-arrow right-arrow"
+        <button class="organic-nav-arrow right-arrow"
                 (click)="nextItem(getLayerIndex(jeansLayer.category))"
                 [disabled]="!hasItems(jeansLayer)">
           <mat-icon>keyboard_arrow_right</mat-icon>
@@ -236,19 +249,17 @@
       </div>
 
       <!-- SHOES Navigation -->
-      <div class="category-nav-item" *ngIf="getLayer('shoes') as shoesLayer">
-        <button mat-icon-button 
-                class="nav-arrow left-arrow"
+      <div class="organic-nav-item" *ngIf="getLayer('shoes') as shoesLayer">
+        <button class="organic-nav-arrow left-arrow"
                 (click)="previousItem(getLayerIndex(shoesLayer.category))"
                 [disabled]="!hasItems(shoesLayer)">
           <mat-icon>keyboard_arrow_left</mat-icon>
         </button>
-        <div class="category-info">
+        <div class="organic-category-info">
           <iconify-icon icon="tabler:shoe" class="category-icon"></iconify-icon>
-          <span class="item-count" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
+          <span class="item-counter" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
         </div>
-        <button mat-icon-button 
-                class="nav-arrow right-arrow"
+        <button class="organic-nav-arrow right-arrow"
                 (click)="nextItem(getLayerIndex(shoesLayer.category))"
                 [disabled]="!hasItems(shoesLayer)">
           <mat-icon>keyboard_arrow_right</mat-icon>
@@ -257,11 +268,13 @@
 
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!isLoading && !hasAnyItems()" class="empty-state">
-      <mat-icon class="empty-icon">inventory_2</mat-icon>
-      <h3>Your closet is empty</h3>
-      <p>Add some clothes to start creating outfits!</p>
+    <!-- Organic Empty State -->
+    <div *ngIf="!isLoading && !hasAnyItems()" class="organic-empty-state">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">checkroom</mat-icon>
+        <h3>Your closet is empty</h3>
+        <p>Start building your virtual closet by uploading photos of your clothes!</p>
+      </div>
     </div>
-  </mat-dialog-content>
+  </div>
 </div> 

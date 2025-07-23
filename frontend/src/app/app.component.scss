@@ -10,36 +10,64 @@
   flex-direction: column;
 }
 
-// Simple Header
-.simple-header {
+// Elegant Organic Logout Button
+.organic-logout-container {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 32px;
+  right: 32px;
   z-index: 1000;
+}
 
-  .user-menu {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    padding: 8px 16px;
-    border-radius: 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-
-    .user-email {
-      font-size: 14px;
-      color: #333;
-      font-weight: 500;
-      
-      @media (max-width: 768px) {
-        display: none; // Hide email on mobile to save space
-      }
+.organic-logout-btn {
+  width: 56px;
+  height: 56px;
+  background: rgba(44, 62, 80, 0.9);
+  backdrop-filter: blur(20px);
+  border: none;
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(44, 62, 80, 0.3);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(245, 241, 235, 0.1), rgba(107, 122, 90, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    transform: scale(1.1) rotate(3deg);
+    box-shadow: 0 12px 48px rgba(44, 62, 80, 0.4);
+    background: rgba(44, 62, 80, 1);
+    
+    &::before {
+      opacity: 1;
     }
-
-    button {
-      color: #333;
+    
+    mat-icon {
+      transform: scale(1.1);
+      color: #F5F1EB;
     }
+  }
+  
+  &:active {
+    transform: scale(1.05) rotate(1deg);
+  }
+  
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    color: #F5F1EB;
+    transition: all 0.3s ease;
   }
 }
 
@@ -51,17 +79,20 @@
 }
 
 // Responsive design
-@media (max-width: 600px) {
-  .app-header {
-    .app-title {
-      font-size: 18px;
-    }
+@media (max-width: 768px) {
+  .organic-logout-container {
+    top: 20px;
+    right: 20px;
   }
-
-  .main-tabs ::ng-deep {
-    .mat-mdc-tab {
-      min-width: 80px;
-      font-size: 14px;
+  
+  .organic-logout-btn {
+    width: 48px;
+    height: 48px;
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
   }
 }

@@ -1,31 +1,11 @@
 <div class="app-container">
   <!-- Authenticated User View -->
   <div *ngIf="currentUser$ | async as user; else guestView" class="authenticated-view">
-    <!-- Simple Header with User Menu -->
-    <div class="simple-header">
-      <div class="user-menu">
-        <span class="user-email">{{ user.email }}</span>
-        <button mat-icon-button [matMenuTriggerFor]="userMenu">
-          <mat-icon>account_circle</mat-icon>
-        </button>
-        
-        <!-- User Menu -->
-        <mat-menu #userMenu="matMenu">
-          <button mat-menu-item [routerLink]="'/outfit-generator'">
-            <mat-icon>checkroom</mat-icon>
-            <span>Outfit Generator</span>
-          </button>
-          <button mat-menu-item [routerLink]="'/closet'">
-            <mat-icon>inventory_2</mat-icon>
-            <span>My Closet</span>
-          </button>
-          <mat-divider></mat-divider>
-          <button mat-menu-item (click)="onSignOut()">
-            <mat-icon>logout</mat-icon>
-            <span>Sign Out</span>
-          </button>
-        </mat-menu>
-      </div>
+    <!-- Elegant Organic Logout Button -->
+    <div class="organic-logout-container">
+      <button class="organic-logout-btn" (click)="onSignOut()">
+        <mat-icon>logout</mat-icon>
+      </button>
     </div>
 
     <!-- Main Content -->

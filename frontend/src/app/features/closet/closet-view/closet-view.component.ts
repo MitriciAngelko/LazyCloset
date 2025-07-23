@@ -47,6 +47,9 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   isLoading = true;
   viewMode: 'grid' | 'list' = 'grid';
   
+  // Layout mode for positioning
+  layoutMode: 'scatter' | 'grid' = 'scatter';
+  
   // Drag and Drop state
   draggedItem: string | null = null;
   dragOffset = { x: 0, y: 0 };
@@ -112,7 +115,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(user => {
-        console.log('👤 Authenticated user in closet:', user?.email);
         this.loadClothingItems();
         this.setupFilters();
       });
@@ -205,7 +207,7 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   private updateItemPosition(newX: number, newY: number): void {
     const clampedX = Math.max(5, Math.min(95, newX));
-    const clampedY = Math.max(10, Math.min(90, newY));
+    const clampedY = Math.max(35, Math.min(90, newY)); // Prevent dragging above search bar
 
     this.clothingItems = this.clothingItems.map(item =>
       item.id === this.draggedItem
@@ -227,7 +229,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     
     // Only slide if there's significant velocity
     const totalVelocity = Math.abs(this.velocity.x) + Math.abs(this.velocity.y);
-    console.log('Starting slide with velocity:', this.velocity, 'total:', totalVelocity);
     
     if (totalVelocity < 0.2) return; // Lower threshold for more sliding
     
@@ -245,7 +246,6 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       // Check if we should stop
       if (Math.abs(this.velocity.x) < minVelocity && Math.abs(this.velocity.y) < minVelocity) {
         this.isSliding = false;
-        console.log('Stopping slide');
         return;
       }
       
@@ -275,11 +275,22 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   // ===== Scatter Items Feature =====
 
+  toggleLayoutMode(): void {
+    if (this.layoutMode === 'scatter') {
+      this.layoutMode = 'grid';
+      this.arrangeInGrid();
+    } else {
+      this.layoutMode = 'scatter';
+      this.scatterItems();
+    }
+  }
+
   scatterItems(): void {
+    this.layoutMode = 'scatter';
     this.clothingItems = this.clothingItems.map(item => ({
       ...item,
       x: Math.random() * 80 + 10,
-      y: Math.random() * 60 + 20,
+      y: Math.random() * 50 + 35, // Restricted to 35% - 85% (below search bar)
       rotation: (Math.random() - 0.5) * 30,
       scale: 0.8 + Math.random() * 0.4
     }));
@@ -289,6 +300,48 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       const originalItem = this.clothingItems.find(orig => orig.id === item.id);
       return originalItem ? { ...item, ...originalItem } : item;
     });
+  }
+
+  arrangeInGrid(): void {
+    this.layoutMode = 'grid';
+    
+    // Calculate grid parameters
+    const itemsPerRow = 6; // Adjust based on your preference
+    const startX = 12; // Left margin
+    const startY = 35; // Start below search bar (35% from top)
+    const spacingX = (75) / (itemsPerRow - 1); // Space between items horizontally
+    const spacingY = 12; // Reduced spacing for more rows in available space
+    
+    // Arrange all items in grid
+    this.clothingItems = this.clothingItems.map((item, index) => ({
+      ...item,
+      x: startX + (index % itemsPerRow) * spacingX,
+      y: startY + Math.floor(index / itemsPerRow) * spacingY,
+      rotation: 0, // No rotation in grid mode
+      scale: 0.9 // Consistent scale in grid mode
+    }));
+    
+    // Update filtered items with new positions - but arrange filtered items in their own grid
+    this.arrangeFilteredItemsInGrid();
+  }
+
+  private arrangeFilteredItemsInGrid(): void {
+    if (this.layoutMode !== 'grid') return;
+    
+    const itemsPerRow = 6;
+    const startX = 12;
+    const startY = 35; // Start below search bar
+    const spacingX = (75) / (itemsPerRow - 1);
+    const spacingY = 12; // Reduced spacing
+    
+    // Arrange only the filtered items in a clean grid
+    this.filteredItems = this.filteredItems.map((item, index) => ({
+      ...item,
+      x: startX + (index % itemsPerRow) * spacingX,
+      y: startY + Math.floor(index / itemsPerRow) * spacingY,
+      rotation: 0,
+      scale: 0.9
+    }));
   }
 
   // ===== Floating Items Transform & Style Methods =====
@@ -348,10 +401,10 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   getItemPosition(index: number, axis: 'x' | 'y'): number {
     const positions = [
-      { x: 15, y: 20 }, { x: 65, y: 15 }, { x: 35, y: 45 }, { x: 80, y: 35 },
-      { x: 20, y: 65 }, { x: 75, y: 55 }, { x: 45, y: 25 }, { x: 25, y: 80 },
-      { x: 70, y: 75 }, { x: 50, y: 60 }, { x: 10, y: 40 }, { x: 85, y: 60 },
-      { x: 40, y: 85 }, { x: 60, y: 10 }, { x: 30, y: 30 }
+      { x: 15, y: 40 }, { x: 65, y: 38 }, { x: 35, y: 55 }, { x: 80, y: 45 },
+      { x: 20, y: 70 }, { x: 75, y: 65 }, { x: 45, y: 42 }, { x: 25, y: 82 },
+      { x: 70, y: 78 }, { x: 50, y: 68 }, { x: 10, y: 52 }, { x: 85, y: 72 },
+      { x: 40, y: 85 }, { x: 60, y: 48 }, { x: 30, y: 58 }
     ];
     
     const position = positions[index % positions.length];
@@ -360,7 +413,8 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     if (axis === 'x') {
       return Math.max(5, Math.min(95, position.x + offset));
     } else {
-      return Math.max(15, Math.min(85, position.y + offset));
+      // Ensure y positions are below search bar (minimum 35%)
+      return Math.max(35, Math.min(85, position.y + offset));
     }
   }
 
@@ -373,7 +427,7 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
           this.clothingItems = items.map((item, index) => ({
             ...item,
             x: (item as any).x || Math.random() * 80 + 10,
-            y: (item as any).y || Math.random() * 60 + 20,
+            y: (item as any).y || Math.random() * 50 + 35, // Below search bar
             rotation: (item as any).rotation || (Math.random() - 0.5) * 30,
             scale: (item as any).scale || (0.8 + Math.random() * 0.4)
           }));
@@ -402,7 +456,7 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
         return items.map((item, index) => ({
           ...item,
           x: (item as any).x || Math.random() * 80 + 10,
-          y: (item as any).y || Math.random() * 60 + 20,
+          y: (item as any).y || Math.random() * 50 + 35, // Below search bar
           rotation: (item as any).rotation || (Math.random() - 0.5) * 30,
           scale: (item as any).scale || (0.8 + Math.random() * 0.4)
         })).filter(item => {
@@ -425,6 +479,10 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(filteredItems => {
       this.filteredItems = filteredItems;
+      // Only arrange in grid if we're in grid mode and not currently dragging
+      if (this.layoutMode === 'grid' && !this.draggedItem) {
+        this.arrangeFilteredItemsInGrid();
+      }
     });
   }
 
