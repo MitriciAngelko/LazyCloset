@@ -1,14 +1,8 @@
 <div class="upload-modal-container">
-  <!-- Modal Header -->
-  <div class="modal-header">
-    <h2 mat-dialog-title>
-      <mat-icon>cloud_upload</mat-icon>
-      Add Clothing Item
-    </h2>
-    <button mat-icon-button mat-dialog-close>
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+  <!-- Close button -->
+  <button mat-icon-button mat-dialog-close class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
 
   <!-- Modal Content -->
   <div mat-dialog-content class="modal-content">
@@ -129,23 +123,20 @@
           </div>
         </div>
 
+        <!-- Action Button -->
+        <div class="action-buttons">
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="uploadImage()"
+            [disabled]="!selectedFile || isUploading">
+            <mat-spinner *ngIf="isUploading" diameter="20"></mat-spinner>
+            <mat-icon *ngIf="!isUploading">cloud_upload</mat-icon>
+            {{ isUploading ? 'Uploading...' : 'Upload' }}
+          </button>
+        </div>
+
       </div>
     </div>
-  </div>
-
-  <!-- Modal Actions -->
-  <div mat-dialog-actions class="modal-actions">
-    <button mat-button (click)="cancel()" [disabled]="isUploading">
-      Cancel
-    </button>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      (click)="uploadImage()"
-      [disabled]="!selectedFile || isUploading">
-      <mat-spinner *ngIf="isUploading" diameter="20"></mat-spinner>
-      <mat-icon *ngIf="!isUploading">cloud_upload</mat-icon>
-      {{ isUploading ? 'Uploading...' : 'Upload' }}
-    </button>
   </div>
 </div> 

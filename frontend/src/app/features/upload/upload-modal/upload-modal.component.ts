@@ -138,8 +138,7 @@ export class UploadModalComponent {
     this.processedFile = file; // Initially, processed file is the same as selected
     this.createPreview(file);
 
-    // Start Phase 2 processing
-    this.analyzeImageColors(file);
+    // Start Phase 2 processing - background removal first, then color analysis
     this.processBackgroundRemoval(file);
   }
 
@@ -288,16 +287,21 @@ export class UploadModalComponent {
         this.processedFile = result.processedFile;
         this.createPreview(result.processedFile);
         
-        this.snackBar.open('Background removed automatically!', 'Close', {
+        // Now analyze colors on the background-removed image
+        await this.analyzeImageColors(result.processedFile);
+        
+        this.snackBar.open('Background removed and colors analyzed!', 'Close', {
           duration: 3000
         });
       } else if (result.method === 'fallback') {
         console.log('Background removal API not available, manual options shown');
+        // Don't run color analysis automatically in fallback mode
       }
 
     } catch (error) {
       console.error('Background removal failed:', error);
       this.showBackgroundOptions = false;
+      // Don't run color analysis automatically on error
     } finally {
       this.isProcessingBackground = false;
     }
@@ -306,11 +310,15 @@ export class UploadModalComponent {
   /**
    * Use background-removed image
    */
-  useBackgroundRemovedImage(): void {
+  async useBackgroundRemovedImage(): Promise<void> {
     if (this.backgroundRemovalResult?.processedFile) {
       this.processedFile = this.backgroundRemovalResult.processedFile;
       this.createPreview(this.processedFile);
-      this.snackBar.open('Using background-removed image', 'Close', {
+      
+      // Analyze colors on the background-removed image
+      await this.analyzeImageColors(this.processedFile);
+      
+      this.snackBar.open('Using background-removed image and analyzing colors', 'Close', {
         duration: 2000
       });
     }
@@ -319,11 +327,15 @@ export class UploadModalComponent {
   /**
    * Use original image (reject background removal)
    */
-  useOriginalImage(): void {
+  async useOriginalImage(): Promise<void> {
     if (this.selectedFile) {
       this.processedFile = this.selectedFile;
       this.createPreview(this.selectedFile);
-      this.snackBar.open('Using original image', 'Close', {
+      
+      // Analyze colors on the original image
+      await this.analyzeImageColors(this.selectedFile);
+      
+      this.snackBar.open('Using original image and analyzing colors', 'Close', {
         duration: 2000
       });
     }
@@ -348,5 +360,18 @@ export class UploadModalComponent {
    */
   isBackgroundRemovalApiAvailable(): boolean {
     return this.backgroundRemovalService.isApiAvailable();
+  }
+
+  /**
+   * Manually trigger color analysis on current image
+   */
+  async analyzeColorsManually(): Promise<void> {
+    const fileToAnalyze = this.processedFile || this.selectedFile;
+    if (fileToAnalyze) {
+      await this.analyzeImageColors(fileToAnalyze);
+      this.snackBar.open('Color analysis complete!', 'Close', {
+        duration: 2000
+      });
+    }
   }
 } 

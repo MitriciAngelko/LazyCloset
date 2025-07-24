@@ -21,19 +21,19 @@ export class ColorDetectionService {
 
   // Color mapping from RGB to ClothingColor enum
   private readonly colorMap: { [key: string]: { range: { r: [number, number], g: [number, number], b: [number, number] }, name: ClothingColor } } = {
-    red: { range: { r: [150, 255], g: [0, 100], b: [0, 100] }, name: ClothingColor.RED },
-    blue: { range: { r: [0, 100], g: [0, 150], b: [150, 255] }, name: ClothingColor.BLUE },
-    green: { range: { r: [0, 100], g: [150, 255], b: [0, 100] }, name: ClothingColor.GREEN },
-    yellow: { range: { r: [200, 255], g: [200, 255], b: [0, 100] }, name: ClothingColor.YELLOW },
-    orange: { range: { r: [200, 255], g: [100, 200], b: [0, 100] }, name: ClothingColor.ORANGE },
-    purple: { range: { r: [100, 200], g: [0, 100], b: [150, 255] }, name: ClothingColor.PURPLE },
-    pink: { range: { r: [200, 255], g: [100, 200], b: [150, 255] }, name: ClothingColor.PINK },
-    brown: { range: { r: [100, 160], g: [50, 120], b: [30, 90] }, name: ClothingColor.BROWN },
-    beige: { range: { r: [200, 255], g: [180, 230], b: [140, 200] }, name: ClothingColor.BEIGE },
-    navy: { range: { r: [0, 50], g: [0, 50], b: [80, 150] }, name: ClothingColor.NAVY },
-    black: { range: { r: [0, 60], g: [0, 60], b: [0, 60] }, name: ClothingColor.BLACK },
-    white: { range: { r: [200, 255], g: [200, 255], b: [200, 255] }, name: ClothingColor.WHITE },
-    gray: { range: { r: [80, 180], g: [80, 180], b: [80, 180] }, name: ClothingColor.GRAY }
+    red: { range: { r: [140, 255], g: [0, 120], b: [0, 120] }, name: ClothingColor.RED },
+    blue: { range: { r: [0, 120], g: [0, 160], b: [140, 255] }, name: ClothingColor.BLUE },
+    green: { range: { r: [0, 120], g: [140, 255], b: [0, 120] }, name: ClothingColor.GREEN },
+    yellow: { range: { r: [180, 255], g: [180, 255], b: [0, 120] }, name: ClothingColor.YELLOW },
+    orange: { range: { r: [180, 255], g: [80, 220], b: [0, 120] }, name: ClothingColor.ORANGE },
+    purple: { range: { r: [80, 220], g: [0, 120], b: [140, 255] }, name: ClothingColor.PURPLE },
+    pink: { range: { r: [180, 255], g: [80, 220], b: [140, 255] }, name: ClothingColor.PINK },
+    brown: { range: { r: [80, 180], g: [40, 140], b: [20, 100] }, name: ClothingColor.BROWN },
+    beige: { range: { r: [180, 255], g: [160, 240], b: [120, 220] }, name: ClothingColor.BEIGE },
+    navy: { range: { r: [0, 60], g: [0, 60], b: [60, 160] }, name: ClothingColor.NAVY },
+    black: { range: { r: [0, 70], g: [0, 70], b: [0, 70] }, name: ClothingColor.BLACK },
+    white: { range: { r: [180, 255], g: [180, 255], b: [180, 255] }, name: ClothingColor.WHITE },
+    gray: { range: { r: [70, 190], g: [70, 190], b: [70, 190] }, name: ClothingColor.GRAY }
   };
 
   /**
@@ -84,12 +84,58 @@ export class ColorDetectionService {
   }
 
   /**
+   * Analyze image colors from URL (useful for background-removed images)
+   */
+  async analyzeImageColorsFromUrl(imageUrl: string): Promise<ColorPalette> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+
+      img.onload = () => {
+        try {
+          // Set canvas size for efficient processing
+          const maxSize = 400;
+          const scale = Math.min(maxSize / img.width, maxSize / img.height);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+
+          // Draw image on canvas
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          // Get image data
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const palette = this.extractColorPalette(imageData);
+          
+          resolve(palette);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image from URL'));
+
+      // Set crossOrigin to handle CORS issues
+      img.crossOrigin = 'anonymous';
+      img.src = imageUrl;
+    });
+  }
+
+  /**
    * Extract color palette from image data
    */
   private extractColorPalette(imageData: ImageData): ColorPalette {
     const data = imageData.data;
     const colorCounts: { [key: string]: { count: number; rgb: { r: number; g: number; b: number } } } = {};
-    const step = 4; // Sample every 4th pixel for performance
+    const step = 2; // Sample every 2nd pixel for better accuracy after background removal
+    let totalPixelsAnalyzed = 0;
+    let transparentPixelsSkipped = 0;
+    let artifactPixelsSkipped = 0;
 
     // Sample pixels and categorize colors
     for (let i = 0; i < data.length; i += step * 4) {
@@ -98,8 +144,20 @@ export class ColorDetectionService {
       const b = data[i + 2];
       const alpha = data[i + 3];
 
-      // Skip transparent pixels
-      if (alpha < 128) continue;
+      totalPixelsAnalyzed++;
+
+      // Skip transparent pixels (more strict for background-removed images)
+      if (alpha < 200) {
+        transparentPixelsSkipped++;
+        continue;
+      }
+
+      // Skip very light/white pixels that might be artifacts from background removal
+      const brightness = (r + g + b) / 3;
+      if (brightness > 240 && alpha < 255) {
+        artifactPixelsSkipped++;
+        continue;
+      }
 
       const clothingColor = this.rgbToClothingColor(r, g, b);
       const key = clothingColor;
@@ -109,6 +167,13 @@ export class ColorDetectionService {
       }
       colorCounts[key].count++;
     }
+
+    console.log('🔍 Color analysis stats:', {
+      totalPixelsAnalyzed,
+      transparentPixelsSkipped,
+      artifactPixelsSkipped,
+      colorsFound: Object.keys(colorCounts).length
+    });
 
     // Convert to ColorInfo array and sort by frequency
     const totalPixels = Object.values(colorCounts).reduce((sum, color) => sum + color.count, 0);

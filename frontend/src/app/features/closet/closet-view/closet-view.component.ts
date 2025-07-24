@@ -633,10 +633,12 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   openUploadModal(): void {
     import('../../upload/upload-modal/upload-modal.component').then(module => {
       const dialogRef = this.dialog.open(module.UploadModalComponent, {
-        width: '600px',
-        maxHeight: '90vh',
+        width: '1000px',
+        maxWidth: '95vw',
+        maxHeight: '95vh',
         disableClose: false,
-        data: {}
+        data: {},
+        panelClass: 'upload-modal-dialog'
       });
 
       dialogRef.afterClosed().subscribe(result => {

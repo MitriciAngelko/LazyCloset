@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { User } from '@supabase/supabase-js';
 import { SupabaseService } from './core/services/supabase.service';
+import { ConfigService } from './core/services/config.service';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private supabaseService: SupabaseService,
-    private router: Router
+    private router: Router,
+    private configService: ConfigService
   ) {
     this.currentUser$ = this.supabaseService.currentUser$;
   }
@@ -24,6 +26,11 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     // Initialize any app-wide logic here
     console.log('LazyCloset app initialized');
+    // Test environment variable loading
+    console.log('🔧 Environment Configuration Test:');
+    console.log('Supabase URL:', this.configService.getSupabaseConfig().url);
+    console.log('Remove.bg API Key:', this.configService.getRemoveBgApiKey() ? '✅ Loaded' : '❌ Not loaded');
+    console.log('Production mode:', this.configService.isProduction());
   }
 
   /**
