@@ -115,6 +115,21 @@
 
   <!-- Scattered Clothing Items - Just Images! -->
   <div class="scattered-items-container" *ngIf="!isLoading && filteredItems.length > 0">
+    
+    <!-- Lil Guy (only in scatter mode) -->
+    <div *ngIf="layoutMode === 'scatter'" 
+         class="floating-lil-guy"
+         [style.left.%]="lilGuy.x"
+         [style.top.%]="lilGuy.y"
+         [style.transform]="getLilGuyTransform()"
+         [style.filter]="getLilGuyFilter()"
+         [class.colliding]="lilGuy.isColliding">
+      <img src="assets/images/lil-guy/lilguy_floating.png" 
+           alt="Lil Guy" 
+           class="lil-guy-image"
+           draggable="false">
+    </div>
+    
     <div *ngFor="let item of filteredItems; let i = index; trackBy: trackByItemId" 
          class="floating-item"
          [class.dragging]="draggedItem === item.id"

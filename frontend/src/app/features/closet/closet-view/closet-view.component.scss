@@ -522,6 +522,36 @@
   }
 }
 
+// Lil Guy Styling
+.floating-lil-guy {
+  position: absolute;
+  z-index: 15;
+  transition: filter 0.2s ease;
+  
+  &.colliding {
+    animation: lil-guy-bounce 0.3s ease;
+  }
+  
+  .lil-guy-image {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    filter: drop-shadow(0 8px 16px rgba(44, 62, 80, 0.3));
+  }
+}
+
+@keyframes lil-guy-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 // Loading State
 .floating-loading {
   position: absolute;

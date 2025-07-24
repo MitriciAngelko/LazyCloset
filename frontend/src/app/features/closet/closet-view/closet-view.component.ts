@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, HostListener, ChangeDetectorRef } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject, takeUntil, combineLatest, BehaviorSubject } from 'rxjs';
+import { Subject, takeUntil, combineLatest, BehaviorSubject, interval } from 'rxjs';
 import { map, filter } from 'rxjs/operators';
 import { ClothingService } from '../../../core/services/clothing.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
@@ -20,6 +20,14 @@ interface DraggableClothingItem extends ClothingItem {
   y?: number;
   rotation?: number;
   scale?: number;
+}
+
+interface LilGuy {
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+  isColliding: boolean;
 }
 
 @Component({
@@ -64,6 +72,20 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   // Mouse tracking
   mousePosition = { x: 0, y: 0 };
   isFilterOpen = false;
+  
+  // Lil Guy properties
+  lilGuy: LilGuy = {
+    x: 50,
+    y: 50,
+    rotation: 0,
+    scale: 1,
+    isColliding: false
+  };
+  
+  // Simple floating animation
+  private animationInterval: any;
+  private readonly LIL_GUY_SIZE = 80;
+  private readonly CLOTHING_SIZE = 128;
   
   // Category options
   categoryOptions: (ClothingCategory | 'all')[] = [
@@ -117,12 +139,14 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
       .subscribe(user => {
         this.loadClothingItems();
         this.setupFilters();
+        this.startFloatingAnimation();
       });
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.stopFloatingAnimation();
   }
 
   // ===== Category Helper =====
@@ -156,6 +180,9 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     this.lastMoveTime = Date.now();
     this.velocity = { x: 0, y: 0 };
     this.isSliding = false;
+    
+    // Pause floating animation during drag
+    this.stopFloatingAnimation();
   }
 
   @HostListener('document:mouseup')
@@ -167,6 +194,11 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     
     this.draggedItem = null;
     this.dragOffset = { x: 0, y: 0 };
+    
+    // Resume floating animation after drag
+    if (this.layoutMode === 'scatter') {
+      this.startFloatingAnimation();
+    }
   }
 
   onMouseMove(event: MouseEvent): void {
@@ -279,14 +311,24 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
     if (this.layoutMode === 'scatter') {
       this.layoutMode = 'grid';
       this.arrangeInGrid();
+      this.stopFloatingAnimation();
     } else {
       this.layoutMode = 'scatter';
       this.scatterItems();
+      this.startFloatingAnimation();
     }
   }
 
   scatterItems(): void {
     this.layoutMode = 'scatter';
+    
+    // Reset lil guy position
+    this.lilGuy.x = Math.random() * 60 + 20;
+    this.lilGuy.y = Math.random() * 40 + 40;
+    this.lilGuy.rotation = Math.random() * 360;
+    this.lilGuy.scale = 1;
+    this.lilGuy.isColliding = false;
+    
     this.clothingItems = this.clothingItems.map(item => ({
       ...item,
       x: Math.random() * 80 + 10,
@@ -667,5 +709,92 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   trackByItemId(index: number, item: ClothingItem): string {
     return item.id;
+  }
+
+  // ===== Simple Floating Animation Methods =====
+
+  private startFloatingAnimation(): void {
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+    }
+    
+    this.animationInterval = setInterval(() => {
+      if (this.layoutMode === 'scatter' && !this.draggedItem) {
+        this.updateFloatingAnimation();
+      }
+    }, 50); // Slower animation for gentler movement
+  }
+
+  private stopFloatingAnimation(): void {
+    if (this.animationInterval) {
+      clearInterval(this.animationInterval);
+      this.animationInterval = null;
+    }
+  }
+
+  private updateFloatingAnimation(): void {
+    // Update lil guy floating
+    this.updateLilGuyFloating();
+    
+    // Update clothing items floating
+    this.updateClothingFloating();
+    
+    // Trigger change detection
+    this.cdr.detectChanges();
+  }
+
+  private updateLilGuyFloating(): void {
+    // Simple sine wave movement for gentle floating
+    const time = Date.now() * 0.001;
+    const amplitude = 0.5; // Very small movement
+    
+    this.lilGuy.x += Math.sin(time * 0.5) * amplitude * 0.1;
+    this.lilGuy.y += Math.cos(time * 0.3) * amplitude * 0.1;
+    
+    // Gentle rotation
+    this.lilGuy.rotation += 0.1;
+    
+    // Gentle scale breathing
+    this.lilGuy.scale = 1 + Math.sin(time * 0.8) * 0.02;
+    
+    // Keep within bounds
+    this.lilGuy.x = Math.max(10, Math.min(90, this.lilGuy.x));
+    this.lilGuy.y = Math.max(40, Math.min(85, this.lilGuy.y));
+  }
+
+  private updateClothingFloating(): void {
+    this.filteredItems.forEach((item, index) => {
+      if (item.x !== undefined && item.y !== undefined) {
+        const time = Date.now() * 0.001;
+        const amplitude = 0.3; // Even smaller movement for clothing
+        
+        // Each item has slightly different timing for variety
+        const itemTime = time + index * 0.5;
+        
+        item.x += Math.sin(itemTime * 0.4) * amplitude * 0.05;
+        item.y += Math.cos(itemTime * 0.6) * amplitude * 0.05;
+        
+        // Gentle rotation
+        if (item.rotation !== undefined) {
+          item.rotation += 0.05;
+        }
+        
+        // Keep within bounds
+        item.x = Math.max(10, Math.min(90, item.x));
+        item.y = Math.max(40, Math.min(85, item.y));
+      }
+    });
+  }
+
+  // ===== Lil Guy Transform Methods =====
+
+  getLilGuyTransform(): string {
+    const rotation = this.lilGuy.rotation;
+    const scale = this.lilGuy.scale;
+    return `translate(-50%, -50%) rotate(${rotation}deg) scale(${scale})`;
+  }
+
+  getLilGuyFilter(): string {
+    return `drop-shadow(0 10px 15px rgba(44, 62, 80, 0.2))`;
   }
 }
