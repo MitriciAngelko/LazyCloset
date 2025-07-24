@@ -1,32 +1,37 @@
-// Organic Outfit Modal Design - Matching Closet Page Aesthetic
+// Organic Outfit Modal Design - Matching Upload Modal Aesthetic
 .organic-outfit-container {
   width: 1200px;
   max-width: 95vw;
   min-height: 750px;
+  background: linear-gradient(145deg, #1e2520 0%, #252b27 100%);
+  border-radius: 30px 10px 30px 10px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 8px 30px rgba(0, 0, 0, 0.2);
+  overflow: visible;
+  color: #F8F6F1;
+  border: 1px solid rgba(164, 183, 148, 0.15);
   position: relative;
-  overflow: hidden;
-  user-select: none;
+  animation: modalSlideIn 0.4s ease-out;
   
-  // Organic background gradient matching closet page
+  // Subtle texture overlay matching upload modal
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(145deg, #1e2520 0%, #252b27 100%);
+    inset: 0;
+    opacity: 0.05;
+    pointer-events: none;
     z-index: 0;
-    border-radius: 50% 20% 50% 20%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23000000' fillOpacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    border-radius: inherit;
   }
   
   @media (max-width: 768px) {
     width: 95vw;
     min-height: 650px;
+    border-radius: 25px 8px 25px 8px;
   }
 }
 
-// Texture overlay matching closet page
+// Texture overlay matching upload modal
 .texture-overlay {
   position: absolute;
   inset: 0;
@@ -34,23 +39,20 @@
   pointer-events: none;
   z-index: 1;
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23000000' fillOpacity='0.1'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  border-radius: 50% 20% 50% 20%;
+  border-radius: inherit;
 }
 
-// Floating Close Button - Organic style
+// Floating Close Button - Matching upload modal style
 .floating-close-btn {
   position: absolute;
-  top: 24px;
-  right: 24px;
-  z-index: 30;
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(8px);
-  border: none;
-  border-radius: 50% 20% 50% 20%;
-  color: #2C3E50;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  border: 1.5px solid rgba(164, 183, 148, 0.25);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -58,16 +60,17 @@
   cursor: pointer;
   
   &:hover {
-    background: #2C3E50;
-    color: white;
-    transform: scale(1.1);
-    box-shadow: 0 12px 40px rgba(44, 62, 80, 0.4);
+    background: rgba(196, 164, 132, 0.2);
+    border-color: #C4A484;
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(196, 164, 132, 0.15);
   }
   
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    color: #F8F6F1;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 }
 
@@ -75,11 +78,13 @@
 .organic-modal-content {
   position: relative;
   z-index: 2;
-  padding: 32px;
+  padding: 60px 40px 40px 40px; // Increased top padding for close button
   height: 100%;
+  overflow: visible;
+  background: transparent;
   
   @media (max-width: 768px) {
-    padding: 24px;
+    padding: 50px 24px 24px 24px;
   }
 }
 
@@ -97,7 +102,7 @@
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(16px);
     padding: 48px;
-    border-radius: 50% 20% 50% 20%;
+    border-radius: 25px 10px 25px 10px;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
     color: #2C3E50;
     
@@ -155,53 +160,55 @@
   }
 }
 
-// Organic Action Buttons matching closet page styling
+// Organic Action Buttons matching upload modal styling
 .organic-action-btn {
   width: 64px;
   height: 64px;
   border: none;
-  font-weight: 600;
+  font-weight: 300;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
+  transition: all 0.35s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   
   &.shuffle-btn {
-    background: #6B7A5A;
-    color: white;
-    border-radius: 50% 20% 50% 20%;
+    background: linear-gradient(135deg, #C4A484 0%, #B8956A 100%);
+    color: #1e2520;
+    border-radius: 12px;
     
     &:hover {
-      background: #5A6B4A;
-      transform: scale(1.1);
-      box-shadow: 0 12px 40px rgba(107, 122, 90, 0.4);
+      background: linear-gradient(135deg, #B8956A 0%, #C4A484 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(196, 164, 132, 0.4);
     }
   }
   
   &.clear-btn {
-    background: rgba(255, 255, 255, 0.8);
-    color: #2C3E50;
-    border-radius: 20% 50% 20% 50%;
-    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.1);
+    color: #F8F6F1;
+    border-radius: 12px;
+    border: 1.5px solid rgba(196, 164, 132, 0.3);
+    backdrop-filter: blur(4px);
     
     &:hover {
-      background: rgba(255, 255, 255, 0.9);
-      transform: scale(1.1);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      background: rgba(196, 164, 132, 0.2);
+      border-color: #C4A484;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(196, 164, 132, 0.15);
     }
   }
   
   &.save-btn {
-    background: #C4A484;
-    color: white;
-    border-radius: 25px 10px 25px 10px;
+    background: linear-gradient(135deg, #C4A484 0%, #B8956A 100%);
+    color: #1e2520;
+    border-radius: 12px;
     
     &:hover {
-      background: #B8956A;
-      transform: scale(1.1);
-      box-shadow: 0 12px 40px rgba(196, 164, 132, 0.4);
+      background: linear-gradient(135deg, #B8956A 0%, #C4A484 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(196, 164, 132, 0.4);
     }
   }
   
@@ -230,10 +237,10 @@
   align-items: center;
   justify-content: center;
   min-height: 500px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border-radius: 50% 20% 50% 20%;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+  border-radius: 25px 10px 25px 10px;
+  border: 2px dashed rgba(196, 164, 132, 0.4);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 768px) {
@@ -568,10 +575,10 @@
   gap: 40px;
   margin-top: 32px;
   padding: 24px 20px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50% 20% 50% 20%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 25px 10px 25px 10px;
+  border: 1px solid rgba(196, 164, 132, 0.2);
+  backdrop-filter: blur(4px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   
   @media (max-width: 1024px) {
@@ -638,11 +645,11 @@
 .organic-nav-arrow {
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
   color: #F8F6F1;
-  border: none;
-  border-radius: 50% 20% 50% 20%;
-  transition: all 0.3s ease;
+  border: 1.5px solid rgba(196, 164, 132, 0.3);
+  border-radius: 12px;
+  transition: all 0.35s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -650,10 +657,10 @@
   backdrop-filter: blur(4px);
   
   &:hover:not(:disabled) {
-    background: #6B7A5A;
-    color: white;
-    transform: scale(1.15);
-    box-shadow: 0 8px 24px rgba(107, 122, 90, 0.4);
+    background: rgba(196, 164, 132, 0.2);
+    border-color: #C4A484;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(196, 164, 132, 0.15);
   }
   
   &:disabled {
@@ -662,11 +669,11 @@
   }
   
   &.left-arrow:hover:not(:disabled) {
-    transform: scale(1.15) translateX(-2px);
+    transform: translateY(-2px) translateX(-2px);
   }
   
   &.right-arrow:hover:not(:disabled) {
-    transform: scale(1.15) translateX(2px);
+    transform: translateY(-2px) translateX(2px);
   }
   
   mat-icon {
@@ -690,7 +697,7 @@
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(16px);
     padding: 48px;
-    border-radius: 50% 20% 50% 20%;
+    border-radius: 25px 10px 25px 10px;
     box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
     
     .empty-icon {
@@ -718,6 +725,18 @@
   }
 }
 
+// Animations
+@keyframes modalSlideIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 // Responsive Design
 @media (max-width: 768px) {
   .organic-outfit-container {
@@ -737,23 +756,23 @@
   }
 }
 
-// Global CDK Drag Styles with organic theme
+// Global CDK Drag Styles with upload modal theme
 ::ng-deep {
   .mat-mdc-dialog-container {
     .mdc-dialog__surface {
       background: transparent !important;
-      border-radius: 50% 20% 50% 20% !important;
+      border-radius: 30px 10px 30px 10px !important;
       overflow: visible !important;
     }
   }
   
   .cdk-drag-preview {
     box-sizing: border-box;
-    border-radius: 30% 70% 30% 70%;
-    box-shadow: 0 16px 40px rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(196, 164, 132, 0.3);
     opacity: 0.9;
     transform: scale(1.1);
-    border: 2px solid rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(196, 164, 132, 0.4);
   }
 
   .cdk-drag-animating {
@@ -762,8 +781,8 @@
 
   .cdk-drag-placeholder {
     opacity: 0.2;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px dashed rgba(255, 255, 255, 0.3);
-    border-radius: 30% 70% 30% 70%;
+    background: rgba(196, 164, 132, 0.1);
+    border: 2px dashed rgba(196, 164, 132, 0.3);
+    border-radius: 12px;
   }
 } 
