@@ -1,107 +1,115 @@
 <div class="edit-modal-container">
-  <div class="edit-modal-header">
-    <h2 mat-dialog-title>
-      <mat-icon>edit</mat-icon>
-      Edit Item Details
-    </h2>
-    <button mat-icon-button mat-dialog-close>
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
+  <!-- Close button -->
+  <button mat-icon-button mat-dialog-close class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
 
-  <mat-dialog-content class="edit-modal-content">
-    <form [formGroup]="editForm" class="edit-form">
-      <!-- Item Preview -->
-      <div class="item-preview">
-        <img [src]="data.item.thumbnailUrl" [alt]="data.item.originalFileName" class="preview-image">
-        <div class="preview-info">
-          <h3>{{ data.item.originalFileName }}</h3>
-          <p class="upload-date">Added on {{ data.item.createdAt | date:'mediumDate' }}</p>
+  <!-- Modal Content -->
+  <div mat-dialog-content class="modal-content">
+    
+    <!-- Main Layout: Left (Image) + Right (Edit Options) -->
+    <div class="main-layout">
+      
+            <!-- Left Side: Image Preview -->
+      <div class="image-preview-section">
+        <div class="preview-container">
+          <img [src]="data.item.thumbnailUrl" [alt]="data.item.originalFileName" class="preview-image">
+          <div class="image-info">
+            <p class="upload-date">Added on {{ data.item.createdAt | date:'mediumDate' }}</p>
+          </div>
+        </div>
+        
+        <!-- Save Button -->
+        <div class="save-button-container">
+          <button mat-raised-button 
+                  color="primary" 
+                  (click)="onSave()" 
+                  [disabled]="isLoading || editForm.invalid"
+                  class="save-btn">
+            <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+            <mat-icon *ngIf="!isLoading">save</mat-icon>
+            {{ isLoading ? 'Saving...' : 'Save Changes' }}
+          </button>
         </div>
       </div>
 
-      <mat-divider></mat-divider>
+      <!-- Right Side: Edit Options -->
+      <div class="edit-options-section">
+        <form [formGroup]="editForm" class="edit-form">
+          
+          <!-- Category Selection -->
+          <div class="category-section">
+            <h4>CATEGORY</h4>
+            <div class="category-icons">
+              <button
+                *ngFor="let categoryInfo of allCategories"
+                mat-icon-button
+                class="category-icon-btn"
+                [class.selected]="editForm.get('category')?.value === categoryInfo.category"
+                (click)="editForm.get('category')?.setValue(categoryInfo.category)"
+                [title]="categoryInfo.displayName">
+                <iconify-icon [icon]="categoryInfo.icon"></iconify-icon>
+              </button>
+            </div>
+            <mat-error *ngIf="editForm.get('category')?.hasError('required') && editForm.get('category')?.touched">
+              Category is required
+            </mat-error>
+          </div>
 
-      <!-- Category Selection -->
-      <div class="form-section">
-        <h4>Category</h4>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Category</mat-label>
-          <mat-select formControlName="category" required>
-            <mat-option *ngFor="let category of categories" [value]="category">
-              <mat-icon>{{ categoryService.getCategoryInfo(category)?.icon || 'checkroom' }}</mat-icon>
-              {{ getCategoryDisplayName(category) }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="editForm.get('category')?.hasError('required')">
-            Category is required
-          </mat-error>
-        </mat-form-field>
-      </div>
+          <!-- Colors -->
+          <div class="colors-section">
+            <h4>COLORS <span class="required">*</span></h4>
+            <div class="colors-grid">
+              <button 
+                *ngFor="let color of colors"
+                mat-mini-fab
+                [class]="'color-btn color-' + color"
+                [class.selected]="editForm.get('colors')?.value?.includes(color)"
+                (click)="toggleColor(color)"
+                [title]="getColorDisplayName(color)">
+                <mat-icon *ngIf="editForm.get('colors')?.value?.includes(color)">check</mat-icon>
+              </button>
+            </div>
+            <mat-error *ngIf="editForm.get('colors')?.hasError('required') && editForm.get('colors')?.touched">
+              At least one color is required
+            </mat-error>
+          </div>
 
-      <!-- Colors -->
-      <div class="form-section">
-        <h4>Colors <span class="required">*</span></h4>
-        <div class="color-selection">
-          <div class="color-grid">
-            <div *ngFor="let color of colors" 
-                 class="color-option"
-                 [class.selected]="editForm.get('colors')?.value?.includes(color)"
-                 (click)="toggleColor(color)">
-              <div class="color-circle" [style.background-color]="getColorHex(color)"></div>
-              <span class="color-name">{{ getColorDisplayName(color) }}</span>
+          <!-- Tags -->
+          <div class="tags-section">
+            <h4>TAGS</h4>
+            <div class="tags-input-container">
+              <mat-form-field appearance="outline" class="tags-field">
+                <mat-label>Add tags to help organize your items</mat-label>
+                <mat-chip-grid #chipGrid>
+                  <mat-chip-row *ngFor="let tag of editForm.get('tags')?.value" 
+                                (removed)="removeTag(tag)"
+                                [removable]="true">
+                    {{ tag }}
+                    <mat-icon matChipRemove>cancel</mat-icon>
+                  </mat-chip-row>
+                </mat-chip-grid>
+                <input matInput
+                       placeholder="Type a tag and press Enter"
+                       [matChipInputFor]="chipGrid"
+                       [matChipInputSeparatorKeyCodes]="[13, 188]"
+                       (matChipInputTokenEnd)="addTag($event)">
+              </mat-form-field>
             </div>
           </div>
-          <mat-error *ngIf="editForm.get('colors')?.hasError('required') && editForm.get('colors')?.touched">
-            At least one color is required
-          </mat-error>
-        </div>
+
+          <!-- Favorite Button -->
+          <div class="favorite-section">
+            <button mat-icon-button 
+                    (click)="toggleFavorite()" 
+                    class="favorite-btn"
+                    [class.favorited]="editForm.get('isFavorite')?.value">
+              <mat-icon>favorite</mat-icon>
+            </button>
+          </div>
+
+        </form>
       </div>
-
-
-
-      <!-- Tags -->
-      <div class="form-section">
-        <h4>Tags</h4>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Add tags to help organize your items</mat-label>
-          <mat-chip-grid #chipGrid>
-            <mat-chip-row *ngFor="let tag of editForm.get('tags')?.value" 
-                          (removed)="removeTag(tag)"
-                          [removable]="true">
-              {{ tag }}
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip-row>
-          </mat-chip-grid>
-          <input matInput
-                 placeholder="Type a tag and press Enter"
-                 [matChipInputFor]="chipGrid"
-                 [matChipInputSeparatorKeyCodes]="[13, 188]"
-                 (matChipInputTokenEnd)="addTag($event)">
-        </mat-form-field>
-      </div>
-
-      <!-- Favorite Toggle -->
-      <div class="form-section">
-        <mat-slide-toggle formControlName="isFavorite" color="primary">
-          <mat-icon>favorite</mat-icon>
-          Mark as favorite
-        </mat-slide-toggle>
-      </div>
-    </form>
-  </mat-dialog-content>
-
-  <mat-dialog-actions class="edit-modal-actions">
-    <button mat-button (click)="onCancel()" [disabled]="isLoading">
-      Cancel
-    </button>
-    <button mat-raised-button 
-            color="primary" 
-            (click)="onSave()" 
-            [disabled]="isLoading || editForm.invalid">
-      <mat-spinner diameter="16" *ngIf="isLoading"></mat-spinner>
-      <span *ngIf="!isLoading">Save Changes</span>
-      <span *ngIf="isLoading">Saving...</span>
-    </button>
-  </mat-dialog-actions>
+    </div>
+  </div>
 </div> 

@@ -615,10 +615,12 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   editItem(item: ClothingItem): void {
     const dialogRef = this.dialog.open(ItemEditModalComponent, {
-      width: '600px',
+      width: '1000px',
       maxWidth: '95vw',
+      maxHeight: '95vh',
       data: { item },
-      disableClose: false
+      disableClose: false,
+      panelClass: 'edit-modal-dialog'
     });
 
     dialogRef.afterClosed()

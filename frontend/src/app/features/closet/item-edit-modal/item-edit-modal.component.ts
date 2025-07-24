@@ -22,6 +22,7 @@ export class ItemEditModalComponent implements OnInit, OnDestroy {
   
   readonly categories = Object.values(ClothingCategory);
   readonly colors = Object.values(ClothingColor);
+  allCategories: any[] = [];
   
   constructor(
     private fb: FormBuilder,
@@ -35,6 +36,7 @@ export class ItemEditModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.allCategories = this.categoryService.getAllCategories();
     this.populateForm();
   }
 
@@ -196,6 +198,11 @@ export class ItemEditModalComponent implements OnInit, OnDestroy {
     }
     
     this.editForm.get('colors')?.setValue([...currentColors]);
+  }
+
+  toggleFavorite(): void {
+    const currentValue = this.editForm.get('isFavorite')?.value;
+    this.editForm.get('isFavorite')?.setValue(!currentValue);
   }
 
   private markFormGroupTouched(): void {
