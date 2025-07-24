@@ -58,8 +58,8 @@ export class ClothingApplicationService {
     }
 
     const queryParams: QueryParams = {
-      page: request.page,
-      limit: request.limit,
+      page: request.page ?? 1,
+      limit: request.limit ?? 20,
       sortBy: request.sortBy,
       sortOrder: request.sortOrder,
       category: request.category,
@@ -342,7 +342,9 @@ export class ClothingApplicationService {
     const queryParams: QueryParams = {
       isFavorite: true,
       sortBy: 'updated_at',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
+      page: 1,
+      limit: 100
     };
 
     return this.clothingRepository.findByUserId(this.currentUserId, queryParams).pipe(
@@ -372,7 +374,7 @@ export class ClothingApplicationService {
     this.clothingRepository.findByUserId(this.currentUserId, queryParams).pipe(
       map(result => {
         if (ResultUtils.isSuccess(result)) {
-          this.clothingItemsSubject.next(result.data.items);
+          this.clothingItemsSubject.next([...result.data.items]);
         }
       })
     ).subscribe();

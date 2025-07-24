@@ -1,3 +1,13 @@
+/**
+ * @deprecated This file contains legacy models that are being phased out.
+ * Please use the domain models from './domain/clothing.model' instead.
+ * 
+ * Migration guide:
+ * - ClothingCategory -> import from './domain/clothing.model'
+ * - ClothingItem -> use ClothingItemEntity from './domain/clothing.model'
+ * - All other types -> check './domain/clothing.model' for equivalents
+ */
+
 export enum ClothingCategory {
   HAT = 'hat',
   TOP = 'top',

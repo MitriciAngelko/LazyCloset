@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient, User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { ConfigService } from './config.service';
 
 export interface Database {
   public: {
@@ -88,10 +88,11 @@ export class SupabaseService {
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
   public session$: Observable<Session | null> = this.sessionSubject.asObservable();
 
-  constructor() {
+  constructor(private configService: ConfigService) {
+    const config = this.configService.getSupabaseConfig();
     this.supabase = createClient<Database>(
-      environment.supabase.url,
-      environment.supabase.anonKey,
+      config.url,
+      config.anonKey,
       {
         auth: {
           persistSession: true,

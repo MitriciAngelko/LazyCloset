@@ -1,6 +1,6 @@
 export interface PaginationParams {
-  readonly page: number;
-  readonly limit: number;
+  readonly page?: number;
+  readonly limit?: number;
   readonly sortBy?: string;
   readonly sortOrder?: 'asc' | 'desc';
 }
@@ -31,14 +31,14 @@ export interface QueryParams extends PaginationParams, FilterParams {}
 
 export class PaginationUtils {
   static createParams(
-    page: number = 1,
-    limit: number = 20,
+    page?: number,
+    limit?: number,
     sortBy?: string,
     sortOrder: 'asc' | 'desc' = 'desc'
   ): PaginationParams {
     return {
-      page: Math.max(1, page),
-      limit: Math.max(1, Math.min(100, limit)), // Max 100 items per page
+      page: page ? Math.max(1, page) : 1,
+      limit: limit ? Math.max(1, Math.min(100, limit)) : 20, // Max 100 items per page
       sortBy,
       sortOrder
     };
@@ -66,10 +66,13 @@ export class PaginationUtils {
   }
 
   static validateParams(params: PaginationParams): boolean {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 20;
+    
     return (
-      params.page >= 1 &&
-      params.limit >= 1 &&
-      params.limit <= 100 &&
+      page >= 1 &&
+      limit >= 1 &&
+      limit <= 100 &&
       (!params.sortOrder || ['asc', 'desc'].includes(params.sortOrder))
     );
   }

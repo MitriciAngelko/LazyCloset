@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ConfigService } from './config.service';
 
 export interface BackgroundRemovalResult {
   success: boolean;
@@ -22,15 +23,24 @@ export interface CropArea {
 export class BackgroundRemovalService {
 
   // Get your API key from https://www.remove.bg (50 free calls/month)
-  private readonly REMOVE_BG_API_KEY = 'boU8rxDjMGtMNSxMHT4HeTxX';
   private readonly REMOVE_BG_API_URL = 'https://api.remove.bg/v1.0/removebg';
+
+  constructor(private configService: ConfigService) {}
+
+  /**
+   * Get API key from configuration service
+   */
+  private getApiKey(): string {
+    return this.configService.getRemoveBgApiKey();
+  }
 
   /**
    * Attempt to remove background using remove.bg API
    */
   async removeBackground(file: File): Promise<BackgroundRemovalResult> {
     // If no API key is configured, fall back to manual processing
-    if (!this.REMOVE_BG_API_KEY) {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
       console.warn('Remove.bg API key not configured, falling back to manual processing');
       return this.fallbackProcessing(file);
     }
@@ -54,7 +64,7 @@ export class BackgroundRemovalService {
       const response = await fetch(this.REMOVE_BG_API_URL, {
         method: 'POST',
         headers: {
-          'X-Api-Key': this.REMOVE_BG_API_KEY,
+          'X-Api-Key': this.getApiKey(),
         },
         body: formData,
       });
@@ -308,19 +318,20 @@ export class BackgroundRemovalService {
    * Check if remove.bg API is available
    */
   isApiAvailable(): boolean {
-    return !!this.REMOVE_BG_API_KEY;
+    return !!this.getApiKey();
   }
 
   /**
    * Get API usage info (placeholder for future implementation)
    */
   async getApiUsage(): Promise<{ remaining: number; total: number } | null> {
-    if (!this.REMOVE_BG_API_KEY) return null;
+    const apiKey = this.getApiKey();
+    if (!apiKey) return null;
 
     try {
       const response = await fetch('https://api.remove.bg/v1.0/account', {
         headers: {
-          'X-Api-Key': this.REMOVE_BG_API_KEY,
+          'X-Api-Key': apiKey,
         },
       });
 
