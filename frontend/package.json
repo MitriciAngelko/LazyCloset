@@ -2,12 +2,12 @@
   "name": "frontend",
   "version": "0.0.0",
   "scripts": {
-    "ng": "ng",
-    "start": "node scripts/generate-env.js && ng serve",
-    "build": "node scripts/generate-env.js && ng build",
-    "build:prod": "node scripts/generate-env.js && ng build --configuration production",
-    "watch": "node scripts/generate-env.js && ng build --watch --configuration development",
-    "test": "ng test"
+    "ng": "npx ng",
+    "start": "node scripts/generate-env.js && npx ng serve",
+    "build": "node scripts/generate-env.js && npx ng build",
+    "build:prod": "node scripts/generate-env.js && npx ng build --configuration production",
+    "watch": "node scripts/generate-env.js && npx ng build --watch --configuration development",
+    "test": "npx ng test"
   },
   "private": true,
   "dependencies": {
@@ -22,9 +22,11 @@
     "@angular/router": "^19.2.0",
     "@angular/service-worker": "^19.2.0",
     "@iconify/iconify": "^3.1.1",
+    "@types/hammerjs": "^2.0.46",
     "@types/uuid": "^10.0.0",
     "browser-image-compression": "^2.0.2",
     "dotenv": "^17.2.0",
+    "hammerjs": "^2.0.8",
     "iconify-icon": "^3.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
