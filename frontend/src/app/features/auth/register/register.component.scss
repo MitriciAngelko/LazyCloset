@@ -1,60 +1,225 @@
-.register-container {
+// Modern Minimal Register Page - Matching Login Theme
+
+.modern-register-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-elevated) 100%);
-  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-elevated) 50%, var(--color-surface) 100%);
+  padding: 24px;
+
+  // Animated background pattern
+  .background-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23ffffff' fillOpacity='0.4'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    animation: patternDrift 60s linear infinite;
+  }
+
+  // Gradient orbs for depth
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+    animation: float 20s ease-in-out infinite;
+
+    &.orb-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--color-primary), transparent);
+      top: -10%;
+      left: -10%;
+      animation-delay: 0s;
+    }
+
+    &.orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--color-accent), transparent);
+      bottom: -15%;
+      right: -15%;
+      animation-delay: 7s;
+    }
+  }
+
 }
 
+// Floating Lil Guy
+.floating-lil-guy {
+  position: fixed;
+  z-index: 5;
+  pointer-events: none;
+  transition: none;
+
+  .lil-guy-image {
+    width: 120px; // Smaller size
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+  }
+}
+
+// Register Card
 .register-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+  position: relative;
+  z-index: 10;
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 48px;
   width: 100%;
-  max-width: 400px;
-  animation: fadeInUp 0.6s ease-out;
+  max-width: 440px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  animation: cardSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+  @media (max-width: 480px) {
+    padding: 32px 24px;
+    border-radius: 20px;
+  }
 }
 
-.register-header {
+// Brand Section
+.brand-section {
   text-align: center;
   margin-bottom: 32px;
 
-  h1 {
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--color-text);
-    margin: 0 0 8px 0;
+  .brand-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-600));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(66, 133, 243, 0.3);
+    animation: iconPulse 3s ease-in-out infinite;
+
+    mat-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+      color: var(--color-on-primary);
+    }
   }
 
-  p {
+  h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+  }
+
+  .tagline {
+    font-size: 15px;
     color: var(--color-text-muted);
-    font-size: 16px;
     margin: 0;
+    font-weight: 300;
   }
 }
 
-.register-form {
+// Form Styles
+.modern-register-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-.full-width {
-  width: 100%;
+// Input Groups
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    letter-spacing: 0.2px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--color-text-muted);
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+
+    .modern-input {
+      width: 100%;
+      height: 52px;
+      padding: 0 16px 0 48px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1.5px solid var(--color-border);
+      border-radius: 12px;
+      color: var(--color-text);
+      font-size: 15px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+
+      &::placeholder {
+        color: rgba(230, 238, 252, 0.3);
+      }
+
+      &:focus {
+        outline: none;
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(66, 133, 243, 0.1);
+
+        ~ .input-icon {
+          color: var(--color-primary);
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .error-text {
+    font-size: 13px;
+    color: var(--color-danger);
+    margin-top: -4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: errorShake 0.3s ease;
+  }
 }
 
-.success-message {
+// Success Banner
+.success-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: color-mix(in oklab, var(--color-success) 12%, transparent);
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
   color: var(--color-success);
-  padding: 12px 16px;
-  border-radius: 8px;
   font-size: 14px;
-  border: 1px solid color-mix(in oklab, var(--color-success) 30%, transparent);
+  animation: successSlideDown 0.3s ease;
 
   mat-icon {
     font-size: 20px;
@@ -63,16 +228,18 @@
   }
 }
 
-.error-message {
+// Error Banner
+.error-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: color-mix(in oklab, var(--color-danger) 12%, transparent);
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
   color: var(--color-danger);
-  padding: 12px 16px;
-  border-radius: 8px;
   font-size: 14px;
-  border: 1px solid color-mix(in oklab, var(--color-danger) 30%, transparent);
+  animation: errorSlideDown 0.3s ease;
 
   mat-icon {
     font-size: 20px;
@@ -81,60 +248,182 @@
   }
 }
 
-.register-button {
-  height: 48px;
+// Submit Button
+.modern-submit-btn {
+  height: 52px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-600));
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: 12px;
   font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
-  margin-top: 8px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(66, 133, 243, 0.3);
   position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 
-  .register-spinner {
-    margin-right: 8px;
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(66, 133, 243, 0.5);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:disabled {
-    background: rgba(255,255,255,0.08) !important;
-    color: var(--color-text-muted) !important;
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
   }
-}
 
-.login-link {
-  text-align: center;
-  margin-top: 16px;
+  &.loading {
+    pointer-events: none;
+  }
 
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-
-    button {
-      font-weight: 500;
-      text-transform: none;
+  .btn-spinner {
+    ::ng-deep circle {
+      stroke: var(--color-on-primary);
     }
   }
 }
 
-// Responsive design
-@media (max-width: 480px) {
-  .register-container {
-    padding: 16px;
+// Divider
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
   }
 
-  .register-card {
-    padding: 24px;
+  span {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+// Secondary Button
+.modern-secondary-btn {
+  height: 52px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 
-  .register-header h1 {
-    font-size: 24px;
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(66, 133, 243, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 }
 
 // Animations
-@keyframes fadeInUp {
+@keyframes cardSlideIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 24px rgba(66, 133, 243, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(66, 133, 243, 0.5);
+  }
+}
+
+@keyframes patternDrift {
+  from {
+    transform: translate(0, 0);
+  }
+  to {
+    transform: translate(60px, 60px);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+@keyframes errorSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -142,17 +431,57 @@
   }
 }
 
-// Material form field customization
-::ng-deep {
-  .mat-mdc-form-field {
-    .mat-mdc-text-field-wrapper {
-      border-radius: 8px;
+@keyframes successSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .modern-register-container {
+    padding: 16px;
+  }
+
+  .brand-section {
+    margin-bottom: 24px;
+
+    .brand-icon {
+      width: 64px;
+      height: 64px;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    h1 {
+      font-size: 28px;
+    }
+
+    .tagline {
+      font-size: 14px;
     }
   }
 
-  .mat-mdc-raised-button.mat-primary {
-    background-color: var(--color-primary);
-    color: var(--color-on-primary);
-    &:hover { background-color: var(--color-primary-600); }
+  .modern-register-form {
+    gap: 18px;
   }
-} 
+
+  .modern-submit-btn,
+  .modern-secondary-btn {
+    height: 48px;
+    font-size: 15px;
+  }
+
+  .floating-lil-guy .lil-guy-image {
+    width: 80px; // Even smaller on mobile
+  }
+}

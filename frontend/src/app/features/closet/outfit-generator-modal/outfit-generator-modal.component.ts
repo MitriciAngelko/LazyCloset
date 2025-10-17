@@ -1,12 +1,14 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { Subject, takeUntil, combineLatest } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
+import { Subject, takeUntil } from 'rxjs';
 import { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { ClothingService } from '../../../core/services/clothing.service';
 import { LilGuyService, LilGuyState, ClothingItemPosition } from '../../../core/services/lil-guy.service';
 import { ClothingItem, ClothingCategory } from '../../../shared/models/clothing.models';
 
+/**
+ * Interface representing a layer of clothing items in the outfit
+ */
 interface OutfitLayer {
   category: ClothingCategory;
   displayName: string;
@@ -15,6 +17,11 @@ interface OutfitLayer {
   zIndex: number;
 }
 
+/**
+ * Outfit Generator Modal Component
+ * Allows users to create outfits by selecting and positioning clothing items.
+ * Features draggable items, category navigation, and "lil guy" character integration.
+ */
 @Component({
   selector: 'app-outfit-generator-modal',
   standalone: false,
@@ -22,11 +29,13 @@ interface OutfitLayer {
   styleUrls: ['./outfit-generator-modal.component.scss']
 })
 export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterViewInit {
+  // Public properties (inputs/outputs)
   @ViewChild('mannequinRef', { static: false }) mannequinRef!: ElementRef;
-  
-  private destroy$ = new Subject<void>();
-  
-  // Lil Guy state
+
+  // Private properties
+  private readonly _destroy$ = new Subject<void>();
+
+  // Public component state
   lilGuyState: LilGuyState | null = null;
   
   // Dynamic positioning for lil guy parts
@@ -74,32 +83,197 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
 
   isLoading = true;
 
+  // Constructor (dependency injection only)
   constructor(
-    private clothingService: ClothingService,
-    private lilGuyService: LilGuyService,
-    public dialogRef: MatDialogRef<OutfitGeneratorModalComponent>
+    private readonly clothingService: ClothingService,
+    private readonly lilGuyService: LilGuyService,
+    public readonly dialogRef: MatDialogRef<OutfitGeneratorModalComponent>
   ) {}
 
+  // Lifecycle hooks (in order: OnInit, AfterViewInit, OnDestroy)
   ngOnInit(): void {
     this.loadClothingItems();
     this.initializeLilGuy();
   }
 
   ngAfterViewInit(): void {
-    // Check connections whenever clothing positions might change
+    // Check connections after view initialization
     setTimeout(() => {
       this.checkClothingConnections();
     }, 100);
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 
+  // Public methods (event handlers)
+
+  /**
+   * Handle previous item navigation for a clothing category
+   */
+  handlePreviousItem(layerIndex: number): void {
+    const layer = this.outfitLayers[layerIndex];
+    if (layer.items.length === 0) return;
+
+    layer.currentIndex = layer.currentIndex <= -1
+      ? layer.items.length - 1
+      : layer.currentIndex - 1;
+
+    this.scheduleConnectionCheck();
+  }
+
+  /**
+   * Handle next item navigation for a clothing category
+   */
+  handleNextItem(layerIndex: number): void {
+    const layer = this.outfitLayers[layerIndex];
+    if (layer.items.length === 0) return;
+
+    layer.currentIndex = layer.currentIndex >= layer.items.length - 1
+      ? -1
+      : layer.currentIndex + 1;
+
+    this.scheduleConnectionCheck();
+  }
+
+  /**
+   * Handle randomize outfit action
+   */
+  handleRandomizeOutfit(): void {
+    this.outfitLayers.forEach(layer => {
+      if (layer.items.length > 0) {
+        layer.currentIndex = Math.floor(Math.random() * layer.items.length);
+      }
+    });
+    this.scheduleConnectionCheck();
+  }
+
+  /**
+   * Handle clear outfit action
+   */
+  handleClearOutfit(): void {
+    this.outfitLayers.forEach(layer => {
+      layer.currentIndex = -1;
+    });
+    this.scheduleConnectionCheck();
+  }
+
+  /**
+   * Handle save outfit action
+   */
+  handleSaveOutfit(): void {
+    // TODO: [High] Implement outfit saving functionality
+    console.log('Save outfit - to be implemented');
+
+    const currentOutfit = {
+      hat: this.getCurrentItem(this.getLayer('hat')!),
+      top: this.getCurrentItem(this.getLayer('top')!),
+      jacket: this.getCurrentItem(this.getLayer('jacket')!),
+      jeans: this.getCurrentItem(this.getLayer('jeans')!),
+      shoes: this.getCurrentItem(this.getLayer('shoes')!)
+    };
+
+    console.log('Current outfit:', currentOutfit);
+  }
+
+  /**
+   * Handle drag started event
+   */
+  handleDragStarted(): void {
+    // Optional: Add visual feedback when dragging starts
+  }
+
+  /**
+   * Handle drag ended event
+   */
+  handleDragEnded(): void {
+    this.scheduleConnectionCheck();
+  }
+
+  /**
+   * Handle drag dropped event
+   */
+  handleDragDropped(event: CdkDragDrop<any>): void {
+    const element = event.item.element.nativeElement;
+    const transform = element.style.transform;
+    element.style.transform = transform;
+  }
+
+  /**
+   * Handle modal close event
+   */
+  handleClose(): void {
+    this.dialogRef.close();
+  }
+
+  // Helper/utility methods for template
+
+  /**
+   * Get current item for a given layer
+   */
+  getCurrentItem(layer: OutfitLayer): ClothingItem | null {
+    return layer.items.length > 0 && layer.currentIndex >= 0 && layer.currentIndex < layer.items.length
+      ? layer.items[layer.currentIndex]
+      : null;
+  }
+
+  /**
+   * Check if layer has items
+   */
+  hasItems(layer: OutfitLayer): boolean {
+    return layer.items.length > 0;
+  }
+
+  /**
+   * Get display info for a layer
+   */
+  getLayerInfo(layerIndex: number): string {
+    const layer = this.outfitLayers[layerIndex];
+    if (layer.items.length === 0) return 'No items';
+    if (layer.currentIndex === -1) return `0 of ${layer.items.length}`;
+    return `${layer.currentIndex + 1} of ${layer.items.length}`;
+  }
+
+  /**
+   * Check if there are any items in the closet
+   */
+  hasAnyItems(): boolean {
+    return this.outfitLayers.some(layer => layer.items.length > 0);
+  }
+
+  /**
+   * Get layer by category string
+   */
+  getLayer(categoryStr: string): OutfitLayer | null {
+    const categoryMap: { [key: string]: ClothingCategory } = {
+      'hat': ClothingCategory.HAT,
+      'top': ClothingCategory.TOP,
+      'jacket': ClothingCategory.JACKET,
+      'jeans': ClothingCategory.JEANS,
+      'shoes': ClothingCategory.SHOES
+    };
+
+    const category = categoryMap[categoryStr];
+    return this.outfitLayers.find(layer => layer.category === category) || null;
+  }
+
+  /**
+   * Get layer index by category
+   */
+  getLayerIndex(category: ClothingCategory): number {
+    return this.outfitLayers.findIndex(layer => layer.category === category);
+  }
+
+  // Private methods
+
+  /**
+   * Load clothing items from service
+   */
   private loadClothingItems(): void {
     this.clothingService.getClothingItems()
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe({
         next: (items) => {
           this.organizeItemsByLayers(items);
@@ -112,6 +286,18 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
       });
   }
 
+  /**
+   * Schedule connection check with debounce
+   */
+  private scheduleConnectionCheck(): void {
+    setTimeout(() => {
+      this.checkClothingConnections();
+    }, 100);
+  }
+
+  /**
+   * Organize clothing items by layers/categories
+   */
   private organizeItemsByLayers(items: ClothingItem[]): void {
     this.outfitLayers.forEach(layer => {
       layer.items = items.filter(item => item.category === layer.category);
@@ -121,23 +307,21 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
         layer.currentIndex = -1;
       }
     });
-    
+
     // Auto-generate a random outfit when items are loaded
-    this.generateRandomOutfit();
-    
-    // Check connections after items are organized
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
+    this.handleRandomizeOutfit();
   }
 
+  /**
+   * Initialize lil guy character state
+   */
   private initializeLilGuy(): void {
     // Randomize the character when entering the outfit creator
     this.lilGuyService.randomizeCharacter();
-    
+
     // Subscribe to lil guy state changes
     this.lilGuyService.lilGuyState$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(takeUntil(this._destroy$))
       .subscribe(state => {
         this.lilGuyState = state;
         // Update positions when lil guy state changes
@@ -145,154 +329,6 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
           this.updateLilGuyPositions();
         }, 50);
       });
-  }
-
-  previousItem(layerIndex: number): void {
-    const layer = this.outfitLayers[layerIndex];
-    if (layer.items.length === 0) return;
-    
-    if (layer.currentIndex <= -1) {
-      layer.currentIndex = layer.items.length - 1;
-    } else {
-      layer.currentIndex = layer.currentIndex - 1;
-    }
-    
-    // Check connections after changing item
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
-  }
-
-  nextItem(layerIndex: number): void {
-    const layer = this.outfitLayers[layerIndex];
-    if (layer.items.length === 0) return;
-    
-    if (layer.currentIndex >= layer.items.length - 1) {
-      layer.currentIndex = -1;
-    } else {
-      layer.currentIndex = layer.currentIndex + 1;
-    }
-    
-    // Check connections after changing item
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
-  }
-
-  getCurrentItem(layer: OutfitLayer): ClothingItem | null {
-    return layer.items.length > 0 && layer.currentIndex >= 0 && layer.currentIndex < layer.items.length 
-      ? layer.items[layer.currentIndex] 
-      : null;
-  }
-
-  hasItems(layer: OutfitLayer): boolean {
-    return layer.items.length > 0;
-  }
-
-  getLayerInfo(layerIndex: number): string {
-    const layer = this.outfitLayers[layerIndex];
-    if (layer.items.length === 0) return 'No items';
-    if (layer.currentIndex === -1) return `0 of ${layer.items.length}`;
-    return `${layer.currentIndex + 1} of ${layer.items.length}`;
-  }
-
-  generateRandomOutfit(): void {
-    this.outfitLayers.forEach(layer => {
-      if (layer.items.length > 0) {
-        layer.currentIndex = Math.floor(Math.random() * layer.items.length);
-      }
-    });
-    
-    // Check connections after generating outfit
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
-  }
-
-  clearOutfit(): void {
-    this.outfitLayers.forEach(layer => {
-      layer.currentIndex = -1;
-    });
-    
-    // Check connections (should make lil guy dead since no clothes)
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
-  }
-
-  getCategoryIcon(category: ClothingCategory): string {
-    switch (category) {
-      case ClothingCategory.HAT: return 'emoji_objects';
-      case ClothingCategory.TOP: return 'checkroom';
-      case ClothingCategory.JACKET: return 'ac_unit';
-      case ClothingCategory.JEANS: return 'content_cut';
-      case ClothingCategory.SHOES: return 'directions_walk';
-      default: return 'checkroom';
-    }
-  }
-
-  hasAnyItems(): boolean {
-    return this.outfitLayers.some(layer => layer.items.length > 0);
-  }
-
-  getLayer(categoryStr: string): OutfitLayer | null {
-    const categoryMap: { [key: string]: ClothingCategory } = {
-      'hat': ClothingCategory.HAT,
-      'top': ClothingCategory.TOP,
-      'jacket': ClothingCategory.JACKET,
-      'jeans': ClothingCategory.JEANS,
-      'shoes': ClothingCategory.SHOES
-    };
-    
-    const category = categoryMap[categoryStr];
-    return this.outfitLayers.find(layer => layer.category === category) || null;
-  }
-
-  getLayerIndex(category: ClothingCategory): number {
-    return this.outfitLayers.findIndex(layer => layer.category === category);
-  }
-
-  onDragDropped(event: CdkDragDrop<any>): void {
-    const element = event.item.element.nativeElement;
-    const transform = element.style.transform;
-    element.style.transform = transform;
-  }
-
-  onDragStarted(): void {
-    // Optional: Add visual feedback when dragging starts
-  }
-
-  onDragEnded(): void {
-    // Check connections after drag ends
-    setTimeout(() => {
-      this.checkClothingConnections();
-    }, 100);
-  }
-
-  onClose(): void {
-    this.dialogRef.close();
-  }
-
-  /**
-   * Save the current outfit (placeholder for future implementation)
-   */
-  saveOutfit(): void {
-    // TODO: Implement outfit saving functionality
-    console.log('Save outfit functionality - to be implemented');
-    
-    // Get current outfit items
-    const currentOutfit = {
-      hat: this.getCurrentItem(this.getLayer('hat')!),
-      top: this.getCurrentItem(this.getLayer('top')!),
-      jacket: this.getCurrentItem(this.getLayer('jacket')!),
-      jeans: this.getCurrentItem(this.getLayer('jeans')!),
-      shoes: this.getCurrentItem(this.getLayer('shoes')!)
-    };
-    
-    // For now, just log the outfit
-    console.log('Current outfit to save:', currentOutfit);
-    
-    // Future: Save to backend, show success message, etc.
   }
 
   /**

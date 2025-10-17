@@ -42,3 +42,25 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .text-primary { color: var(--color-primary) !important; }
 .text-muted { color: var(--color-text-muted) !important; }
 .elevated { box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+
+/* Outfit Generator Modal Centering */
+.outfit-generator-dialog {
+  .mdc-dialog__container {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .mat-mdc-dialog-container {
+    .mdc-dialog__surface {
+      position: relative !important;
+      margin: 0 !important;
+    }
+  }
+}
+
+.outfit-generator-backdrop {
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(4px) !important;
+}

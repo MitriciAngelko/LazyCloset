@@ -91,113 +91,208 @@
   }
 }
 
-// Scatter Items Button
-.floating-scatter-btn {
+// Centered Action Bar
+.centered-action-bar {
   position: absolute;
   top: 32px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  
-  .layout-toggle-btn {
-    background: rgba(255, 255, 255, 0.6);
-    color: var(--color-primary);
-    border: none;
-    backdrop-filter: blur(8px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    border-radius: 25px 10px 25px 10px;
-    font-weight: 600;
-    height: 48px;
-    padding: 0 24px;
-    
-    &:hover {
-      background: rgba(255, 255, 255, 0.8);
-      transform: scale(1.05);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    &.grid-mode {
-      background: var(--color-primary);
-      color: var(--color-on-primary);
-      
-      &:hover {
-        background: var(--color-primary-600);
-        box-shadow: 0 12px 40px rgba(66, 133, 243, 0.35);
-      }
-    }
-    
-    mat-icon {
-      margin-right: 8px;
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
-    }
-  }
-}
-
-// User Controls
-.floating-user-actions {
-  position: absolute;
-  top: 32px;
-  right: 32px;
-  z-index: 20;
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  
-  .organic-btn {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(17, 24, 39, 0.95); // Slightly more opaque
+  backdrop-filter: blur(20px); // Increased blur
+  border-radius: 20px; // More rounded
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset; // Inner glow
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    top: 24px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 44px; // Slightly smaller
+    padding: 0 24px; // More horizontal padding
     border: none;
     font-weight: 600;
-    height: 56px;
-    font-size: 16px;
-    padding: 0 24px;
-    
-    &.add-btn {
-      background: var(--color-primary);
-      color: var(--color-on-primary);
-      border-radius: 25px 10px 25px 10px;
-      
-      &:hover {
-        background: var(--color-primary-600);
-        transform: scale(1.05);
-        box-shadow: 0 12px 40px rgba(66, 133, 243, 0.35);
-      }
-    }
-    
-    &.create-btn {
-      background: var(--color-surface-2);
-      color: var(--color-text);
-      border-radius: 10px 25px 10px 25px;
-      
-      &:hover {
-        background: color-mix(in oklab, var(--color-surface-2) 85%, white);
-        transform: scale(1.05);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      }
-    }
-    
+    font-size: 14px;
+    letter-spacing: 0.5px; // Increased letter spacing
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+
+    // Default state - refined glass-morphism
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-text);
+    border-radius: 16px;
+    border: 1px solid transparent;
+
     mat-icon {
-      margin-right: 8px;
       font-size: 20px;
       width: 20px;
       height: 20px;
+      transition: all 0.3s ease;
+      opacity: 0.9;
+    }
+
+    span {
+      position: relative;
+      z-index: 1;
+      font-weight: 500;
+    }
+
+    // Subtle shine effect
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+      &::before {
+        opacity: 1;
+      }
+
+      mat-icon {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    // Layout button - clean active state
+    &.layout-btn {
+      &.active {
+        background: rgba(66, 133, 243, 0.15);
+        color: var(--color-primary);
+        border-color: rgba(66, 133, 243, 0.3);
+        box-shadow:
+          0 0 0 1px rgba(66, 133, 243, 0.2) inset,
+          0 4px 12px rgba(66, 133, 243, 0.15);
+
+        mat-icon {
+          opacity: 1;
+        }
+
+        &:hover {
+          background: rgba(66, 133, 243, 0.2);
+          border-color: rgba(66, 133, 243, 0.4);
+          box-shadow:
+            0 0 0 1px rgba(66, 133, 243, 0.3) inset,
+            0 6px 20px rgba(66, 133, 243, 0.25);
+        }
+
+        &::before {
+          display: none;
+        }
+      }
+    }
+
+    // Add button - refined primary
+    &.add-btn {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-600));
+      color: var(--color-on-primary);
+      box-shadow:
+        0 4px 16px rgba(66, 133, 243, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+
+      mat-icon {
+        opacity: 1;
+      }
+
+      &::before {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 8px 28px rgba(66, 133, 243, 0.45),
+          0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    // Create button - elegant secondary
+    &.create-btn {
+      background: rgba(138, 180, 248, 0.12);
+      color: rgba(138, 180, 248, 1);
+      border: 1px solid rgba(138, 180, 248, 0.25);
+      box-shadow:
+        0 0 0 1px rgba(138, 180, 248, 0.1) inset,
+        0 4px 12px rgba(138, 180, 248, 0.15);
+
+      mat-icon {
+        opacity: 0.95;
+      }
+
+      &::before {
+        background: linear-gradient(135deg, rgba(138, 180, 248, 0.15), transparent);
+      }
+
+      &:hover {
+        background: rgba(138, 180, 248, 0.18);
+        border-color: rgba(138, 180, 248, 0.4);
+        box-shadow:
+          0 0 0 1px rgba(138, 180, 248, 0.2) inset,
+          0 6px 24px rgba(138, 180, 248, 0.3);
+        color: rgba(138, 180, 248, 1);
+      }
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
+      justify-content: center;
+      height: 42px;
+      padding: 0 20px;
+      font-size: 13px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
     }
   }
 }
 
-// Search
+// Search - adjusted position for centered action bar
 .floating-search {
   position: absolute;
-  top: 128px;
+  top: 104px; // Reduced from 128px to account for new action bar
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
   width: 480px;
   max-width: 90vw;
+
+  @media (max-width: 768px) {
+    top: 180px; // More space on mobile for vertical action bar
+  }
   
   .search-container {
     position: relative;

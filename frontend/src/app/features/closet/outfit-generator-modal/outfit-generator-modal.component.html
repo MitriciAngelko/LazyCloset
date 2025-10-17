@@ -1,66 +1,54 @@
-<div class="organic-outfit-container">
+<div class="organic-outfit-container" role="dialog" aria-labelledby="outfit-title" aria-describedby="outfit-description">
 
-  <!-- Organic Background Texture -->
-  <div class="texture-overlay"></div>
+  <!-- Background Texture -->
+  <div class="texture-overlay" aria-hidden="true"></div>
 
   <!-- Floating Close Button -->
-  <button class="floating-close-btn" mat-dialog-close>
-    <mat-icon>close</mat-icon>
+  <button
+    class="floating-close-btn"
+    mat-dialog-close
+    aria-label="Close outfit generator"
+    type="button">
+    <mat-icon aria-hidden="true">close</mat-icon>
   </button>
 
-  <!-- Organic Modal Content -->
+  <!-- Modal Content -->
   <div class="organic-modal-content">
-    <!-- Header -->
-    <div class="create-look-header">
-      <div class="title-group">
-        <h2>Customize Character</h2>
-        <p>Create your unique style</p>
-      </div>
-      <div class="header-actions">
-        <button class="header-btn ghost" (click)="clearOutfit()">
-          <mat-icon>delete_sweep</mat-icon>
-          <span>Empty</span>
-        </button>
-        <button class="header-btn" (click)="generateRandomOutfit()">
-          <mat-icon>shuffle</mat-icon>
-          <span>Randomize</span>
-        </button>
-        <button class="header-icon" (click)="saveOutfit()" title="Save Outfit">
-          <mat-icon>favorite</mat-icon>
-        </button>
-      </div>
-    </div>
     
     <!-- Loading State -->
-    <div *ngIf="isLoading" class="organic-loading">
+    <div *ngIf="isLoading" class="organic-loading" role="status" aria-live="polite">
       <div class="loading-content">
-        <mat-spinner diameter="50"></mat-spinner>
+        <mat-spinner diameter="50" aria-label="Loading"></mat-spinner>
         <p>Loading your closet...</p>
       </div>
     </div>
 
     <!-- Main Outfit Display -->
     <div *ngIf="!isLoading" class="organic-outfit-display">
-      
+
       <!-- Floating Left Actions -->
-      <div class="floating-left-actions">
-        <button class="organic-action-btn shuffle-btn"
-                (click)="generateRandomOutfit()"
-                title="Random Outfit">
-          <mat-icon>shuffle</mat-icon>
+      <aside class="floating-left-actions" aria-label="Quick actions">
+        <button
+          class="organic-action-btn shuffle-btn"
+          (click)="handleRandomizeOutfit()"
+          aria-label="Generate random outfit"
+          type="button">
+          <mat-icon aria-hidden="true">shuffle</mat-icon>
         </button>
-        
-        <button class="organic-action-btn clear-btn"
-                (click)="clearOutfit()"
-                title="Clear Outfit">
-          <mat-icon>clear_all</mat-icon>
+
+        <button
+          class="organic-action-btn clear-btn"
+          (click)="handleClearOutfit()"
+          aria-label="Clear all clothing items"
+          type="button">
+          <mat-icon aria-hidden="true">clear_all</mat-icon>
         </button>
-      </div>
+      </aside>
       
-      <!-- Central Organic Mannequin -->
-      <div class="organic-mannequin" #mannequinRef>
-        <!-- Subtle silhouette guide -->
-        <div class="organic-silhouette">
+      <!-- Central Mannequin Area -->
+      <main class="organic-mannequin" #mannequinRef role="region" aria-label="Character outfit display">
+        <!-- Silhouette Guide -->
+        <div class="organic-silhouette" aria-hidden="true">
           <div class="body-guide">
             <div class="head-guide"></div>
             <div class="torso-guide"></div>
@@ -70,81 +58,106 @@
         </div>
         
         <!-- Hat Layer -->
-        <div class="organic-outfit-item hat-layer" 
-             *ngIf="getLayer('hat') && getCurrentItem(getLayer('hat')!) as hatItem"
-             cdkDrag
-             cdkDragBoundary=".organic-mannequin"
-             (cdkDragStarted)="onDragStarted()"
-             (cdkDragEnded)="onDragEnded()"
-             (cdkDragDropped)="onDragDropped($event)">
-          <img [src]="hatItem.thumbnailUrl || hatItem.imageUrl" 
-               [alt]="hatItem.originalFileName"
-               class="outfit-item-image">
-          <div class="organic-drag-handle">
+        <div
+          class="organic-outfit-item hat-layer"
+          *ngIf="getLayer('hat') && getCurrentItem(getLayer('hat')!) as hatItem"
+          cdkDrag
+          cdkDragBoundary=".organic-mannequin"
+          (cdkDragStarted)="handleDragStarted()"
+          (cdkDragEnded)="handleDragEnded()"
+          (cdkDragDropped)="handleDragDropped($event)"
+          role="img"
+          [attr.aria-label]="'Hat: ' + (hatItem.originalFileName || 'Unnamed')">
+          <img
+            [src]="hatItem.thumbnailUrl || hatItem.imageUrl"
+            [alt]="'Hat: ' + (hatItem.originalFileName || 'Unnamed hat')"
+            class="outfit-item-image"
+            loading="lazy">
+          <div class="organic-drag-handle" aria-hidden="true">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
         
         <!-- Top Layer -->
-        <div class="organic-outfit-item top-layer" 
-             *ngIf="getLayer('top') && getCurrentItem(getLayer('top')!) as topItem"
-             cdkDrag
-             cdkDragBoundary=".organic-mannequin"
-             (cdkDragStarted)="onDragStarted()"
-             (cdkDragEnded)="onDragEnded()"
-             (cdkDragDropped)="onDragDropped($event)">
-          <img [src]="topItem.thumbnailUrl || topItem.imageUrl" 
-               [alt]="topItem.originalFileName"
-               class="outfit-item-image">
-          <div class="organic-drag-handle">
+        <div
+          class="organic-outfit-item top-layer"
+          *ngIf="getLayer('top') && getCurrentItem(getLayer('top')!) as topItem"
+          cdkDrag
+          cdkDragBoundary=".organic-mannequin"
+          (cdkDragStarted)="handleDragStarted()"
+          (cdkDragEnded)="handleDragEnded()"
+          (cdkDragDropped)="handleDragDropped($event)"
+          role="img"
+          [attr.aria-label]="'Top: ' + (topItem.originalFileName || 'Unnamed')">
+          <img
+            [src]="topItem.thumbnailUrl || topItem.imageUrl"
+            [alt]="'Top: ' + (topItem.originalFileName || 'Unnamed top')"
+            class="outfit-item-image"
+            loading="lazy">
+          <div class="organic-drag-handle" aria-hidden="true">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
-        
+
         <!-- Jacket Layer -->
-        <div class="organic-outfit-item jacket-layer" 
-             *ngIf="getLayer('jacket') && getCurrentItem(getLayer('jacket')!) as jacketItem"
-             cdkDrag
-             cdkDragBoundary=".organic-mannequin"
-             (cdkDragStarted)="onDragStarted()"
-             (cdkDragEnded)="onDragEnded()"
-             (cdkDragDropped)="onDragDropped($event)">
-          <img [src]="jacketItem.thumbnailUrl || jacketItem.imageUrl" 
-               [alt]="jacketItem.originalFileName"
-               class="outfit-item-image">
-          <div class="organic-drag-handle">
+        <div
+          class="organic-outfit-item jacket-layer"
+          *ngIf="getLayer('jacket') && getCurrentItem(getLayer('jacket')!) as jacketItem"
+          cdkDrag
+          cdkDragBoundary=".organic-mannequin"
+          (cdkDragStarted)="handleDragStarted()"
+          (cdkDragEnded)="handleDragEnded()"
+          (cdkDragDropped)="handleDragDropped($event)"
+          role="img"
+          [attr.aria-label]="'Jacket: ' + (jacketItem.originalFileName || 'Unnamed')">
+          <img
+            [src]="jacketItem.thumbnailUrl || jacketItem.imageUrl"
+            [alt]="'Jacket: ' + (jacketItem.originalFileName || 'Unnamed jacket')"
+            class="outfit-item-image"
+            loading="lazy">
+          <div class="organic-drag-handle" aria-hidden="true">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
-        
-        <!-- Jeans Layer -->
-        <div class="organic-outfit-item jeans-layer" 
-             *ngIf="getLayer('jeans') && getCurrentItem(getLayer('jeans')!) as jeansItem"
-             cdkDrag
-             cdkDragBoundary=".organic-mannequin"
-             (cdkDragStarted)="onDragStarted()"
-             (cdkDragEnded)="onDragEnded()"
-             (cdkDragDropped)="onDragDropped($event)">
-          <img [src]="jeansItem.thumbnailUrl || jeansItem.imageUrl" 
-               [alt]="jeansItem.originalFileName"
-               class="outfit-item-image">
-          <div class="organic-drag-handle">
+
+        <!-- Bottom Layer -->
+        <div
+          class="organic-outfit-item jeans-layer"
+          *ngIf="getLayer('jeans') && getCurrentItem(getLayer('jeans')!) as jeansItem"
+          cdkDrag
+          cdkDragBoundary=".organic-mannequin"
+          (cdkDragStarted)="handleDragStarted()"
+          (cdkDragEnded)="handleDragEnded()"
+          (cdkDragDropped)="handleDragDropped($event)"
+          role="img"
+          [attr.aria-label]="'Bottom: ' + (jeansItem.originalFileName || 'Unnamed')">
+          <img
+            [src]="jeansItem.thumbnailUrl || jeansItem.imageUrl"
+            [alt]="'Bottom: ' + (jeansItem.originalFileName || 'Unnamed bottom')"
+            class="outfit-item-image"
+            loading="lazy">
+          <div class="organic-drag-handle" aria-hidden="true">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
-        
+
         <!-- Shoes Layer -->
-        <div class="organic-outfit-item shoes-layer" 
-             *ngIf="getLayer('shoes') && getCurrentItem(getLayer('shoes')!) as shoesItem"
-             cdkDrag
-             cdkDragBoundary=".organic-mannequin"
-             (cdkDragStarted)="onDragStarted()"
-             (cdkDragEnded)="onDragEnded()"
-             (cdkDragDropped)="onDragDropped($event)">
-          <img [src]="shoesItem.thumbnailUrl || shoesItem.imageUrl" 
-               [alt]="shoesItem.originalFileName"
-               class="outfit-item-image">
-          <div class="organic-drag-handle">
+        <div
+          class="organic-outfit-item shoes-layer"
+          *ngIf="getLayer('shoes') && getCurrentItem(getLayer('shoes')!) as shoesItem"
+          cdkDrag
+          cdkDragBoundary=".organic-mannequin"
+          (cdkDragStarted)="handleDragStarted()"
+          (cdkDragEnded)="handleDragEnded()"
+          (cdkDragDropped)="handleDragDropped($event)"
+          role="img"
+          [attr.aria-label]="'Shoes: ' + (shoesItem.originalFileName || 'Unnamed')">
+          <img
+            [src]="shoesItem.thumbnailUrl || shoesItem.imageUrl"
+            [alt]="'Shoes: ' + (shoesItem.originalFileName || 'Unnamed shoes')"
+            class="outfit-item-image"
+            loading="lazy">
+          <div class="organic-drag-handle" aria-hidden="true">
             <mat-icon>drag_indicator</mat-icon>
           </div>
         </div>
@@ -180,39 +193,49 @@
                  class="lil-guy-image hand-image">
           </div>
         </div>
-      </div>
-      
+      </main>
+
       <!-- Floating Right Actions -->
-      <div class="floating-right-actions">
-        <button class="organic-action-btn save-btn"
-                (click)="saveOutfit()"
-                title="Save Outfit">
-          <mat-icon>favorite</mat-icon>
+      <aside class="floating-right-actions" aria-label="Save outfit">
+        <button
+          class="organic-action-btn save-btn"
+          (click)="handleSaveOutfit()"
+          aria-label="Save current outfit"
+          type="button">
+          <mat-icon aria-hidden="true">favorite</mat-icon>
         </button>
-      </div>
-      
+      </aside>
+
     </div>
 
-    <!-- Organic Bottom Navigation -->
-    <div *ngIf="!isLoading" class="organic-bottom-nav">
+    <!-- Bottom Navigation -->
+    <nav *ngIf="!isLoading" class="organic-bottom-nav" aria-label="Clothing category navigation">
       
       <!-- HEADWEAR -->
       <div class="category-group" *ngIf="getLayer('hat') as hatLayer">
-        <div class="category-title">HEADWEAR</div>
-        <div class="category-card">
-          <button class="organic-nav-arrow left-arrow"
-                  (click)="previousItem(getLayerIndex(hatLayer.category))"
-                  [disabled]="!hasItems(hatLayer)">
-            <mat-icon>keyboard_arrow_left</mat-icon>
+        <span class="category-title">HEADWEAR</span>
+        <div class="category-card" role="group" aria-label="Headwear selector">
+          <button
+            class="organic-nav-arrow left-arrow"
+            (click)="handlePreviousItem(getLayerIndex(hatLayer.category))"
+            [disabled]="!hasItems(hatLayer)"
+            aria-label="Previous headwear item"
+            type="button">
+            <mat-icon aria-hidden="true">keyboard_arrow_left</mat-icon>
           </button>
           <div class="organic-category-info">
-            <iconify-icon icon="ph:beanie" class="category-icon"></iconify-icon>
-            <span class="item-counter" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
+            <iconify-icon icon="ph:beanie" class="category-icon" aria-hidden="true"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(hatLayer)" aria-live="polite">
+              {{ getLayerInfo(getLayerIndex(hatLayer.category)) }}
+            </span>
           </div>
-          <button class="organic-nav-arrow right-arrow"
-                  (click)="nextItem(getLayerIndex(hatLayer.category))"
-                  [disabled]="!hasItems(hatLayer)">
-            <mat-icon>keyboard_arrow_right</mat-icon>
+          <button
+            class="organic-nav-arrow right-arrow"
+            (click)="handleNextItem(getLayerIndex(hatLayer.category))"
+            [disabled]="!hasItems(hatLayer)"
+            aria-label="Next headwear item"
+            type="button">
+            <mat-icon aria-hidden="true">keyboard_arrow_right</mat-icon>
           </button>
         </div>
       </div>
@@ -222,7 +245,7 @@
         <div class="category-title">TOP</div>
         <div class="category-card">
           <button class="organic-nav-arrow left-arrow"
-                  (click)="previousItem(getLayerIndex(topLayer.category))"
+                  (click)="handlePreviousItem(getLayerIndex(topLayer.category))"
                   [disabled]="!hasItems(topLayer)">
             <mat-icon>keyboard_arrow_left</mat-icon>
           </button>
@@ -231,7 +254,7 @@
             <span class="item-counter" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
           </div>
           <button class="organic-nav-arrow right-arrow"
-                  (click)="nextItem(getLayerIndex(topLayer.category))"
+                  (click)="handleNextItem(getLayerIndex(topLayer.category))"
                   [disabled]="!hasItems(topLayer)">
             <mat-icon>keyboard_arrow_right</mat-icon>
           </button>
@@ -243,7 +266,7 @@
         <div class="category-title">ACCESSORY</div>
         <div class="category-card">
           <button class="organic-nav-arrow left-arrow"
-                  (click)="previousItem(getLayerIndex(jacketLayer.category))"
+                  (click)="handlePreviousItem(getLayerIndex(jacketLayer.category))"
                   [disabled]="!hasItems(jacketLayer)">
             <mat-icon>keyboard_arrow_left</mat-icon>
           </button>
@@ -252,7 +275,7 @@
             <span class="item-counter" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
           </div>
           <button class="organic-nav-arrow right-arrow"
-                  (click)="nextItem(getLayerIndex(jacketLayer.category))"
+                  (click)="handleNextItem(getLayerIndex(jacketLayer.category))"
                   [disabled]="!hasItems(jacketLayer)">
             <mat-icon>keyboard_arrow_right</mat-icon>
           </button>
@@ -264,7 +287,7 @@
         <div class="category-title">BOTTOM</div>
         <div class="category-card">
           <button class="organic-nav-arrow left-arrow"
-                  (click)="previousItem(getLayerIndex(jeansLayer.category))"
+                  (click)="handlePreviousItem(getLayerIndex(jeansLayer.category))"
                   [disabled]="!hasItems(jeansLayer)">
             <mat-icon>keyboard_arrow_left</mat-icon>
           </button>
@@ -273,7 +296,7 @@
             <span class="item-counter" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
           </div>
           <button class="organic-nav-arrow right-arrow"
-                  (click)="nextItem(getLayerIndex(jeansLayer.category))"
+                  (click)="handleNextItem(getLayerIndex(jeansLayer.category))"
                   [disabled]="!hasItems(jeansLayer)">
             <mat-icon>keyboard_arrow_right</mat-icon>
           </button>
@@ -285,7 +308,7 @@
         <div class="category-title">SHOES</div>
         <div class="category-card">
           <button class="organic-nav-arrow left-arrow"
-                  (click)="previousItem(getLayerIndex(shoesLayer.category))"
+                  (click)="handlePreviousItem(getLayerIndex(shoesLayer.category))"
                   [disabled]="!hasItems(shoesLayer)">
             <mat-icon>keyboard_arrow_left</mat-icon>
           </button>
@@ -294,16 +317,16 @@
             <span class="item-counter" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
           </div>
           <button class="organic-nav-arrow right-arrow"
-                  (click)="nextItem(getLayerIndex(shoesLayer.category))"
+                  (click)="handleNextItem(getLayerIndex(shoesLayer.category))"
                   [disabled]="!hasItems(shoesLayer)">
             <mat-icon>keyboard_arrow_right</mat-icon>
           </button>
         </div>
       </div>
 
-    </div>
+    </nav>
 
-    <!-- Organic Empty State -->
+    <!-- Empty State -->
     <div *ngIf="!isLoading && !hasAnyItems()" class="organic-empty-state">
       <div class="empty-content">
         <mat-icon class="empty-icon">checkroom</mat-icon>

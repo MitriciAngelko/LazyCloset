@@ -22,31 +22,28 @@
     </div>
   </div>
 
-  <!-- Reset/Scatter Button -->
-  <div class="floating-scatter-btn">
-    <button mat-raised-button 
-            class="layout-toggle-btn" 
-            [class.grid-mode]="layoutMode === 'grid'"
+  <!-- Centered Action Bar -->
+  <div class="centered-action-bar">
+    <button mat-raised-button
+            class="action-btn layout-btn"
+            [class.active]="layoutMode === 'grid'"
             (click)="toggleLayoutMode()">
       <mat-icon>{{ layoutMode === 'scatter' ? 'grid_view' : 'scatter_plot' }}</mat-icon>
-      {{ layoutMode === 'scatter' ? 'Grid View' : 'Scatter Items' }}
+      <span>{{ layoutMode === 'scatter' ? 'Grid View' : 'Scatter Items' }}</span>
     </button>
-  </div>
 
-  <!-- User Controls -->
-  <div class="floating-user-actions">
-    <button mat-raised-button 
-            class="organic-btn add-btn" 
+    <button mat-raised-button
+            class="action-btn add-btn"
             (click)="openUploadModal()">
-      <mat-icon>add</mat-icon>
-      Add Piece
+      <mat-icon>add_circle_outline</mat-icon>
+      <span>Add Piece</span>
     </button>
 
-    <button mat-raised-button 
-            class="organic-btn create-btn" 
+    <button mat-raised-button
+            class="action-btn create-btn"
             (click)="openOutfitGenerator()">
-      <mat-icon>checkroom</mat-icon>
-      Create Look
+      <mat-icon>auto_awesome</mat-icon>
+      <span>Create Look</span>
     </button>
   </div>
 

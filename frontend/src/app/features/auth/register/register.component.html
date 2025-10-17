@@ -1,108 +1,139 @@
-<div class="register-container">
+<div class="modern-register-container">
+  <!-- Animated Background -->
+  <div class="background-pattern"></div>
+  <div class="gradient-orb orb-1"></div>
+  <div class="gradient-orb orb-2"></div>
+
+  <!-- Floating Lil Guy -->
+  <div class="floating-lil-guy"
+       [style.left.%]="lilGuy.x"
+       [style.top.%]="lilGuy.y"
+       [style.transform]="getLilGuyTransform()">
+    <img src="assets/images/lil-guy/lilguy_floating.png"
+         alt="Lil Guy"
+         class="lil-guy-image"
+         draggable="false">
+  </div>
+
+  <!-- Register Card -->
   <div class="register-card">
-    <div class="register-header">
-      <h1>Create Account</h1>
-      <p>Join LazyCloset and organize your wardrobe</p>
+    <!-- Logo/Brand Section -->
+    <div class="brand-section">
+      <div class="brand-icon">
+        <mat-icon>person_add</mat-icon>
+      </div>
+      <h1>Join LazyCloset</h1>
+      <p class="tagline">Start organizing your wardrobe today</p>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+    <!-- Register Form -->
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="modern-register-form">
+
       <!-- Email Field -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
-        <input
-          matInput
-          type="email"
-          formControlName="email"
-          placeholder="Enter your email"
-          autocomplete="email"
-        />
-        <mat-icon matSuffix>email</mat-icon>
-        <mat-error *ngIf="email?.touched && email?.errors?.['required']">
+      <div class="input-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <mat-icon class="input-icon">email</mat-icon>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            class="modern-input"
+          />
+        </div>
+        <span class="error-text" *ngIf="email?.touched && email?.errors?.['required']">
           Email is required
-        </mat-error>
-        <mat-error *ngIf="email?.touched && email?.errors?.['email']">
-          Please enter a valid email address
-        </mat-error>
-      </mat-form-field>
+        </span>
+        <span class="error-text" *ngIf="email?.touched && email?.errors?.['email']">
+          Please enter a valid email
+        </span>
+      </div>
 
       <!-- Password Field -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Password</mat-label>
-        <input
-          matInput
-          type="password"
-          formControlName="password"
-          placeholder="Create a password"
-          autocomplete="new-password"
-        />
-        <mat-icon matSuffix>lock</mat-icon>
-        <mat-error *ngIf="password?.touched && password?.errors?.['required']">
+      <div class="input-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <mat-icon class="input-icon">lock</mat-icon>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            class="modern-input"
+          />
+        </div>
+        <span class="error-text" *ngIf="password?.touched && password?.errors?.['required']">
           Password is required
-        </mat-error>
-        <mat-error *ngIf="password?.touched && password?.errors?.['minlength']">
-          Password must be at least 6 characters long
-        </mat-error>
-      </mat-form-field>
+        </span>
+        <span class="error-text" *ngIf="password?.touched && password?.errors?.['minlength']">
+          Password must be at least 6 characters
+        </span>
+      </div>
 
       <!-- Confirm Password Field -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Confirm Password</mat-label>
-        <input
-          matInput
-          type="password"
-          formControlName="confirmPassword"
-          placeholder="Confirm your password"
-          autocomplete="new-password"
-        />
-        <mat-icon matSuffix>lock_outline</mat-icon>
-        <mat-error *ngIf="confirmPassword?.touched && confirmPassword?.errors?.['required']">
+      <div class="input-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-wrapper">
+          <mat-icon class="input-icon">lock_outline</mat-icon>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            class="modern-input"
+          />
+        </div>
+        <span class="error-text" *ngIf="confirmPassword?.touched && confirmPassword?.errors?.['required']">
           Please confirm your password
-        </mat-error>
-        <mat-error *ngIf="passwordMismatch">
+        </span>
+        <span class="error-text" *ngIf="passwordMismatch">
           Passwords do not match
-        </mat-error>
-      </mat-form-field>
+        </span>
+      </div>
 
-      <!-- Success Message -->
-      <div *ngIf="successMessage" class="success-message">
+      <!-- Success Banner -->
+      <div *ngIf="successMessage" class="success-banner">
         <mat-icon>check_circle</mat-icon>
         <span>{{ successMessage }}</span>
       </div>
 
-      <!-- Error Message -->
-      <div *ngIf="errorMessage" class="error-message">
-        <mat-icon>error</mat-icon>
+      <!-- Error Banner -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <mat-icon>warning</mat-icon>
         <span>{{ errorMessage }}</span>
       </div>
 
       <!-- Submit Button -->
       <button
-        mat-raised-button
-        color="primary"
         type="submit"
-        class="register-button full-width"
+        class="modern-submit-btn"
         [disabled]="loading"
+        [class.loading]="loading"
       >
-        <mat-spinner *ngIf="loading" diameter="20" class="register-spinner"></mat-spinner>
+        <mat-spinner *ngIf="loading" diameter="20" class="btn-spinner"></mat-spinner>
         <span *ngIf="!loading">Create Account</span>
         <span *ngIf="loading">Creating Account...</span>
       </button>
 
-      <!-- Login Link -->
-      <div class="login-link">
-        <p>
-          Already have an account?
-          <button
-            mat-button
-            color="primary"
-            type="button"
-            (click)="navigateToLogin()"
-            [disabled]="loading"
-          >
-            Sign In
-          </button>
-        </p>
+      <!-- Divider -->
+      <div class="divider">
+        <span>or</span>
       </div>
+
+      <!-- Login Link -->
+      <button
+        type="button"
+        class="modern-secondary-btn"
+        (click)="navigateToLogin()"
+        [disabled]="loading"
+      >
+        <mat-icon>login</mat-icon>
+        <span>Sign In to Existing Account</span>
+      </button>
     </form>
   </div>
 </div> 

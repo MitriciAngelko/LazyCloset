@@ -695,11 +695,17 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
 
   openOutfitGenerator(): void {
     const dialogRef = this.dialog.open(OutfitGeneratorModalComponent, {
-      width: '1000px',
+      width: '900px', // Skinnier modal
       maxWidth: '95vw',
-      maxHeight: '95vh',
+      maxHeight: '92vh', // Taller modal
       disableClose: false,
-      panelClass: 'outfit-generator-dialog'
+      panelClass: 'outfit-generator-dialog',
+      position: {
+        top: '50%',
+        left: '50%'
+      },
+      hasBackdrop: true,
+      backdropClass: 'outfit-generator-backdrop'
     });
 
     dialogRef.afterClosed().subscribe(result => {

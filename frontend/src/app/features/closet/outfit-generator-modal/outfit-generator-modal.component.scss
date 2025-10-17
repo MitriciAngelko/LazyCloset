@@ -1,18 +1,21 @@
-// Organic Outfit Modal Design - Matching Upload Modal Aesthetic
+// Outfit Generator Modal - Skinnier and Taller
 .organic-outfit-container {
-  width: 1200px;
+  width: 900px; // Reduced from 1200px - skinnier modal
   max-width: 95vw;
-  min-height: 750px;
-  background: linear-gradient(145deg, #0f172a 0%, #111827 100%); // deep navy slate
+  max-height: 92vh; // Slightly increased from 90vh - taller modal
+  height: auto;
+  background: var(--color-surface-2);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 30px rgba(0, 0, 0, 0.25);
-  overflow: visible;
-  color: #e5e7eb; // slate-200 text
-  border: 1px solid rgba(148, 163, 184, 0.18); // slate border
+  overflow: hidden;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   position: relative;
   animation: modalSlideIn 0.4s ease-out;
-  
-  // Subtle texture overlay matching upload modal
+  display: flex;
+  flex-direction: column;
+
+  // Subtle texture overlay
   &::before {
     content: '';
     position: absolute;
@@ -23,11 +26,11 @@
     background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fillRule='evenodd'%3E%3Cg fill='%23ffffff' fillOpacity='0.06'%3E%3Ccircle cx='7' cy='7' r='1'/%3E%3Ccircle cx='27' cy='27' r='1'/%3E%3Ccircle cx='47' cy='47' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     border-radius: inherit;
   }
-  
+
   @media (max-width: 768px) {
     width: 95vw;
-    min-height: 650px;
-    border-radius: 25px 8px 25px 8px;
+    max-height: 95vh;
+    border-radius: 12px;
   }
 }
 
@@ -42,7 +45,7 @@
   border-radius: inherit;
 }
 
-// Floating Close Button - Matching upload modal style
+// Floating Close Button
 .floating-close-btn {
   position: absolute;
   top: 20px;
@@ -52,22 +55,22 @@
   border-radius: 50%;
   width: 48px;
   height: 48px;
-  border: 1.5px solid rgba(148, 163, 184, 0.28);
+  border: 1.5px solid var(--color-border);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  
+
   &:hover {
-    background: rgba(147, 197, 253, 0.18);
-    border-color: #93c5fd;
+    background: rgba(66, 133, 243, 0.18);
+    border-color: var(--color-primary);
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(147, 197, 253, 0.15);
+    box-shadow: 0 6px 20px rgba(66, 133, 243, 0.25);
   }
-  
+
   mat-icon {
-    color: #e5e7eb;
+    color: var(--color-text);
     font-size: 20px;
     width: 20px;
     height: 20px;
@@ -78,79 +81,18 @@
 .organic-modal-content {
   position: relative;
   z-index: 2;
-  padding: 60px 40px 40px 40px; // Increased top padding for close button
+  padding: 48px 16px 16px 16px; // Reduced horizontal padding, keep top for close button
   height: 100%;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: transparent;
   display: flex;
   flex-direction: column;
-  
+  flex: 1;
+  min-height: 0; // Allow flexbox to shrink
+
   @media (max-width: 768px) {
-    padding: 50px 24px 24px 24px;
-  }
-}
-
-// Header styling to match reference
-.create-look-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-
-  .title-group {
-    h2 {
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-      color: #e5e7eb;
-    }
-    p {
-      margin: 4px 0 0 0;
-      color: rgba(229, 231, 235, 0.6);
-      font-weight: 300;
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .header-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.28);
-      background: rgba(255,255,255,0.06);
-      color: #e5e7eb;
-      cursor: pointer;
-      transition: all .25s ease;
-
-      &.ghost {
-        background: rgba(255,255,255,0.06);
-      }
-
-      &:hover {
-        transform: translateY(-1px);
-        border-color: #93c5fd;
-        background: rgba(147,197,253,0.16);
-      }
-
-      mat-icon { font-size: 18px; }
-      span { font-weight: 600; letter-spacing: .3px; }
-    }
-
-    .header-icon {
-      width: 42px; height: 42px;
-      border-radius: 50%;
-      border: 1px solid rgba(148,163,184,0.28);
-      background: rgba(255,255,255,0.06);
-      display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: all .25s ease;
-      &:hover { transform: translateY(-1px); border-color: #93c5fd; background: rgba(147,197,253,0.16); }
-    }
+    padding: 48px 16px 16px 16px;
   }
 }
 
@@ -188,20 +130,21 @@
 // Main Organic Outfit Display
 .organic-outfit-display {
   display: grid;
-  grid-template-columns: 100px 1fr 100px;
-  gap: 32px;
-  min-height: 500px;
+  grid-template-columns: 64px 1fr 64px;
+  gap: 16px;
+  min-height: 450px; // Increased height for taller canvas
   align-items: center;
   flex: 1 1 auto;
-  
+  min-height: 0; // Allow flexbox to shrink
+
   @media (max-width: 1024px) {
-    grid-template-columns: 80px 1fr 80px;
-    gap: 24px;
+    grid-template-columns: 56px 1fr 56px;
+    gap: 16px;
   }
-  
+
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 16px;
     text-align: center;
   }
 }
@@ -227,91 +170,94 @@
   }
 }
 
-// Organic Action Buttons matching upload modal styling
+// Action Buttons - Blue Theme (Scaled down)
 .organic-action-btn {
-  width: 64px;
-  height: 64px;
+  width: 56px; // Reduced from 64px
+  height: 56px; // Reduced from 64px
   border: none;
-  font-weight: 300;
+  font-weight: 400;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   transition: all 0.35s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &.shuffle-btn {
-    background: linear-gradient(135deg, #e2b68a 0%, #d7a56d 100%); // keep warm accent for side button
-    color: #111827;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     border-radius: 12px;
-    
+
     &:hover {
-      background: linear-gradient(135deg, #d7a56d 0%, #e2b68a 100%);
+      background: var(--color-primary-600);
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(226, 182, 138, 0.35);
+      box-shadow: 0 10px 30px rgba(66, 133, 243, 0.35);
     }
   }
-  
+
   &.clear-btn {
     background: rgba(255, 255, 255, 0.08);
-    color: #e5e7eb;
+    color: var(--color-text);
     border-radius: 12px;
-    border: 1.5px solid rgba(148, 163, 184, 0.3);
+    border: 1.5px solid var(--color-border);
     backdrop-filter: blur(4px);
-    
+
     &:hover {
-      background: rgba(147, 197, 253, 0.16);
-      border-color: #93c5fd;
+      background: rgba(66, 133, 243, 0.16);
+      border-color: var(--color-primary);
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(147, 197, 253, 0.15);
+      box-shadow: 0 8px 24px rgba(66, 133, 243, 0.25);
     }
   }
-  
+
   &.save-btn {
-    background: linear-gradient(135deg, #e2b68a 0%, #d7a56d 100%);
-    color: #111827;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
     border-radius: 12px;
-    
+
     &:hover {
-      background: linear-gradient(135deg, #d7a56d 0%, #e2b68a 100%);
+      background: var(--color-primary-600);
       transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(226, 182, 138, 0.35);
+      box-shadow: 0 10px 30px rgba(66, 133, 243, 0.35);
     }
   }
-  
+
   mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
+    font-size: 22px; // Reduced from 24px
+    width: 22px;
+    height: 22px;
   }
-  
+
   @media (max-width: 768px) {
-    width: 56px;
-    height: 56px;
-    
+    width: 48px; // Reduced from 56px
+    height: 48px;
+
     mat-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 18px; // Reduced from 20px
+      width: 18px;
+      height: 18px;
     }
   }
 }
 
-// Organic Mannequin Area
+// Mannequin Area - Taller
 .organic-mannequin {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 500px;
+  height: 100%; // Use available height from grid
+  min-height: 450px; // Increased for taller canvas
+  max-height: 65vh; // Increased max height
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(4px);
   border-radius: 16px;
-  border: 2px dashed rgba(148, 163, 184, 0.35);
+  border: 2px dashed var(--color-border);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.1);
-  
+
   @media (max-width: 768px) {
-    min-height: 400px;
+    min-height: 350px;
+    max-height: 55vh;
     order: 1;
   }
 }
@@ -398,22 +344,22 @@
   66% { transform: translate(-50%, -50%) translateY(-5px) rotate(-2deg); }
 }
 
-// Organic Silhouette Guide
+// Organic Silhouette Guide - Taller and Skinnier
 .organic-silhouette {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 180px;
-  height: 420px;
+  width: 130px; // Made skinnier
+  height: 400px; // Made taller
   z-index: 0;
   opacity: 0.05;
-  
+
   .body-guide {
     width: 100%;
     height: 100%;
     position: relative;
-    
+
     .head-guide,
     .torso-guide,
     .legs-guide,
@@ -421,40 +367,40 @@
       position: absolute;
       border: 2px dashed rgba(255, 255, 255, 0.3);
     }
-    
+
     .head-guide {
       top: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 60px;
-      height: 60px;
+      width: 50px; // Reduced from 60px
+      height: 50px; // Reduced from 60px
       border-radius: 60% 40% 60% 40%;
     }
-    
+
     .torso-guide {
-      top: 70px;
+      top: 58px; // Reduced from 70px
       left: 50%;
       transform: translateX(-50%);
-      width: 120px;
-      height: 160px;
+      width: 100px; // Reduced from 120px
+      height: 135px; // Reduced from 160px
       border-radius: 30% 70% 70% 30%;
     }
-    
+
     .legs-guide {
-      top: 240px;
+      top: 200px; // Reduced from 240px
       left: 50%;
       transform: translateX(-50%);
-      width: 80px;
-      height: 140px;
+      width: 70px; // Reduced from 80px
+      height: 120px; // Reduced from 140px
       border-radius: 40% 60% 40% 60%;
     }
-    
+
     .feet-guide {
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
-      width: 100px;
-      height: 30px;
+      width: 85px; // Reduced from 100px
+      height: 25px; // Reduced from 30px
       border-radius: 50% 20% 50% 20%;
     }
   }
@@ -529,143 +475,144 @@
   }
 }
 
-// Specific Layer Positioning
+// Specific Layer Positioning - Scaled down to fit better
 .hat-layer {
-  top: 20px;
+  top: 15px; // Reduced from 20px
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
   z-index: 5;
-  
+
   &:hover {
     transform: translateX(-50%) scale(1.05);
   }
-  
+
   &.cdk-drag-dragging {
     transform: translateX(-50%) scale(1.1);
   }
-  
+
   .outfit-item-image {
-    max-width: 140px;
-    max-height: 100px;
+    max-width: 120px; // Reduced from 140px
+    max-height: 85px; // Reduced from 100px
   }
 }
 
 .top-layer {
-  top: 110px;
+  top: 90px; // Reduced from 110px
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
   z-index: 4;
-  
+
   &:hover {
     transform: translateX(-50%) scale(1.05);
   }
-  
+
   &.cdk-drag-dragging {
     transform: translateX(-50%) scale(1.1);
   }
-  
+
   .outfit-item-image {
-    max-width: 200px;
-    max-height: 160px;
+    max-width: 170px; // Reduced from 200px
+    max-height: 135px; // Reduced from 160px
   }
 }
 
 .jacket-layer {
-  top: 110px;
+  top: 90px; // Reduced from 110px
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
   z-index: 3;
-  
+
   &:hover {
     transform: translateX(-50%) scale(1.05);
   }
-  
+
   &.cdk-drag-dragging {
     transform: translateX(-50%) scale(1.1);
   }
-  
+
   .outfit-item-image {
-    max-width: 220px;
-    max-height: 180px;
+    max-width: 190px; // Reduced from 220px
+    max-height: 155px; // Reduced from 180px
   }
 }
 
 .jeans-layer {
-  top: 270px;
+  top: 220px; // Reduced from 270px
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
   z-index: 2;
-  
+
   &:hover {
     transform: translateX(-50%) scale(1.05);
   }
-  
+
   &.cdk-drag-dragging {
     transform: translateX(-50%) scale(1.1);
   }
-  
+
   .outfit-item-image {
-    max-width: 160px;
-    max-height: 190px;
+    max-width: 140px; // Reduced from 160px
+    max-height: 160px; // Reduced from 190px
   }
 }
 
 .shoes-layer {
-  bottom: 20px;
+  bottom: 15px; // Reduced from 20px
   left: 50%;
   transform: translateX(-50%);
   transform-origin: center center;
   z-index: 1;
-  
+
   &:hover {
     transform: translateX(-50%) scale(1.05);
   }
-  
+
   &.cdk-drag-dragging {
     transform: translateX(-50%) scale(1.1);
   }
-  
+
   .outfit-item-image {
-    max-width: 120px;
-    max-height: 80px;
+    max-width: 105px; // Reduced from 120px
+    max-height: 70px; // Reduced from 80px
   }
 }
 
-// Organic Bottom Navigation
+// Bottom Navigation
 .organic-bottom-nav {
   display: flex;
   justify-content: center;
-  gap: 28px;
-  margin-top: 24px;
-  padding: 24px 20px;
-  background: rgba(17, 24, 39, 0.78);
-  border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  gap: 16px; // Reduced from 28px
+  margin-top: 16px; // Reduced from 24px
+  padding: 16px; // Reduced from 24px 20px
+  background: var(--color-surface);
+  border-radius: 12px; // Slightly reduced
+  border: 1px solid var(--color-border);
   backdrop-filter: blur(4px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   flex: 0 0 auto;
-  
+  flex-shrink: 0;
+
   @media (max-width: 1024px) {
-    gap: 32px;
-    padding: 20px 16px;
-    margin-top: 24px;
+    gap: 12px;
+    padding: 12px;
+    margin-top: 16px;
   }
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
     order: 4;
-    margin-top: 24px;
-    padding: 20px;
+    margin-top: 16px;
+    padding: 16px;
   }
 }
 
 .category-label {
-  color: rgba(229, 231, 235, 0.72);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.4px;
@@ -681,7 +628,7 @@
 }
 
 .category-title {
-  color: rgba(229, 231, 235, 0.7);
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.4px;
@@ -691,11 +638,11 @@
 .category-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 16px;
+  gap: 8px; // Reduced from 12px
+  padding: 8px 12px; // Reduced from 12px 16px
+  border-radius: 12px; // Reduced from 16px
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(148,163,184,0.25);
+  border: 1px solid var(--color-border);
 }
 
 .organic-nav-item {
@@ -719,69 +666,69 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  min-width: 48px;
-  
+  gap: 4px; // Reduced from 8px
+  min-width: 40px; // Reduced from 48px
+
   .category-icon {
-    font-size: 28px;
-    color: #e5e7eb;
+    font-size: 24px; // Reduced from 28px
+    color: var(--color-text);
     transition: all 0.3s ease;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
-    
+
     &:hover {
-      color: #93c5fd;
+      color: var(--color-accent);
       transform: scale(1.1);
     }
   }
-  
+
   .item-counter {
-    font-size: 12px;
-    color: rgba(229, 231, 235, 0.8);
+    font-size: 11px; // Reduced from 12px
+    color: var(--color-text-muted);
     font-weight: 600;
-    min-height: 16px;
+    min-height: 14px; // Reduced from 16px
     letter-spacing: 0.5px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   }
 }
 
 .organic-nav-arrow {
-  width: 40px;
-  height: 40px;
+  width: 36px; // Reduced from 40px
+  height: 36px; // Reduced from 40px
   background: rgba(255, 255, 255, 0.08);
-  color: #e5e7eb;
-  border: 1.5px solid rgba(148, 163, 184, 0.3);
-  border-radius: 12px;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px; // Reduced from 12px
   transition: all 0.35s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(4px);
-  
+
   &:hover:not(:disabled) {
-    background: rgba(147, 197, 253, 0.16);
-    border-color: #93c5fd;
+    background: rgba(66, 133, 243, 0.16);
+    border-color: var(--color-primary);
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(147, 197, 253, 0.15);
+    box-shadow: 0 8px 24px rgba(66, 133, 243, 0.25);
   }
-  
+
   &:disabled {
     opacity: 0.3;
     cursor: not-allowed;
   }
-  
+
   &.left-arrow:hover:not(:disabled) {
     transform: translateY(-2px) translateX(-2px);
   }
-  
+
   &.right-arrow:hover:not(:disabled) {
     transform: translateY(-2px) translateX(2px);
   }
-  
+
   mat-icon {
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 18px; // Reduced from 20px
+    width: 18px; // Reduced from 20px
+    height: 18px; // Reduced from 20px
   }
 }
 
@@ -858,23 +805,23 @@
   }
 }
 
-// Global CDK Drag Styles with upload modal theme
+// Global CDK Drag Styles
 ::ng-deep {
   .mat-mdc-dialog-container {
     .mdc-dialog__surface {
       background: transparent !important;
-      border-radius: 30px 10px 30px 10px !important;
+      border-radius: 16px !important;
       overflow: visible !important;
     }
   }
-  
+
   .cdk-drag-preview {
     box-sizing: border-box;
     border-radius: 12px;
-    box-shadow: 0 16px 40px rgba(196, 164, 132, 0.3);
+    box-shadow: 0 16px 40px rgba(66, 133, 243, 0.4);
     opacity: 0.9;
     transform: scale(1.1);
-    border: 2px solid rgba(196, 164, 132, 0.4);
+    border: 2px solid var(--color-primary);
   }
 
   .cdk-drag-animating {
@@ -883,8 +830,8 @@
 
   .cdk-drag-placeholder {
     opacity: 0.2;
-    background: rgba(196, 164, 132, 0.1);
-    border: 2px dashed rgba(196, 164, 132, 0.3);
+    background: rgba(66, 133, 243, 0.1);
+    border: 2px dashed var(--color-primary);
     border-radius: 12px;
   }
 } 
