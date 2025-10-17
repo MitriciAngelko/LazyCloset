@@ -10,6 +10,26 @@
 
   <!-- Organic Modal Content -->
   <div class="organic-modal-content">
+    <!-- Header -->
+    <div class="create-look-header">
+      <div class="title-group">
+        <h2>Customize Character</h2>
+        <p>Create your unique style</p>
+      </div>
+      <div class="header-actions">
+        <button class="header-btn ghost" (click)="clearOutfit()">
+          <mat-icon>delete_sweep</mat-icon>
+          <span>Empty</span>
+        </button>
+        <button class="header-btn" (click)="generateRandomOutfit()">
+          <mat-icon>shuffle</mat-icon>
+          <span>Randomize</span>
+        </button>
+        <button class="header-icon" (click)="saveOutfit()" title="Save Outfit">
+          <mat-icon>favorite</mat-icon>
+        </button>
+      </div>
+    </div>
     
     <!-- Loading State -->
     <div *ngIf="isLoading" class="organic-loading">
@@ -176,94 +196,109 @@
     <!-- Organic Bottom Navigation -->
     <div *ngIf="!isLoading" class="organic-bottom-nav">
       
-      <!-- HATS Navigation -->
-      <div class="organic-nav-item" *ngIf="getLayer('hat') as hatLayer">
-        <button class="organic-nav-arrow left-arrow"
-                (click)="previousItem(getLayerIndex(hatLayer.category))"
-                [disabled]="!hasItems(hatLayer)">
-          <mat-icon>keyboard_arrow_left</mat-icon>
-        </button>
-        <div class="organic-category-info">
-          <iconify-icon icon="ph:beanie" class="category-icon"></iconify-icon>
-          <span class="item-counter" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
+      <!-- HEADWEAR -->
+      <div class="category-group" *ngIf="getLayer('hat') as hatLayer">
+        <div class="category-title">HEADWEAR</div>
+        <div class="category-card">
+          <button class="organic-nav-arrow left-arrow"
+                  (click)="previousItem(getLayerIndex(hatLayer.category))"
+                  [disabled]="!hasItems(hatLayer)">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="organic-category-info">
+            <iconify-icon icon="ph:beanie" class="category-icon"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(hatLayer)">{{ getLayerInfo(getLayerIndex(hatLayer.category)) }}</span>
+          </div>
+          <button class="organic-nav-arrow right-arrow"
+                  (click)="nextItem(getLayerIndex(hatLayer.category))"
+                  [disabled]="!hasItems(hatLayer)">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
-        <button class="organic-nav-arrow right-arrow"
-                (click)="nextItem(getLayerIndex(hatLayer.category))"
-                [disabled]="!hasItems(hatLayer)">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </button>
       </div>
 
-      <!-- TOPS Navigation -->
-      <div class="organic-nav-item" *ngIf="getLayer('top') as topLayer">
-        <button class="organic-nav-arrow left-arrow"
-                (click)="previousItem(getLayerIndex(topLayer.category))"
-                [disabled]="!hasItems(topLayer)">
-          <mat-icon>keyboard_arrow_left</mat-icon>
-        </button>
-        <div class="organic-category-info">
-          <iconify-icon icon="tabler:shirt" class="category-icon"></iconify-icon>
-          <span class="item-counter" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
+      <!-- TOP -->
+      <div class="category-group" *ngIf="getLayer('top') as topLayer">
+        <div class="category-title">TOP</div>
+        <div class="category-card">
+          <button class="organic-nav-arrow left-arrow"
+                  (click)="previousItem(getLayerIndex(topLayer.category))"
+                  [disabled]="!hasItems(topLayer)">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="organic-category-info">
+            <iconify-icon icon="tabler:shirt" class="category-icon"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(topLayer)">{{ getLayerInfo(getLayerIndex(topLayer.category)) }}</span>
+          </div>
+          <button class="organic-nav-arrow right-arrow"
+                  (click)="nextItem(getLayerIndex(topLayer.category))"
+                  [disabled]="!hasItems(topLayer)">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
-        <button class="organic-nav-arrow right-arrow"
-                (click)="nextItem(getLayerIndex(topLayer.category))"
-                [disabled]="!hasItems(topLayer)">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </button>
       </div>
 
-      <!-- JACKETS Navigation -->
-      <div class="organic-nav-item" *ngIf="getLayer('jacket') as jacketLayer">
-        <button class="organic-nav-arrow left-arrow"
-                (click)="previousItem(getLayerIndex(jacketLayer.category))"
-                [disabled]="!hasItems(jacketLayer)">
-          <mat-icon>keyboard_arrow_left</mat-icon>
-        </button>
-        <div class="organic-category-info">
-          <iconify-icon icon="tabler:jacket" class="category-icon"></iconify-icon>
-          <span class="item-counter" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
+      <!-- ACCESSORY (jacket layer used) -->
+      <div class="category-group" *ngIf="getLayer('jacket') as jacketLayer">
+        <div class="category-title">ACCESSORY</div>
+        <div class="category-card">
+          <button class="organic-nav-arrow left-arrow"
+                  (click)="previousItem(getLayerIndex(jacketLayer.category))"
+                  [disabled]="!hasItems(jacketLayer)">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="organic-category-info">
+            <iconify-icon icon="tabler:jacket" class="category-icon"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(jacketLayer)">{{ getLayerInfo(getLayerIndex(jacketLayer.category)) }}</span>
+          </div>
+          <button class="organic-nav-arrow right-arrow"
+                  (click)="nextItem(getLayerIndex(jacketLayer.category))"
+                  [disabled]="!hasItems(jacketLayer)">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
-        <button class="organic-nav-arrow right-arrow"
-                (click)="nextItem(getLayerIndex(jacketLayer.category))"
-                [disabled]="!hasItems(jacketLayer)">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </button>
       </div>
 
-      <!-- JEANS Navigation -->
-      <div class="organic-nav-item" *ngIf="getLayer('jeans') as jeansLayer">
-        <button class="organic-nav-arrow left-arrow"
-                (click)="previousItem(getLayerIndex(jeansLayer.category))"
-                [disabled]="!hasItems(jeansLayer)">
-          <mat-icon>keyboard_arrow_left</mat-icon>
-        </button>
-        <div class="organic-category-info">
-          <iconify-icon icon="ph:pants" class="category-icon"></iconify-icon>
-          <span class="item-counter" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
+      <!-- BOTTOM -->
+      <div class="category-group" *ngIf="getLayer('jeans') as jeansLayer">
+        <div class="category-title">BOTTOM</div>
+        <div class="category-card">
+          <button class="organic-nav-arrow left-arrow"
+                  (click)="previousItem(getLayerIndex(jeansLayer.category))"
+                  [disabled]="!hasItems(jeansLayer)">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="organic-category-info">
+            <iconify-icon icon="ph:pants" class="category-icon"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(jeansLayer)">{{ getLayerInfo(getLayerIndex(jeansLayer.category)) }}</span>
+          </div>
+          <button class="organic-nav-arrow right-arrow"
+                  (click)="nextItem(getLayerIndex(jeansLayer.category))"
+                  [disabled]="!hasItems(jeansLayer)">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
-        <button class="organic-nav-arrow right-arrow"
-                (click)="nextItem(getLayerIndex(jeansLayer.category))"
-                [disabled]="!hasItems(jeansLayer)">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </button>
       </div>
 
-      <!-- SHOES Navigation -->
-      <div class="organic-nav-item" *ngIf="getLayer('shoes') as shoesLayer">
-        <button class="organic-nav-arrow left-arrow"
-                (click)="previousItem(getLayerIndex(shoesLayer.category))"
-                [disabled]="!hasItems(shoesLayer)">
-          <mat-icon>keyboard_arrow_left</mat-icon>
-        </button>
-        <div class="organic-category-info">
-          <iconify-icon icon="tabler:shoe" class="category-icon"></iconify-icon>
-          <span class="item-counter" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
+      <!-- SHOES -->
+      <div class="category-group" *ngIf="getLayer('shoes') as shoesLayer">
+        <div class="category-title">SHOES</div>
+        <div class="category-card">
+          <button class="organic-nav-arrow left-arrow"
+                  (click)="previousItem(getLayerIndex(shoesLayer.category))"
+                  [disabled]="!hasItems(shoesLayer)">
+            <mat-icon>keyboard_arrow_left</mat-icon>
+          </button>
+          <div class="organic-category-info">
+            <iconify-icon icon="tabler:shoe" class="category-icon"></iconify-icon>
+            <span class="item-counter" *ngIf="hasItems(shoesLayer)">{{ getLayerInfo(getLayerIndex(shoesLayer.category)) }}</span>
+          </div>
+          <button class="organic-nav-arrow right-arrow"
+                  (click)="nextItem(getLayerIndex(shoesLayer.category))"
+                  [disabled]="!hasItems(shoesLayer)">
+            <mat-icon>keyboard_arrow_right</mat-icon>
+          </button>
         </div>
-        <button class="organic-nav-arrow right-arrow"
-                (click)="nextItem(getLayerIndex(shoesLayer.category))"
-                [disabled]="!hasItems(shoesLayer)">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </button>
       </div>
 
     </div>

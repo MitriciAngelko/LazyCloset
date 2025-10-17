@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "short_name": "frontend",
+  "name": "LazyCloset",
+  "short_name": "LazyCloset",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

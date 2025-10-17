@@ -13,7 +13,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(145deg, #1e2520 0%, #252b27 100%);
+    background: linear-gradient(145deg, var(--color-surface) 0%, var(--color-elevated) 100%);
     z-index: 0;
   }
 }
@@ -49,7 +49,7 @@
       .organic-logo {
         width: 64px;
         height: 64px;
-        background: #2C3E50;
+        background: var(--color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -65,7 +65,7 @@
           font-size: 32px;
           width: 32px;
           height: 32px;
-          color: #F5F1EB;
+          color: var(--color-on-primary);
         }
       }
       
@@ -73,14 +73,14 @@
         h1 {
           font-size: 48px;
           font-weight: 300;
-          color: #2C3E50;
+          color: var(--color-text);
           margin: 0;
           letter-spacing: 2px;
           text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         p {
-          color: #6B7A5A;
+          color: var(--color-text-muted);
           font-size: 18px;
           font-weight: 300;
           margin: 0;
@@ -101,7 +101,7 @@
   
   .layout-toggle-btn {
     background: rgba(255, 255, 255, 0.6);
-    color: #2C3E50;
+    color: var(--color-primary);
     border: none;
     backdrop-filter: blur(8px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -118,12 +118,12 @@
     }
     
     &.grid-mode {
-      background: #6B7A5A;
-      color: white;
+      background: var(--color-primary);
+      color: var(--color-on-primary);
       
       &:hover {
-        background: #5A6B4A;
-        box-shadow: 0 12px 40px rgba(107, 122, 90, 0.4);
+        background: var(--color-primary-600);
+        box-shadow: 0 12px 40px rgba(66, 133, 243, 0.35);
       }
     }
     
@@ -157,26 +157,26 @@
     padding: 0 24px;
     
     &.add-btn {
-      background: #C4A484;
-      color: white;
+      background: var(--color-primary);
+      color: var(--color-on-primary);
       border-radius: 25px 10px 25px 10px;
       
       &:hover {
-        background: #B8956A;
+        background: var(--color-primary-600);
         transform: scale(1.05);
-        box-shadow: 0 12px 40px rgba(196, 164, 132, 0.4);
+        box-shadow: 0 12px 40px rgba(66, 133, 243, 0.35);
       }
     }
     
     &.create-btn {
-      background: #2C3E50;
-      color: white;
+      background: var(--color-surface-2);
+      color: var(--color-text);
       border-radius: 10px 25px 10px 25px;
       
       &:hover {
-        background: #34495E;
+        background: color-mix(in oklab, var(--color-surface-2) 85%, white);
         transform: scale(1.05);
-        box-shadow: 0 8px 24px rgba(44, 62, 80, 0.4);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       }
     }
     
@@ -207,7 +207,7 @@
       left: 24px;
       top: 50%;
       transform: translateY(-50%);
-      color: #6B7A5A;
+      color: var(--color-text-muted);
       font-size: 24px;
       width: 24px;
       height: 24px;
@@ -217,11 +217,11 @@
     .organic-search-input {
       width: 100%;
       padding: 16px 24px 16px 64px;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.85);
       backdrop-filter: blur(8px);
       border: none;
       outline: none;
-      color: #2C3E50;
+      color: var(--color-text);
       font-size: 18px;
       font-weight: 300;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -229,7 +229,7 @@
       border-radius: 50px 20px 50px 20px;
       
       &::placeholder {
-        color: #6B7A5A;
+        color: var(--color-text-muted);
       }
       
       &:focus {
@@ -249,8 +249,8 @@
   z-index: 30;
   width: 64px;
   height: 64px;
-  background: #6B7A5A;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
   box-shadow: 0 8px 32px rgba(107, 122, 90, 0.4);
   transition: all 0.3s ease;
@@ -260,13 +260,13 @@
   justify-content: center;
   
   &:hover {
-    background: #5A6B4A;
+    background: var(--color-primary-600);
     transform: scale(1.1);
     box-shadow: 0 12px 40px rgba(107, 122, 90, 0.5);
   }
   
   &.active {
-    background: #C4A484;
+    background: var(--color-primary-600);
   }
   
   mat-icon {
@@ -307,7 +307,7 @@
     
     .filter-section {
       h3 {
-        color: #2C3E50;
+        color: var(--color-text);
         font-weight: 300;
         font-size: 18px;
         margin: 0 0 12px 0;
@@ -321,8 +321,8 @@
         
         .organic-filter-btn {
           padding: 6px 12px;
-          background: #E8DDD4;
-          color: #2C3E50;
+          background: rgba(255,255,255,0.75);
+          color: var(--color-text);
           border: none;
           border-radius: 15px 5px 15px 5px;
           font-weight: 300;
@@ -331,14 +331,14 @@
           cursor: pointer;
           
           &:hover {
-            background: #DDD5CC;
+            background: rgba(255,255,255,0.9);
             transform: translateY(-1px);
           }
           
           &.active {
-            background: #2C3E50;
-            color: white;
-            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.3);
+            background: var(--color-primary);
+            color: var(--color-on-primary);
+            box-shadow: 0 4px 16px rgba(66, 133, 243, 0.35);
           }
         }
       }
@@ -351,21 +351,21 @@
         .organic-color-btn {
           width: 32px;
           height: 32px;
-          border: 2px solid rgba(44, 62, 80, 0.2);
+          border: 2px solid rgba(255, 255, 255, 0.35);
           transition: all 0.3s ease;
           cursor: pointer;
           position: relative;
           
           &:hover {
             transform: scale(1.1);
-            border-color: #2C3E50;
-            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.2);
+            border-color: var(--color-primary);
+            box-shadow: 0 4px 16px rgba(66, 133, 243, 0.25);
           }
           
           &.selected {
             transform: scale(1.15);
-            border: 3px solid #2C3E50;
-            box-shadow: 0 0 0 2px rgba(44, 62, 80, 0.3);
+            border: 3px solid var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(66, 133, 243, 0.25);
           }
         }
       }

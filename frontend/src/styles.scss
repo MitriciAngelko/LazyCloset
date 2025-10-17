@@ -2,3 +2,43 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+/* Theme tokens */
+:root {
+  /* Core palette anchored to mascot blue */
+  --color-primary: #4285F3; /* Lil Guy blue */
+  --color-primary-600: #2f6fdb;
+  --color-primary-700: #245fbe;
+
+  /* Neutrals and surfaces */
+  --color-surface: #0f1720; /* deep navy surface for dark theme */
+  --color-surface-2: #111827; /* cards/panels */
+  --color-elevated: #0b1220; /* elevated overlays */
+  --color-border: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --color-text: #e6eefc; /* high contrast on dark */
+  --color-text-muted: #b8c7e6;
+  --color-on-primary: #ffffff;
+
+  /* Accent (limited secondary to keep 3-4 colors total) */
+  --color-accent: #8AB4F8; /* light blue accent for hover/gradients */
+
+  /* Feedback */
+  --color-danger: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+}
+
+/* Angular Material primary shortcut (optional if using mat theming elsewhere) */
+.mat-primary, .mat-mdc-raised-button.mat-primary {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+}
+
+/* Utility classes */
+.bg-surface { background: var(--color-surface) !important; }
+.bg-surface-2 { background: var(--color-surface-2) !important; }
+.text-primary { color: var(--color-primary) !important; }
+.text-muted { color: var(--color-text-muted) !important; }
+.elevated { box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
