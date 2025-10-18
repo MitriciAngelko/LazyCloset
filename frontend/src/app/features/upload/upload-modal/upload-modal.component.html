@@ -126,11 +126,11 @@
         <div class="tags-section">
           <h4>TAGS</h4>
           <div class="tags-input-container">
-            <mat-form-field appearance="outline" class="tags-field">
-              <input matInput 
-                     placeholder="Write tags"
-                     [(ngModel)]="customTags">
-            </mat-form-field>
+            <input
+              type="text"
+              class="tags-input"
+              placeholder="Add tags (e.g., casual, summer, formal)"
+              [(ngModel)]="customTags">
           </div>
         </div>
 

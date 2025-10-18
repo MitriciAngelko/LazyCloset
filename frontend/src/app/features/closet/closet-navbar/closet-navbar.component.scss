@@ -8,8 +8,8 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  max-width: 900px; // Much more compact
-  width: auto; // Let content determine width
+  max-width: 1400px; // Increased from 1100px - much longer horizontally
+  width: 35%; // Use percentage for better responsiveness
 
   @media (max-width: 768px) {
     top: 16px;
@@ -21,11 +21,11 @@
 .navbar-container {
   display: flex;
   align-items: center;
-  justify-content: space-between; // Changed to space-between for proper layout
+  justify-content: space-between;
   gap: 12px;
-  padding: 12px 24px; // Updated for 64px total height
-  height: 64px;
-  min-height: 64px;
+  padding: 8px 24px; // Reduced from 12px - thinner vertically
+  height: 52px; // Reduced from 64px - thinner vertically
+  min-height: 52px;
 
   // Enhanced LIQUID GLASS EFFECT
   @include glass-shimmer;
@@ -157,7 +157,7 @@
   position: relative;
   flex: 0 1 45%; // 45% of navbar width
   max-width: 500px;
-  min-width: 280px;
+  min-width: 100px;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -180,10 +180,10 @@
 
   .search-input {
     width: 100%;
-    padding: 10px 16px 10px 40px;
-    height: 40px;
+    padding: 6px 16px 6px 40px; // Reduced from 10px to 6px - thinner vertically
+    height: 32px; // Reduced from 40px to 32px - thinner vertically
     @include glass-input;
-    border-radius: 20px; // Full rounded
+    border-radius: 16px; // Slightly reduced to match thinner height
     color: var(--color-text);
     font-size: 14px;
     font-weight: 400;
