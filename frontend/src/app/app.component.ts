@@ -39,15 +39,19 @@ export class AppComponent implements OnInit {
   async onSignOut(): Promise<void> {
     try {
       const { error } = await this.supabaseService.signOut();
-      
+
       if (error) {
         console.error('Sign out error:', error);
-      } else {
-        console.log('✅ User signed out successfully');
-        this.router.navigate(['/auth/login']);
+        // Still navigate to login since local session is cleared
       }
+
+      console.log('✅ User signed out successfully');
+      // Always navigate to login after sign out (local session is cleared even on error)
+      this.router.navigate(['/auth/login']);
     } catch (error) {
       console.error('Sign out exception:', error);
+      // Navigate to login even on exception
+      this.router.navigate(['/auth/login']);
     }
   }
 }

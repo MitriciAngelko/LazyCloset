@@ -152,8 +152,29 @@ export class SupabaseService {
    * Sign out current user
    */
   async signOut(): Promise<{ error: any }> {
-    const { error } = await this.supabase.auth.signOut();
-    return { error };
+    try {
+      const { error } = await this.supabase.auth.signOut();
+
+      // Clear local session state even if Supabase API fails
+      // This prevents the user from being stuck in a logged-in state
+      if (error) {
+        console.warn('Supabase sign out failed, clearing local session:', error);
+        // Manually clear the session
+        this.sessionSubject.next(null);
+        this.currentUserSubject.next(null);
+        // Clear local storage
+        localStorage.removeItem('supabase.auth.token');
+      }
+
+      return { error };
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Force clear local session on any error
+      this.sessionSubject.next(null);
+      this.currentUserSubject.next(null);
+      localStorage.removeItem('supabase.auth.token');
+      return { error };
+    }
   }
 
   /**
