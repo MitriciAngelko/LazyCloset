@@ -461,10 +461,14 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
   }
 
   private loadClothingItems(): void {
-    this.clothingService.getClothingItems()
+    // Subscribe to both clothing items and loading state
+    combineLatest([
+      this.clothingService.getClothingItems(),
+      this.clothingService.isLoading$
+    ])
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (items) => {
+        next: ([items, isServiceLoading]) => {
           // Initialize items with random positions if not set
           this.clothingItems = items.map((item, index) => ({
             ...item,
@@ -473,7 +477,8 @@ export class ClosetViewComponent implements OnInit, OnDestroy {
             rotation: (item as any).rotation || (Math.random() - 0.5) * 30,
             scale: (item as any).scale || (0.8 + Math.random() * 0.4)
           }));
-          this.isLoading = false;
+          // Only set loading to false when the service confirms it's done loading
+          this.isLoading = isServiceLoading;
         },
         error: (error) => {
           console.error('Failed to load clothing items:', error);

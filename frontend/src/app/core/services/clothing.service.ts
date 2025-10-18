@@ -25,6 +25,9 @@ export class ClothingService {
   private clothingItemsSubject = new BehaviorSubject<ClothingItem[]>([]);
   public clothingItems$ = this.clothingItemsSubject.asObservable();
 
+  private isLoadingSubject = new BehaviorSubject<boolean>(true);
+  public isLoading$ = this.isLoadingSubject.asObservable();
+
   private isOnline = true;
   private hasMigratedToSupabase = false;
 
@@ -33,10 +36,12 @@ export class ClothingService {
     this.supabaseService.currentUser$.subscribe(user => {
       if (user) {
         console.log('👤 User authenticated, initializing clothing service for:', user.email);
+        this.isLoadingSubject.next(true);
         this.initializeService();
       } else {
         console.log('🚫 No user authenticated, clearing clothing items');
         this.clothingItemsSubject.next([]);
+        this.isLoadingSubject.next(false);
       }
     });
   }
@@ -48,25 +53,27 @@ export class ClothingService {
     try {
       // Initialize Supabase storage
       await this.supabaseService.initializeStorage();
-      
+
       // Wait a bit for Supabase to be ready
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Try to load from Supabase first
       await this.loadItemsFromSupabase();
-      
+
       // If no data in Supabase, check for localStorage data to migrate
       const currentItems = this.clothingItemsSubject.value;
       if (currentItems.length === 0) {
         await this.checkAndMigrateFromLocalStorage();
       }
-      
+
       this.isOnline = true;
       console.log('✅ Supabase integration active');
+      this.isLoadingSubject.next(false);
     } catch (error) {
       console.warn('⚠️ Supabase not available, falling back to localStorage:', error);
       this.isOnline = false;
       this.loadItemsFromStorage();
+      this.isLoadingSubject.next(false);
     }
   }
 

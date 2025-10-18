@@ -690,27 +690,7 @@
   align-items: center;
   justify-content: center;
   z-index: 10;
-  
-  .loading-content {
-    text-align: center;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(16px);
-    padding: 48px;
-    border-radius: 50% 20% 50% 20%;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
-    
-    mat-spinner {
-      color: #6B7A5A;
-      margin-bottom: 24px;
-    }
-    
-    p {
-      color: #2C3E50;
-      font-size: 18px;
-      font-weight: 300;
-      margin: 0;
-    }
-  }
+  background: transparent;
 }
 
 // Empty State - Modernized
