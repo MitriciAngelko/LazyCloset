@@ -37,33 +37,39 @@ export class ClosetNavbarComponent {
   onAddPiece(): void {
     const position = this.getButtonPosition(this.addBtnRef);
 
-    // Add morphing class to button for iOS-style liquid animation
+    // Add morphing class to button for liquid animation
     if (this.addBtnRef?.nativeElement) {
       this.addBtnRef.nativeElement.classList.add('morphing');
 
-      // Remove class after animation (1.2s = iOS Dynamic Island timing)
+      // Wait for morph animation to complete before opening modal (500ms)
       setTimeout(() => {
         this.addBtnRef?.nativeElement?.classList.remove('morphing');
-      }, 1200);
+        // Emit after animation completes
+        this.addPiece.emit(position);
+      }, 500);
+    } else {
+      // Fallback if ref not available
+      this.addPiece.emit(position);
     }
-
-    this.addPiece.emit(position);
   }
 
   onCreateLook(): void {
     const position = this.getButtonPosition(this.createBtnRef);
 
-    // Add morphing class to button for iOS-style liquid animation
+    // Add morphing class to button for liquid animation
     if (this.createBtnRef?.nativeElement) {
       this.createBtnRef.nativeElement.classList.add('morphing');
 
-      // Remove class after animation (1.2s = iOS Dynamic Island timing)
+      // Wait for morph animation to complete before opening modal (500ms)
       setTimeout(() => {
         this.createBtnRef?.nativeElement?.classList.remove('morphing');
-      }, 1200);
+        // Emit after animation completes
+        this.createLook.emit(position);
+      }, 500);
+    } else {
+      // Fallback if ref not available
+      this.createLook.emit(position);
     }
-
-    this.createLook.emit(position);
   }
 
   onToggleFilter(): void {

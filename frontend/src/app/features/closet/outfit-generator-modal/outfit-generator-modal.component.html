@@ -1,11 +1,11 @@
-<div class="organic-outfit-container" role="dialog" aria-labelledby="outfit-title" aria-describedby="outfit-description">
+<div class="organic-outfit-container morph-modal-container appear" role="dialog" aria-labelledby="outfit-title" aria-describedby="outfit-description">
 
   <!-- Background Texture -->
   <div class="texture-overlay" aria-hidden="true"></div>
 
   <!-- Floating Close Button -->
   <button
-    class="floating-close-btn"
+    class="floating-close-btn morph-close-button"
     mat-dialog-close
     aria-label="Close outfit generator"
     type="button">
@@ -13,7 +13,7 @@
   </button>
 
   <!-- Modal Content -->
-  <div class="organic-modal-content">
+  <div class="organic-modal-content morph-modal-content">
     
     <!-- Loading State -->
     <div *ngIf="isLoading" class="organic-loading" role="status" aria-live="polite">

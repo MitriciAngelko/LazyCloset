@@ -1,0 +1,370 @@
+// =============================================================================
+// BUTTON-TO-MODAL MORPH ANIMATIONS
+// iOS-inspired liquid glass morphing effect with spring physics
+// =============================================================================
+
+// Spring-like cubic-bezier curves for natural motion
+$ease-out-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-in-out-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+$ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+$ease-in-out-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Animation durations
+$morph-duration: 500ms;
+$morph-duration-fast: 350ms;
+$morph-duration-slow: 600ms;
+
+// =============================================================================
+// MORPHING OVERLAY (background that appears during morph)
+// =============================================================================
+
+.morph-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity $morph-duration $ease-in-out-smooth;
+
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// =============================================================================
+// BUTTON INITIAL STATE (before morph)
+// =============================================================================
+
+.morph-button {
+  position: relative;
+  will-change: transform, opacity, border-radius;
+  transition: all 0.3s $ease-in-out-smooth;
+
+  // Performance optimization
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  &:active:not(.morphing) {
+    transform: scale(0.95) translateZ(0);
+  }
+}
+
+// =============================================================================
+// MORPHING ANIMATION STATES
+// =============================================================================
+
+// Button morphing INTO modal
+@keyframes morphToModal {
+  0% {
+    transform: scale(1) translateZ(0);
+    border-radius: 10px;
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+
+  // Slight compress (spring anticipation)
+  10% {
+    transform: scale(0.92) translateZ(0);
+    border-radius: 12px;
+    opacity: 0.98;
+  }
+
+  // Quick expansion
+  30% {
+    transform: scale(1.5) translateZ(0);
+    border-radius: 18px;
+    opacity: 0.9;
+    backdrop-filter: blur(12px);
+  }
+
+  // Continue expanding with blur
+  50% {
+    transform: scale(3) translateZ(0);
+    border-radius: 25px;
+    opacity: 0.6;
+    backdrop-filter: blur(16px);
+  }
+
+  // Large expansion, high blur
+  70% {
+    transform: scale(6) translateZ(0);
+    border-radius: 30px;
+    opacity: 0.3;
+    backdrop-filter: blur(20px);
+  }
+
+  100% {
+    transform: scale(12) translateZ(0);
+    border-radius: 35px;
+    opacity: 0;
+    backdrop-filter: blur(24px);
+  }
+}
+
+// Modal appearing FROM button morph
+@keyframes modalAppear {
+  0% {
+    transform: scale(0.7) translateZ(0);
+    opacity: 0;
+    filter: blur(10px);
+  }
+
+  // Slight overshoot (spring effect)
+  60% {
+    transform: scale(1.02) translateZ(0);
+    opacity: 0.9;
+    filter: blur(0px);
+  }
+
+  80% {
+    transform: scale(0.98) translateZ(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+    filter: blur(0px);
+  }
+}
+
+// Modal disappearing (reverse)
+@keyframes modalDisappear {
+  0% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+    filter: blur(0px);
+  }
+
+  30% {
+    transform: scale(0.95) translateZ(0);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(0.7) translateZ(0);
+    opacity: 0;
+    filter: blur(10px);
+  }
+}
+
+// Button reappearing (reverse morph)
+@keyframes morphFromModal {
+  0% {
+    transform: scale(12) translateZ(0);
+    border-radius: 35px;
+    opacity: 0;
+    backdrop-filter: blur(24px);
+  }
+
+  30% {
+    transform: scale(6) translateZ(0);
+    border-radius: 30px;
+    opacity: 0.3;
+    backdrop-filter: blur(20px);
+  }
+
+  50% {
+    transform: scale(3) translateZ(0);
+    border-radius: 25px;
+    opacity: 0.6;
+    backdrop-filter: blur(16px);
+  }
+
+  70% {
+    transform: scale(1.5) translateZ(0);
+    border-radius: 18px;
+    opacity: 0.9;
+    backdrop-filter: blur(12px);
+  }
+
+  90% {
+    transform: scale(0.92) translateZ(0);
+    border-radius: 12px;
+    opacity: 0.98;
+  }
+
+  100% {
+    transform: scale(1) translateZ(0);
+    border-radius: 10px;
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+// =============================================================================
+// BUTTON MORPHING CLASS (applied dynamically via JavaScript)
+// =============================================================================
+
+.morph-button.morphing {
+  animation: morphToModal $morph-duration $ease-out-expo forwards;
+  pointer-events: none;
+  z-index: 1000;
+
+  // Add liquid glass shine during morph
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0.2) 30%,
+      transparent 60%
+    );
+    opacity: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    animation: shineEffect $morph-duration $ease-out-expo forwards;
+  }
+}
+
+@keyframes shineEffect {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  30% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+// =============================================================================
+// MODAL CONTAINER (glassmorphism style)
+// =============================================================================
+
+.morph-modal-container {
+  // Don't override position - let Angular Material handle it
+  // position: fixed;
+  // top: 50%;
+  // left: 50%;
+  // transform: translate(-50%, -50%);
+
+  // Performance optimizations
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  // Animation states - use transform without translate positioning
+  &.appear {
+    animation: modalAppear $morph-duration $ease-out-spring forwards;
+  }
+
+  &.disappear {
+    animation: modalDisappear $morph-duration-fast $ease-in-out-smooth forwards;
+  }
+}
+
+// =============================================================================
+// MODAL CONTENT WRAPPER
+// =============================================================================
+
+.morph-modal-content {
+  position: relative;
+  z-index: 1;
+  padding: 48px 32px 32px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Smooth scrolling
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+}
+
+// =============================================================================
+// CLOSE BUTTON (appears in modal)
+// =============================================================================
+
+.morph-close-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s $ease-in-out-smooth;
+
+  // Performance
+  will-change: transform;
+  transform: translateZ(0);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+    transform: scale(1.05) translateZ(0);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    transform: scale(0.95) translateZ(0);
+  }
+
+  mat-icon {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// =============================================================================
+// UTILITY CLASSES
+// =============================================================================
+
+// Disable body scroll when modal is open
+body.morph-modal-open {
+  overflow: hidden;
+}
+
+// GPU acceleration helper
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+// Reduced motion support (accessibility)
+@media (prefers-reduced-motion: reduce) {
+  .morph-button.morphing,
+  .morph-modal-container.appear,
+  .morph-modal-container.disappear {
+    animation-duration: 0.01ms !important;
+  }
+
+  .morph-overlay {
+    transition-duration: 0.01ms !important;
+  }
+}
