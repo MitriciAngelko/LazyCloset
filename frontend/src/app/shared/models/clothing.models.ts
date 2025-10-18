@@ -11,7 +11,7 @@
 export enum ClothingCategory {
   HAT = 'hat',
   TOP = 'top',
-  JACKET = 'jacket', 
+  JACKET = 'jacket',
   JEANS = 'jeans',
   SHOES = 'shoes'
 }

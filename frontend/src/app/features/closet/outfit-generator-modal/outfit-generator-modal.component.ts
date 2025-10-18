@@ -310,6 +310,12 @@ export class OutfitGeneratorModalComponent implements OnInit, OnDestroy, AfterVi
 
     // Auto-generate a random outfit when items are loaded
     this.handleRandomizeOutfit();
+
+    // Always initialize jacket with no item selected (index -1 = "0 of N")
+    const jacketLayer = this.getLayer('jacket');
+    if (jacketLayer) {
+      jacketLayer.currentIndex = -1;
+    }
   }
 
   /**
