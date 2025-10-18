@@ -19,9 +19,11 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Closet Components
 import { ClosetViewComponent } from './closet-view/closet-view.component';
+import { ClosetNavbarComponent } from './closet-navbar/closet-navbar.component';
 import { ItemEditModalComponent } from './item-edit-modal/item-edit-modal.component';
 import { OutfitGeneratorModalComponent } from './outfit-generator-modal/outfit-generator-modal.component';
 
@@ -36,6 +38,7 @@ const closetRoutes: Routes = [
 @NgModule({
   declarations: [
     ClosetViewComponent,
+    ClosetNavbarComponent,
     ItemEditModalComponent,
     OutfitGeneratorModalComponent
   ],
@@ -61,7 +64,8 @@ const closetRoutes: Routes = [
     MatChipsModule,
     MatDialogModule,
     MatSlideToggleModule,
-    MatDividerModule
+    MatDividerModule,
+    MatTooltipModule
   ],
   providers: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]

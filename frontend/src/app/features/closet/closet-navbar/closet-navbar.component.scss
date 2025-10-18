@@ -1,0 +1,353 @@
+// Import glassmorphism mixins
+@use '../../../../styles/glassmorphism' as *;
+
+// Liquid Glass Navbar
+.liquid-glass-navbar {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  max-width: 900px; // Much more compact
+  width: auto; // Let content determine width
+
+  @media (max-width: 768px) {
+    top: 16px;
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; // Changed to space-between for proper layout
+  gap: 12px;
+  padding: 12px 24px; // Updated for 64px total height
+  height: 64px;
+  min-height: 64px;
+
+  // Enhanced LIQUID GLASS EFFECT
+  @include glass-shimmer;
+  border-radius: 20px;
+
+  // Performance optimization
+  contain: layout style paint;
+
+  @media (max-width: 768px) {
+    flex-wrap: wrap;
+    padding: 8px 12px;
+    gap: 8px;
+    height: auto;
+    min-height: 64px;
+  }
+}
+
+@keyframes buttonRipple {
+  0% {
+    opacity: 1;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+@keyframes liquidShine {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  15% {
+    opacity: 0.6;
+  }
+  40% {
+    opacity: 0.8;
+    transform: scale(1.5);
+  }
+  70% {
+    opacity: 0.4;
+    transform: scale(2.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(4);
+  }
+}
+
+@keyframes buttonMorph {
+  0% {
+    // Initial state - button at rest
+    transform: scale(1);
+    border-radius: 10px;
+    opacity: 1;
+  }
+  8% {
+    // SQUASH - energy builds like liquid under pressure
+    transform: scale(0.85, 0.75) rotate(-2deg);
+    border-radius: 14px;
+    opacity: 1;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  }
+  15% {
+    // STRETCH - liquid releases, elongates vertically first
+    transform: scale(0.95, 1.4) rotate(1deg);
+    border-radius: 18px 8px 18px 8px;
+    opacity: 0.98;
+  }
+  25% {
+    // BLOB EXPANSION - becomes circular as it grows
+    transform: scale(1.5, 1.3) rotate(-1deg);
+    border-radius: 50%;
+    opacity: 0.92;
+    box-shadow: 0 4px 16px rgba(66, 133, 243, 0.3);
+  }
+  35% {
+    // WOBBLE - liquid blob oscillates as it expands
+    transform: scale(2.2, 1.8) rotate(2deg);
+    border-radius: 55% 45% 50% 50%;
+    opacity: 0.82;
+  }
+  45% {
+    // ELASTIC STRETCH - blob elongates toward modal position
+    transform: scale(3, 2.2) rotate(-1deg);
+    border-radius: 45% 55% 48% 52%;
+    opacity: 0.68;
+  }
+  55% {
+    // FLOWING - liquid streams outward with organic distortion
+    transform: scale(4.5, 2.8) rotate(1deg);
+    border-radius: 42% 58% 45% 55%;
+    opacity: 0.52;
+    filter: blur(2px);
+  }
+  65% {
+    // DISPERSING - edges become softer, more glass-like
+    transform: scale(6, 3.5) rotate(0deg);
+    border-radius: 40% 60% 43% 57%;
+    opacity: 0.35;
+    filter: blur(4px);
+  }
+  75% {
+    // MELTING - final expansion with heavy blur
+    transform: scale(8, 4.5) rotate(-0.5deg);
+    border-radius: 38% 62% 40% 60%;
+    opacity: 0.18;
+    filter: blur(8px);
+  }
+  85% {
+    // DISSOLVING - almost imperceptible
+    transform: scale(10, 6);
+    border-radius: 35% 65% 38% 62%;
+    opacity: 0.08;
+    filter: blur(12px);
+  }
+  100% {
+    // VANISHED - button has become the modal
+    transform: scale(12, 8);
+    border-radius: 30% 70% 35% 65%;
+    opacity: 0;
+    filter: blur(16px);
+  }
+}
+
+// Search Container - Updated to 40-50% width
+.search-container {
+  position: relative;
+  flex: 0 1 45%; // 45% of navbar width
+  max-width: 500px;
+  min-width: 280px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    flex: 1 1 100%;
+    min-width: auto;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    z-index: 1;
+    opacity: 0.6;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px 16px 10px 40px;
+    height: 40px;
+    @include glass-input;
+    border-radius: 20px; // Full rounded
+    color: var(--color-text);
+    font-size: 14px;
+    font-weight: 400;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::placeholder {
+      color: var(--color-text-muted);
+      opacity: 0.5;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(66, 133, 243, 0.2);
+
+      @media (max-width: 768px) {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Button Group Container
+.button-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: 768px) {
+    gap: 6px;
+  }
+}
+
+// Separator
+.separator {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 4px;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+// Action Buttons - Sleek Icon Buttons
+.action-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  @include glass-button;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    transition: all 0.25s ease;
+  }
+
+  &:hover {
+    mat-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  &:active {
+    // Squash effect - compress button like a liquid droplet
+    transform: translateY(2px) scale(0.9, 0.85) translateZ(0);
+    transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  // Morph animation class (applied dynamically)
+  &.morphing {
+    animation: buttonMorph 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    filter: url(#gooey-shadow);
+    pointer-events: none; // Prevent interaction during morph
+
+    // Add liquid glass shine during morph
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.4), transparent 60%);
+      opacity: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      animation: liquidShine 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+  }
+
+  // Layout button - active state
+  &.layout-btn.active {
+    background: rgba(66, 133, 243, 0.18);
+    color: var(--color-primary);
+    box-shadow:
+      0 0 0 1px rgba(66, 133, 243, 0.25) inset,
+      0 3px 10px rgba(66, 133, 243, 0.15);
+  }
+
+  // Add button - primary accent
+  &.add-btn {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-600));
+    color: var(--color-on-primary);
+    box-shadow:
+      0 3px 10px rgba(66, 133, 243, 0.25),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+    &::before {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.05));
+    }
+
+    &:hover {
+      box-shadow:
+        0 5px 16px rgba(66, 133, 243, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+  }
+
+  // Create button - secondary accent
+  &.create-btn {
+    background: rgba(138, 180, 248, 0.12);
+    color: rgba(138, 180, 248, 1);
+    box-shadow:
+      0 0 0 1px rgba(138, 180, 248, 0.2) inset,
+      0 2px 8px rgba(138, 180, 248, 0.15);
+
+    &:hover {
+      background: rgba(138, 180, 248, 0.2);
+      box-shadow:
+        0 0 0 1px rgba(138, 180, 248, 0.3) inset,
+        0 4px 12px rgba(138, 180, 248, 0.25);
+    }
+  }
+
+  // Filter button
+  &.filter-btn {
+    mat-icon {
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &:hover mat-icon {
+      transform: scale(1.1) rotate(90deg);
+    }
+
+    &.active {
+      background: rgba(107, 122, 90, 0.18);
+      color: var(--color-primary);
+      box-shadow:
+        0 0 0 1px rgba(107, 122, 90, 0.3) inset,
+        0 3px 10px rgba(107, 122, 90, 0.2);
+
+      mat-icon {
+        transform: rotate(45deg);
+      }
+
+      &:hover mat-icon {
+        transform: scale(1.1) rotate(45deg);
+      }
+    }
+  }
+}

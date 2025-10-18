@@ -1,0 +1,327 @@
+// LIQUID GLASS DESIGN SYSTEM
+// Performance-optimized glassmorphism mixins and utilities
+// Usage: Import this file in components that need glass effects
+
+// ============================================================================
+// PERFORMANCE OPTIMIZATION
+// ============================================================================
+// 1. Use `will-change` sparingly (only on animated elements)
+// 2. Limit backdrop-filter blur to 24px max (higher values kill performance)
+// 3. Use transform: translateZ(0) to force GPU acceleration
+// 4. Avoid backdrop-filter on large surfaces (use fixed/positioned elements)
+// 5. Use CSS containment for isolated glass elements
+
+// ============================================================================
+// BASE GLASS MIXIN - Primary Liquid Glass Effect
+// ============================================================================
+@mixin liquid-glass(
+  $blur: 20px,
+  $opacity: 0.08,
+  $border-opacity: 0.18,
+  $saturate: 180%
+) {
+  background: rgba(255, 255, 255, $opacity);
+  backdrop-filter: blur($blur) saturate($saturate);
+  -webkit-backdrop-filter: blur($blur) saturate($saturate);
+  border: 1px solid rgba(255, 255, 255, $border-opacity);
+
+  // GPU acceleration for smooth performance
+  transform: translateZ(0);
+  will-change: auto; // Don't use will-change by default
+
+  // Multi-layered shadow for depth
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+// ============================================================================
+// GLASS VARIANTS
+// ============================================================================
+
+// Subtle Glass - For backgrounds and large surfaces
+@mixin glass-subtle {
+  @include liquid-glass($blur: 16px, $opacity: 0.05, $border-opacity: 0.1, $saturate: 150%);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+// Medium Glass - For cards and panels
+@mixin glass-medium {
+  @include liquid-glass($blur: 20px, $opacity: 0.08, $border-opacity: 0.18, $saturate: 180%);
+}
+
+// Strong Glass - For modals and important UI
+@mixin glass-strong {
+  @include liquid-glass($blur: 24px, $opacity: 0.12, $border-opacity: 0.25, $saturate: 200%);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 5px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+}
+
+// Dark Glass - For dark backgrounds (reverse opacity)
+@mixin glass-dark {
+  background: rgba(17, 24, 39, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transform: translateZ(0);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+// ============================================================================
+// GLASS WITH SHIMMER EFFECT
+// ============================================================================
+@mixin glass-shimmer {
+  @include glass-medium;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    animation: shimmer 3s infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+// ============================================================================
+// GLASS BUTTON - Interactive glass elements
+// ============================================================================
+@mixin glass-button {
+  @include glass-subtle;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+
+  // Shine effect overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), transparent);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-1px) translateZ(0);
+    background: rgba(255, 255, 255, 0.12);
+    box-shadow:
+      0 6px 20px rgba(0, 0, 0, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(1px) translateZ(0) scale(0.98);
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+}
+
+// ============================================================================
+// GLASS INPUT - Form elements
+// ============================================================================
+@mixin glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid var(--color-border);
+  transition: all 0.3s ease;
+  transform: translateZ(0);
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(66, 133, 243, 0.1);
+    outline: none;
+  }
+
+  &:hover:not(:focus) {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+// ============================================================================
+// GLASS MODAL - Dialog/overlay containers
+// ============================================================================
+@mixin glass-modal {
+  @include glass-strong;
+  border-radius: 24px;
+
+  // Enhanced depth with multiple shadows
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.2),
+    0 10px 40px rgba(0, 0, 0, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+}
+
+// ============================================================================
+// GLASS PANEL - Floating panels with organic shapes
+// ============================================================================
+@mixin glass-panel($border-radius: 24px) {
+  @include glass-medium;
+  border-radius: $border-radius;
+
+  // Subtle gradient overlay for liquid effect
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      transparent 50%,
+      rgba(0, 0, 0, 0.03) 100%
+    );
+    border-radius: inherit;
+    pointer-events: none;
+  }
+}
+
+// ============================================================================
+// PERFORMANCE-OPTIMIZED BACKDROP
+// ============================================================================
+@mixin glass-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+
+  // Optimize for mobile - disable blur on smaller devices if needed
+  @media (max-width: 768px) {
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+  }
+}
+
+// ============================================================================
+// UTILITY CLASSES - Apply directly in HTML if needed
+// ============================================================================
+.glass-subtle { @include glass-subtle; }
+.glass-medium { @include glass-medium; }
+.glass-strong { @include glass-strong; }
+.glass-dark { @include glass-dark; }
+.glass-shimmer { @include glass-shimmer; }
+.glass-button { @include glass-button; }
+.glass-input { @include glass-input; }
+.glass-modal { @include glass-modal; }
+.glass-backdrop { @include glass-backdrop; }
+
+// ============================================================================
+// FROSTED GLASS VARIATIONS (Higher blur, lower saturation)
+// ============================================================================
+@mixin frosted-glass-light {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  transform: translateZ(0);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+@mixin frosted-glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(24px) saturate(120%);
+  -webkit-backdrop-filter: blur(24px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateZ(0);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+// ============================================================================
+// ACCESSIBILITY & PERFORMANCE
+// ============================================================================
+
+// Disable glass effects for users who prefer reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .glass-subtle,
+  .glass-medium,
+  .glass-strong,
+  .glass-dark,
+  .glass-shimmer,
+  .glass-button,
+  .glass-modal,
+  .glass-panel {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(17, 24, 39, 0.95) !important;
+    transition: none !important;
+    animation: none !important;
+
+    &::before,
+    &::after {
+      animation: none !important;
+    }
+  }
+}
+
+// Disable expensive effects on low-end devices
+@media (prefers-reduced-transparency: reduce) {
+  .glass-subtle,
+  .glass-medium,
+  .glass-strong,
+  .glass-dark,
+  .glass-shimmer,
+  .glass-button,
+  .glass-modal,
+  .glass-panel {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--color-surface-2) !important;
+  }
+}
+
+// ============================================================================
+// CSS CONTAINMENT for Performance
+// ============================================================================
+.glass-container {
+  contain: layout style paint;
+
+  // For animated glass elements
+  &.glass-animated {
+    contain: layout style;
+    will-change: transform, opacity;
+  }
+}
